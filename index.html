@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[KING] 길드 통합 관리 시스템</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase 실시간 연동 SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        body { font-family: 'Pretendard', sans-serif; }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-4 sm:p-6 flex flex-col justify-between">
+    
+    <div class="max-w-4xl mx-auto w-full space-y-6">
+        
+        <!-- 대형 KING 타이틀 헤더 & 탭 네비게이션 -->
+        <header class="text-center py-6 bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl relative overflow-hidden px-4">
+            <div class="absolute inset-0 bg-gradient-to-r from-amber-500/10 via-transparent to-orange-500/15 pointer-events-none"></div>
+            <h1 class="text-4xl sm:text-6xl font-black tracking-wider bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 bg-clip-text text-transparent drop-shadow-md">
+                KING
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-400 mt-2 font-medium tracking-wide">
+                👑 길드 통합 관리 및 실시간 시스템
+            </p>
+
+            <!-- 3대 탭 메뉴 -->
+            <div class="flex flex-wrap justify-center gap-2 sm:gap-3 mt-6">
+                <button onclick="switchTab('members')" id="btn-members" 
+                        class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-slate-950 text-slate-400 border border-slate-800 hover:text-slate-200">
+                    👥 길드원 목록
+                </button>
+                <button onclick="switchTab('bossTimer')" id="btn-bossTimer" 
+                        class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20">
+                    ⚔️ 보스 젠타임
+                </button>
+                <button onclick="switchTab('guildRaid')" id="btn-guildRaid" 
+                        class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-slate-950 text-slate-400 border border-slate-800 hover:text-slate-200">
+                    🐉 길드레이드
+                </button>
+            </div>
+        </header>
+
+        <!-- ================= [탭 1] 길드원 목록 ================= -->
+        <section id="tab-members" class="hidden space-y-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+                    <div>
+                        <h2 class="text-lg sm:text-xl font-bold text-amber-400 flex items-center gap-2">
+                            👥 길드원 현황판
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">
+                            마지막 수정일: <span id="memberLastUpdate" class="text-amber-300 font-semibold">기록 없음</span>
+                        </p>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                        <div id="memberViewMode" class="text-xs text-slate-400 bg-slate-950 px-3 py-2 rounded-xl border border-slate-800">
+                            🔒 조회 전용 모드
+                        </div>
+                        <button id="memberActionBtn" onclick="toggleMemberEditMode()" 
+                                class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md">
+                            관리자 수정
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 검색 및 정렬 바 -->
+                <div class="flex flex-col sm:flex-row gap-3 mb-4">
+                    <input type="text" id="memberSearch" placeholder="🔍 닉네임 또는 비고 검색..." oninput="renderMembers()"
+                           class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+                    <select id="memberSort" onchange="renderMembers()"
+                            class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500 font-semibold">
+                        <option value="nameAsc">가나다 / ABC 순 정렬</option>
+                        <option value="nameDesc">역순 정렬</option>
+                    </select>
+                </div>
+
+                <!-- 길드원 테이블 -->
+                <div class="overflow-x-auto border border-slate-800 rounded-xl bg-slate-950">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
+                            <tr>
+                                <th class="p-3 w-16 text-center">번호</th>
+                                <th class="p-3">닉네임</th>
+                                <th class="p-3">비고 / 직급</th>
+                                <th class="p-3 w-20 text-center edit-col hidden">삭제</th>
+                            </tr>
+                        </thead>
+                        <tbody id="memberTableBody" class="divide-y divide-slate-900">
+                            <!-- 동적 렌더링 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="memberAddBox" class="mt-4 hidden">
+                    <button onclick="addMemberRow()" class="w-full bg-slate-950 hover:bg-slate-900 border border-dashed border-slate-700 text-slate-400 py-2.5 rounded-xl text-xs font-semibold transition">
+                        + 길드원 추가하기
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= [탭 2] 보스 젠타임 테이블 (기존 기능 유지) ================= -->
+        <section id="tab-bossTimer" class="space-y-4">
+            <!-- 상단 알림 설정 헤더 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-amber-400">⚔️ 어비스 보스 젠타임</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">* 길드원 실시간 연동 모드 | 누군가 수정하면 전원 즉시 동기화</p>
+                </div>
+                
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <div class="flex items-center gap-2 bg-slate-950 px-3 py-2 rounded-xl border border-slate-800">
+                        <span class="text-xs text-slate-400">알림 타이밍:</span>
+                        <input type="number" id="alertOffset" value="10" min="1" max="60" 
+                               class="w-12 bg-slate-900 text-center font-bold text-amber-400 rounded px-1 py-0.5 border border-slate-700 text-xs focus:outline-none">
+                        <span class="text-xs text-slate-400">분 전</span>
+                    </div>
+
+                    <div class="flex items-center gap-3 bg-slate-950 px-3 py-2 rounded-xl border border-slate-800 text-xs">
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="popupToggle" checked class="rounded bg-slate-900 border-slate-700 text-amber-500">
+                            <span class="text-slate-300">팝업</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="soundToggle" checked class="rounded bg-slate-900 border-slate-700 text-amber-500">
+                            <span class="text-slate-300">소리</span>
+                        </label>
+                    </div>
+
+                    <button onclick="requestNotificationPermission()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-xl transition">
+                        🔔 알림 켜기
+                    </button>
+                </div>
+            </div>
+
+            <!-- 보스 카드 리스트 -->
+            <main id="bossList" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- 동적 생성 -->
+            </main>
+        </section>
+
+        <!-- ================= [탭 3] 길드레이드 ================= -->
+        <section id="tab-guildRaid" class="hidden space-y-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-6">
+                
+                <!-- 상단 헤더 및 일정 설정 -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-800">
+                    <div>
+                        <h2 class="text-lg sm:text-xl font-bold text-orange-400 flex items-center gap-2">
+                            🐉 길드레이드 참여 관리
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">
+                            마지막 수정일: <span id="raidLastUpdate" class="text-orange-300 font-semibold">기록 없음</span>
+                        </p>
+                    </div>
+
+                    <!-- 관리자 모드 버튼 -->
+                    <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                        <div id="raidViewMode" class="text-xs text-slate-400 bg-slate-950 px-3 py-2 rounded-xl border border-slate-800">
+                            🔒 조회 전용 모드
+                        </div>
+                        <button id="raidActionBtn" onclick="toggleRaidEditMode()" 
+                                class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md">
+                            관리자 수정
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 레이드 일정 표출/수정 영역 -->
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <div class="text-xs text-slate-300 font-semibold flex items-center gap-2">
+                        <span>📅 레이드 일정:</span>
+                        <span id="raidScheduleDisplay" class="text-orange-400 text-sm font-bold">등록된 일정이 없습니다.</span>
+                    </div>
+                    <!-- 수정 모드 시 나타나는 일정 입력박스 -->
+                    <div id="raidScheduleInputs" class="hidden flex flex-wrap items-center gap-1.5 text-xs">
+                        <input type="number" id="raidYear" placeholder="년" class="w-16 bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-center text-slate-200">년
+                        <input type="number" id="raidMonth" placeholder="월" class="w-12 bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-center text-slate-200">월
+                        <input type="number" id="raidDay" placeholder="일" class="w-12 bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-center text-slate-200">일
+                        <input type="number" id="raidHour" placeholder="시" class="w-12 bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-center text-slate-200">시
+                        <input type="number" id="raidMinute" placeholder="분" class="w-12 bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-center text-slate-200">분
+                    </div>
+                </div>
+
+                <!-- 좌우 분할: 좌측(길드원 체크), 우측(참여자 명단) -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    
+                    <!-- 좌측: 길드원 체크 패널 -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-slate-300">👥 전체 길드원 선택</span>
+                            <span class="text-[11px] text-slate-500">체크시 우측 참여자에 즉시 반영</span>
+                        </div>
+                        <div id="raidMemberList" class="space-y-1.5 max-h-64 overflow-y-auto pr-1">
+                            <!-- 동적 렌더링 -->
+                        </div>
+                    </div>
+
+                    <!-- 우측: 이번 레이드 참여자 패널 -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-xs font-bold text-orange-400">⚔️ 이번 레이드 참여자 명단</span>
+                                <span id="participantCount" class="text-xs bg-orange-500/20 text-orange-300 px-2 py-0.5 rounded-full font-bold">0명 참여</span>
+                            </div>
+                            <div id="participantListContainer" class="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
+                                <!-- 동적 렌더링 -->
+                            </div>
+                        </div>
+
+                        <!-- 이번 주차 기록 저장 버튼 -->
+                        <div id="raidSaveSection" class="hidden pt-3 border-t border-slate-800">
+                            <button onclick="saveCurrentRaidToHistory()" 
+                                    class="w-full bg-orange-600 hover:bg-orange-500 text-white font-semibold py-2 rounded-xl text-xs transition shadow-md shadow-orange-500/20">
+                                💾 이번 주차 기록 확정 및 저장
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 하단: 주차별 히스토리 아카이브 (제안 A 반영) -->
+                <div class="space-y-3 pt-4 border-t border-slate-800">
+                    <h3 class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                        📜 주차별 레이드 참여 히스토리 (아카이브)
+                    </h3>
+                    <div id="raidHistoryContainer" class="space-y-2">
+                        <!-- 동적 렌더링 -->
+                        <div class="text-xs text-slate-500 text-center py-4 bg-slate-950 border border-slate-800/60 rounded-xl">
+                            아직 저장된 주차별 히스토리가 없습니다.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="text-center text-xs text-slate-600 py-6">
+        [KING] Guild Management System Architecture
+    </footer>
+
+    <!-- 자바스크립트 로직 -->
+    <script>
+        // ==========================================
+        // 🛠️ 파이어베이스 설정 (기존 검증 완료된 주소)
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCYQWm4i4VjBHpO1ANGmKC5FB87sqrB0gI",
+            authDomain: "king-boss-timer.firebaseapp.com",
+            databaseURL: "https://king-boss-timer-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "king-boss-timer",
+            storageBucket: "king-boss-timer.firebasestorage.app",
+            messagingSenderId: "263803109395",
+            appId: "1:263803109395:web:162a864d8d09bd330fbfe6"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // 관리자 비밀번호
+        const ADMIN_PASSWORD = "king"; // 원하시는 비밀번호로 변경 가능합니다!
+
+        // 공용 데이터 구조
+        let globalData = {
+            members: [
+                { id: 1, name: "길드마스터", note: "마스터" },
+                { id: 2, name: "부마스터", note: "부관리자" },
+                { id: 3, name: "전사킹", note: "딜러" }
+            ],
+            memberLastUpdate: "기록 없음",
+            bosses: [
+                { id: 1, name: '어비스 (바리탄)', cycleHours: 4, cycleMinutes: 0, lastKill: getDefaultObject() },
+                { id: 2, name: '어비스 (엘다르)', cycleHours: 8, cycleMinutes: 0, lastKill: getDefaultObject() },
+                { id: 3, name: '어비스 (카스티아)', cycleHours: 12, cycleMinutes: 0, lastKill: getDefaultObject() }
+            ],
+            alertOffset: 10,
+            popupToggle: true,
+            soundToggle: true,
+            raid: {
+                year: 2026, month: 11, day: 5, hour: 21, minute: 0,
+                lastUpdate: "기록 없음",
+                participants: [],
+                history: []
+            }
+        };
+
+        let isMemberEdit = false;
+        let isRaidEdit = false;
+
+        function getDefaultObject() {
+            const now = new Date();
+            return { month: now.getMonth() + 1, day: now.getDate(), hour: now.getHours(), minute: 0 };
+        }
+
+        // 데이터 서버 동기화 로직
+        function saveToServer() {
+            db.ref('kingSystemData').set(globalData);
+        }
+
+        db.ref('kingSystemData').on('value', (snapshot) => {
+            const val = snapshot.val();
+            if (val) {
+                if (val.members) globalData.members = val.members;
+                if (val.memberLastUpdate) globalData.memberLastUpdate = val.memberLastUpdate;
+                if (val.bosses) globalData.bosses = val.bosses;
+                if (val.alertOffset !== undefined) globalData.alertOffset = val.alertOffset;
+                if (val.popupToggle !== undefined) globalData.popupToggle = val.popupToggle;
+                if (val.soundToggle !== undefined) globalData.soundToggle = val.soundToggle;
+                if (val.raid) globalData.raid = val.raid;
+
+                // UI 반영
+                document.getElementById('alertOffset').value = globalData.alertOffset;
+                document.getElementById('popupToggle').checked = globalData.popupToggle;
+                document.getElementById('soundToggle').checked = globalData.soundToggle;
+
+                renderMembers();
+                renderBosses();
+                renderRaid();
+            } else {
+                saveToServer();
+            }
+        });
+
+        // 탭 전환 함수
+        function switchTab(tabName) {
+            ['members', 'bossTimer', 'guildRaid'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`btn-${t}`);
+                btn.className = "px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-slate-950 text-slate-400 border border-slate-800 hover:text-slate-200";
+            });
+
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`btn-${tabName}`);
+            const colors = { members: 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20', bossTimer: 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20', guildRaid: 'bg-orange-500 text-slate-950 shadow-lg shadow-orange-500/20' };
+            activeBtn.className = `px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${colors[tabName]}`;
+        }
+
+        // ==========================================
+        // 1. 길드원 목록 로직
+        // ==========================================
+        function toggleMemberEditMode() {
+            if (!isMemberEdit) {
+                const pw = prompt("관리자 비밀번호를 입력하세요:");
+                if (pw !== ADMIN_PASSWORD) {
+                    alert("비밀번호가 틀렸습니다!");
+                    return;
+                }
+                isMemberEdit = true;
+                document.getElementById('memberViewMode').innerText = "🔓 관리자 수정 모드";
+                document.getElementById('memberViewMode').className = "text-xs text-amber-400 bg-amber-500/10 px-3 py-2 rounded-xl border border-amber-500/30 font-semibold";
+                document.getElementById('memberActionBtn').innerText = "완료 (저장)";
+                document.getElementById('memberActionBtn').className = "bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md";
+                document.getElementById('memberAddBox').classList.remove('hidden');
+            } else {
+                // 저장 및 완료
+                collectMemberDataFromDOM();
+                const now = new Date();
+                globalData.memberLastUpdate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+                saveToServer();
+
+                isMemberEdit = false;
+                document.getElementById('memberViewMode').innerText = "🔒 조회 전용 모드";
+                document.getElementById('memberViewMode').className = "text-xs text-slate-400 bg-slate-950 px-3 py-2 rounded-xl border border-slate-800";
+                document.getElementById('memberActionBtn').innerText = "관리자 수정";
+                document.getElementById('memberActionBtn').className = "bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md";
+                document.getElementById('memberAddBox').classList.add('hidden');
+                alert("길드원 목록 수정이 완료되었습니다!");
+            }
+            renderMembers();
+        }
+
+        function collectMemberDataFromDOM() {
+            const rows = document.querySelectorAll('#memberTableBody tr');
+            let newMembers = [];
+            rows.forEach((row, idx) => {
+                const nameInput = row.querySelector('.member-name');
+                const noteInput = row.querySelector('.member-note');
+                if (nameInput) {
+                    newMembers.push({
+                        id: idx + 1,
+                        name: nameInput.value.trim() || '이름없음',
+                        note: noteInput.value.trim() || ''
+                    });
+                }
+            });
+            globalData.members = newMembers;
+        }
+
+        function addMemberRow() {
+            collectMemberDataFromDOM();
+            globalData.members.push({ id: globalData.members.length + 1, name: '', note: '' });
+            renderMembers();
+        }
+
+        function removeMemberRow(index) {
+            collectMemberDataFromDOM();
+            globalData.members.splice(index, 1);
+            renderMembers();
+        }
+
+        function renderMembers() {
+            document.getElementById('memberLastUpdate').innerText = globalData.memberLastUpdate;
+            const tbody = document.getElementById('memberTableBody');
+            tbody.innerHTML = '';
+
+            const keyword = document.getElementById('memberSearch').value.toLowerCase();
+            const sortType = document.getElementById('memberSort').value;
+
+            // 필터링
+            let filtered = globalData.members.filter(m => m.name.toLowerCase().includes(keyword) || m.note.toLowerCase().includes(keyword));
+
+            // 정렬
+            filtered.sort((a, b) => {
+                if (sortType === 'nameAsc') return a.name.localeCompare(b.name, 'ko');
+                return b.name.localeCompare(a.name, 'ko');
+            });
+
+            // 편집 컬럼 표시 여부
+            document.querySelectorAll('.edit-col').forEach(el => {
+                if (isMemberEdit) el.classList.remove('hidden');
+                else el.classList.add('hidden');
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-500">등록된 길드원이 없습니다.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach((m, idx) => {
+                const origIndex = globalData.members.findIndex(item => item === m);
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-900/50 transition";
+                
+                if (!isMemberEdit) {
+                    tr.innerHTML = `
+                        <td class="p-3 text-center text-slate-400 font-mono">${idx + 1}</td>
+                        <td class="p-3 font-bold text-slate-200">${m.name}</td>
+                        <td class="p-3 text-slate-400">${m.note}</td>
+                    `;
+                } else {
+                    tr.innerHTML = `
+                        <td class="p-3 text-center text-slate-400 font-mono">${idx + 1}</td>
+                        <td class="p-3"><input type="text" value="${m.name}" class="member-name w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-slate-200"></td>
+                        <td class="p-3"><input type="text" value="${m.note}" class="member-note w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-slate-200"></td>
+                        <td class="p-3 text-center"><button onclick="removeMemberRow(${origIndex})" class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-1 rounded text-[10px]">삭제</button></td>
+                    `;
+                }
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ==========================================
+        // 2. 보스 젠타임 테이블 로직 (기존 연동)
+        // ==========================================
+        function getTimestamp(k) {
+            const now = new Date();
+            let d = new Date(now.getFullYear(), (k.month || 1) - 1, k.day || 1, k.hour || 0, k.minute || 0, 0);
+            return d.getTime();
+        }
+
+        function saveData() {
+            globalData.alertOffset = document.getElementById('alertOffset').value;
+            globalData.popupToggle = document.getElementById('popupToggle').checked;
+            globalData.soundToggle = document.getElementById('soundToggle').checked;
+            saveToServer();
+        }
+
+        document.getElementById('alertOffset').addEventListener('change', saveData);
+        document.getElementById('popupToggle').addEventListener('change', saveData);
+        document.getElementById('soundToggle').addEventListener('change', saveData);
+
+        function requestNotificationPermission() {
+            if (!("Notification" in window)) { alert("알림 미지원 브라우저입니다."); return; }
+            Notification.requestPermission().then(p => { alert(p === "granted" ? "알림 허용됨!" : "알림 거부됨."); });
+        }
+
+        function playBeep() {
+            if (!document.getElementById('soundToggle').checked) return;
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(); osc.stop(ctx.currentTime + 0.3);
+            } catch (e) {}
+        }
+
+        let notifiedKeys = {};
+        function checkAlerts(bossName, nextSpawnTimeMs, offsetMinutes) {
+            const now = Date.now();
+            const diffMs = nextSpawnTimeMs - now;
+            const targetMs = offsetMinutes * 60 * 1000;
+            if (diffMs > 0 && diffMs <= targetMs + 1000) {
+                const key = `${bossName}-${nextSpawnTimeMs}`;
+                if (!notifiedKeys[key]) {
+                    notifiedKeys[key] = true;
+                    playBeep();
+                    if (document.getElementById('popupToggle').checked && Notification.permission === "granted") {
+                        new Notification(`🚨 [KING] 보스 임박: ${bossName}`, { body: `약 ${offsetMinutes}분 뒤 젠!` });
+                    }
+                }
+            }
+        }
+
+        function renderBosses() {
+            const container = document.getElementById('bossList');
+            container.innerHTML = '';
+            const now = new Date().getTime();
+            const alertOffset = parseInt(document.getElementById('alertOffset').value) || 10;
+
+            globalData.bosses.forEach((boss, index) => {
+                if (!boss.lastKill) boss.lastKill = getDefaultObject();
+                const lastKillTime = getTimestamp(boss.lastKill);
+                const totalCycleMinutes = (boss.cycleHours * 60) + boss.cycleMinutes;
+                const cycleMs = (totalCycleMinutes > 0 ? totalCycleMinutes : 1) * 60 * 1000;
+
+                if (isNaN(lastKillTime)) return;
+
+                let nextSpawn = lastKillTime;
+                while (nextSpawn <= now) { nextSpawn += cycleMs; }
+                const secondSpawn = nextSpawn + cycleMs;
+
+                checkAlerts(boss.name, nextSpawn, alertOffset);
+
+                const diff = nextSpawn - now;
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                const isImminent = diff <= alertOffset * 60 * 1000;
+
+                const card = document.createElement('div');
+                card.className = `bg-slate-900 border rounded-2xl p-4 flex flex-col justify-between shadow-xl transition-all ${
+                    isImminent ? 'border-amber-500 ring-2 ring-amber-500/30 animate-pulse' : 'border-slate-800'
+                }`;
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-sm font-bold text-slate-100">${boss.name}</h3>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold ${isImminent ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-800 text-slate-400'}">
+                                ${isImminent ? '🔥 젠 임박!' : '대기 중'}
+                            </span>
+                        </div>
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 mb-3 text-center">
+                            <div class="text-[10px] text-slate-400 mb-0.5">다음 젠까지 남은 시간</div>
+                            <div class="text-xl font-black text-amber-400 font-mono">
+                                ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}
+                            </div>
+                        </div>
+                        <div class="space-y-1 text-[11px] mb-3 bg-slate-950/50 p-2.5 rounded-xl border border-slate-800/50">
+                            <div class="flex justify-between text-slate-300"><span class="text-slate-400">1순위:</span><span class="font-semibold text-amber-300">${new Date(nextSpawn).toLocaleString()}</span></div>
+                            <div class="flex justify-between text-slate-300"><span class="text-slate-400">2순위:</span><span class="text-slate-400">${new Date(secondSpawn).toLocaleString()}</span></div>
+                        </div>
+                    </div>
+                    <div class="space-y-2 pt-3 border-t border-slate-800 text-[11px]">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-400">젠 주기:</span>
+                            <div class="flex items-center gap-1">
+                                <input type="number" id="cycleH_${index}" value="${boss.cycleHours}" class="w-10 bg-slate-950 border border-slate-700 rounded p-1 text-center text-slate-200">시간
+                                <input type="number" id="cycleM_${index}" value="${boss.cycleMinutes}" class="w-10 bg-slate-950 border border-slate-700 rounded p-1 text-center text-slate-200">분
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-400">기준 시각:</span>
+                            <div class="flex items-center gap-0.5">
+                                <input type="number" id="m_${index}" value="${boss.lastKill.month}" class="w-7 bg-slate-950 border border-slate-700 rounded p-1 text-center text-slate-200">월
+                                <input type="number" id="d_${index}" value="${boss.lastKill.day}" class="w-7 bg-slate-950 border border-slate-700 rounded p-1 text-center text-slate-200">일
+                                <input type="number" id="h_${index}" value="${boss.lastKill.hour}" class="w-7 bg-slate-950 border border-slate-700 rounded p-1 text-center text-slate-200">시
+                                <input type="number" id="min_${index}" value="${boss.lastKill.minute}" class="w-7 bg-slate-950 border border-slate-700 rounded p-1 text-center text-slate-200">분
+                            </div>
+                        </div>
+                        <button onclick="applyBossConfig(${index})" class="w-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/40 font-semibold py-1.5 rounded-lg transition text-center">
+                            적용 (실시간 공유)
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function applyBossConfig(index) {
+            const cH = parseInt(document.getElementById(`cycleH_${index}`).value);
+            const cM = parseInt(document.getElementById(`cycleM_${index}`).value);
+            const m = parseInt(document.getElementById(`m_${index}`).value);
+            const d = parseInt(document.getElementById(`d_${index}`).value);
+            const h = parseInt(document.getElementById(`h_${index}`).value);
+            const min = parseInt(document.getElementById(`min_${index}`).value);
+
+            if (!isNaN(cH)) globalData.bosses[index].cycleHours = cH;
+            if (!isNaN(cM)) globalData.bosses[index].cycleMinutes = cM;
+            if (!isNaN(m)) globalData.bosses[index].lastKill.month = m;
+            if (!isNaN(d)) globalData.bosses[index].lastKill.day = d;
+            if (!isNaN(h)) globalData.bosses[index].lastKill.hour = h;
+            if (!isNaN(min)) globalData.bosses[index].lastKill.minute = min;
+
+            saveToServer();
+        }
+
+        // ==========================================
+        // 3. 길드레이드 로직
+        // ==========================================
+        function toggleRaidEditMode() {
+            if (!isRaidEdit) {
+                const pw = prompt("관리자 비밀번호를 입력하세요:");
+                if (pw !== ADMIN_PASSWORD) { alert("비밀번호가 틀렸습니다!"); return; }
+                isRaidEdit = true;
+                document.getElementById('raidViewMode').innerText = "🔓 관리자 수정 모드";
+                document.getElementById('raidViewMode').className = "text-xs text-orange-400 bg-orange-500/10 px-3 py-2 rounded-xl border border-orange-500/30 font-semibold";
+                document.getElementById('raidActionBtn').innerText = "완료 (저장)";
+                document.getElementById('raidActionBtn').className = "bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md";
+                document.getElementById('raidScheduleInputs').classList.remove('hidden');
+                document.getElementById('raidSaveSection').classList.remove('hidden');
+            } else {
+                // 일정 저장
+                const y = parseInt(document.getElementById('raidYear').value);
+                const m = parseInt(document.getElementById('raidMonth').value);
+                const d = parseInt(document.getElementById('raidDay').value);
+                const h = parseInt(document.getElementById('raidHour').value);
+                const min = parseInt(document.getElementById('raidMinute').value);
+
+                if (!isNaN(y)) globalData.raid.year = y;
+                if (!isNaN(m)) globalData.raid.month = m;
+                if (!isNaN(d)) globalData.raid.day = d;
+                if (!isNaN(h)) globalData.raid.hour = h;
+                if (!isNaN(min)) globalData.raid.minute = min;
+
+                const now = new Date();
+                globalData.raid.lastUpdate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+                saveToServer();
+
+                isRaidEdit = false;
+                document.getElementById('raidViewMode').innerText = "🔒 조회 전용 모드";
+                document.getElementById('raidViewMode').className = "text-xs text-slate-400 bg-slate-950 px-3 py-2 rounded-xl border border-slate-800";
+                document.getElementById('raidActionBtn').innerText = "관리자 수정";
+                document.getElementById('raidActionBtn').className = "bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md";
+                document.getElementById('raidScheduleInputs').classList.add('hidden');
+                document.getElementById('raidSaveSection').classList.add('hidden');
+                alert("레이드 설정이 저장되었습니다!");
+            }
+            renderRaid();
+        }
+
+        function handleParticipantCheck(name, isChecked) {
+            if (!globalData.raid.participants) globalData.raid.participants = [];
+            if (isChecked) {
+                if (!globalData.raid.participants.includes(name)) globalData.raid.participants.push(name);
+            } else {
+                globalData.raid.participants = globalData.raid.participants.filter(p => p !== name);
+            }
+            saveToServer();
+        }
+
+        function saveCurrentRaidToHistory() {
+            if (!globalData.raid.participants || globalData.raid.participants.length === 0) {
+                alert("참여자가 한 명도 없습니다!");
+                return;
+            }
+            if (!confirm("현재 참여자 명단을 이번 주차 히스토리에 확정 저장하시겠습니까?")) return;
+
+            const scheduleStr = `${globalData.raid.year}년 ${globalData.raid.month}월 ${globalData.raid.day}일 ${globalData.raid.hour}시 ${globalData.raid.minute}분`;
+            const historyItem = {
+                dateStr: scheduleStr,
+                savedAt: new Date().toLocaleDateString(),
+                participants: [...globalData.raid.participants]
+            };
+
+            if (!globalData.raid.history) globalData.raid.history = [];
+            globalData.raid.history.unshift(historyItem); // 최신순
+
+            // 이번 주차 참여자 초기화
+            globalData.raid.participants = [];
+            saveToServer();
+            alert("이번 주차 기록이 성공적으로 아카이브에 저장되었습니다!");
+            renderRaid();
+        }
+
+        function renderRaid() {
+            const r = globalData.raid;
+            document.getElementById('raidLastUpdate').innerText = r.lastUpdate || "기록 없음";
+            
+            // 일정 표출
+            const scheduleText = `${r.year || 2026}년 ${r.month || 11}월 ${r.day || 1}일 ${String(r.hour || 0).padStart(2,'0')}:${String(r.minute || 0).padStart(2,'0')}`;
+            document.getElementById('raidScheduleDisplay').innerText = scheduleText;
+
+            if (isRaidEdit) {
+                document.getElementById('raidYear').value = r.year || 2026;
+                document.getElementById('raidMonth').value = r.month || 11;
+                document.getElementById('raidDay').value = r.day || 1;
+                document.getElementById('raidHour').value = r.hour || 21;
+                document.getElementById('raidMinute').value = r.minute || 0;
+            }
+
+            // 좌측 길드원 체크박스 리스트 렌더링
+            const memberListEl = document.getElementById('raidMemberList');
+            memberListEl.innerHTML = '';
+            if (!globalData.members || globalData.members.length === 0) {
+                memberListEl.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">등록된 길드원이 없습니다.</div>`;
+            } else {
+                globalData.members.forEach(m => {
+                    const isChecked = r.participants && r.participants.includes(m.name);
+                    const div = document.createElement('label');
+                    div.className = "flex items-center justify-between bg-slate-900 px-3 py-2 rounded-lg border border-slate-800/80 hover:bg-slate-900 cursor-pointer text-xs";
+                    div.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" ${isChecked ? 'checked' : ''} 
+                                   onchange="handleParticipantCheck('${m.name}', this.checked)"
+                                   class="rounded bg-slate-950 border-slate-700 text-orange-500 focus:ring-0">
+                            <span class="font-bold text-slate-200">${m.name}</span>
+                        </div>
+                        <span class="text-[11px] text-slate-400">${m.note}</span>
+                    `;
+                    memberListEl.appendChild(div);
+                });
+            }
+
+            // 우측 참여자 명단 렌더링
+            const pContainer = document.getElementById('participantListContainer');
+            pContainer.innerHTML = '';
+            const participants = r.participants || [];
+            document.getElementById('participantCount').innerText = `${participants.length}명 참여`;
+
+            if (participants.length === 0) {
+                pContainer.innerHTML = `<div class="text-xs text-slate-500 py-6 text-center w-full">선택된 참여자가 없습니다. 좌측에서 체크해주세요.</div>`;
+            } else {
+                participants.forEach(pName => {
+                    const badge = document.createElement('span');
+                    badge.className = "bg-orange-500/20 border border-orange-500/40 text-orange-300 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5";
+                    badge.innerHTML = `⚔️ ${pName}`;
+                    pContainer.appendChild(badge);
+                });
+            }
+
+            // 하단 주차별 히스토리 아카이브 렌더링
+            const historyContainer = document.getElementById('raidHistoryContainer');
+            historyContainer.innerHTML = '';
+            const history = r.history || [];
+
+            if (history.length === 0) {
+                historyContainer.innerHTML = `<div class="text-xs text-slate-500 text-center py-4 bg-slate-950 border border-slate-800/60 rounded-xl">아직 저장된 주차별 히스토리가 없습니다.</div>`;
+            } else {
+                history.forEach((hItem, hIdx) => {
+                    const box = document.createElement('div');
+                    box.className = "bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs space-y-2";
+                    box.innerHTML = `
+                        <div class="flex justify-between items-center text-slate-400 border-b border-slate-900 pb-2">
+                            <span class="font-bold text-orange-400">📅 레이드 일정: ${hItem.dateStr}</span>
+                            <span class="text-[11px]">참여 인원: <strong class="text-slate-200">${hItem.participants.length}명</strong></span>
+                        </div>
+                        <div class="flex flex-wrap gap-1">
+                            ${hItem.participants.map(name => `<span class="bg-slate-900 border border-slate-800 text-slate-300 px-2 py-0.5 rounded text-[11px]">${name}</span>`).join('')}
+                        </div>
+                    `;
+                    historyContainer.appendChild(box);
+                });
+            }
+        }
+
+        // 실시간 타이머 구동 (1초마다 렌더)
+        setInterval(() => {
+            if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+            renderBosses();
+        }, 1000);
+    </script>
+</body>
+</html>
