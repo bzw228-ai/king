@@ -182,9 +182,9 @@
                     </div>
                 </div>
 
+                <!-- 좌우 분할: 좌측(길드원 체크), 우측(참여자 명단) -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
                     
-                    <!-- 좌측: 길드원 체크 패널 -->
                     <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
                         <div class="flex justify-between items-center">
                             <span class="text-xs font-bold text-slate-300">👥 전체 길드원 선택</span>
@@ -201,35 +201,13 @@
                         </div>
                     </div>
 
-                    <!-- 우측: 이번 레이드 참여자 패널 & 사다리 버튼 -->
                     <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3 flex flex-col justify-between">
                         <div>
                             <div class="flex justify-between items-center mb-3">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-bold text-orange-400">⚔️ 이번 레이드 참여자 명단</span>
-                                    <span id="participantCount" class="text-xs bg-orange-500/20 text-orange-300 px-2 py-0.5 rounded-full font-bold">0명 참여</span>
-                                </div>
-                                <!-- 🎲 사다리 결과 보기 버튼 (누구나 가능) -->
-                                <button onclick="openLadderModal()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-3 py-1.5 rounded-xl text-xs transition shadow-md flex items-center gap-1">
-                                    🎲 사다리 결과 보기
-                                </button>
+                                <span class="text-xs font-bold text-orange-400">⚔️ 이번 레이드 참여자 명단</span>
+                                <span id="participantCount" class="text-xs bg-orange-500/20 text-orange-300 px-2 py-0.5 rounded-full font-bold">0명 참여</span>
                             </div>
-                            
-                            <!-- 관리자 전용 사다리 세팅 영역 -->
-                            <div id="ladderAdminBox" class="hidden bg-slate-900 border border-amber-500/30 p-3 rounded-xl space-y-2 mb-3">
-                                <div class="text-[11px] font-bold text-amber-400">🎁 [관리자] 사다리 아이템 & 수량 설정</div>
-                                <div class="flex gap-2">
-                                    <input type="text" id="ladderItemName" placeholder="아이템 이름 (예: 전설 장갑)" 
-                                           class="flex-1 bg-slate-950 border border-slate-700 rounded px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
-                                    <input type="number" id="ladderItemQty" placeholder="수량" value="1" min="1" 
-                                           class="w-16 bg-slate-950 border border-slate-700 rounded px-2 py-1.5 text-xs text-slate-200 text-center focus:outline-none focus:border-amber-500">
-                                    <button onclick="generateLadderResult()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-1.5 rounded text-xs transition">
-                                        추첨하기
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div id="participantListContainer" class="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
+                            <div id="participantListContainer" class="flex flex-wrap gap-1.5 max-h-56 overflow-y-auto">
                                 <!-- 동적 렌더링 -->
                             </div>
                         </div>
@@ -242,6 +220,37 @@
                         </div>
                     </div>
 
+                </div>
+
+                <!-- 🎲 [신규 배치] 주차별 히스토리 위쪽: 레이드 아이템 사다리 분배기 섹션 -->
+                <div class="bg-slate-950 border border-amber-500/30 rounded-2xl p-5 space-y-4 shadow-xl">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                            <h3 class="text-sm font-bold text-amber-400 flex items-center gap-1.5">
+                                🎲 레이드 아이템 사다리 분배기
+                            </h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">참여자를 대상으로 여러 아이템을 공평하게 사다리 타기로 추첨합니다.</p>
+                        </div>
+                        <button onclick="openLadderModal()" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-4 py-2 rounded-xl text-xs transition shadow-lg shadow-amber-500/20">
+                            ✨ 사다리 타기 시작하기 (결과 보기)
+                        </button>
+                    </div>
+
+                    <!-- 관리자 전용 아이템 목록 구성 박스 -->
+                    <div id="ladderAdminBox" class="hidden space-y-3 pt-3 border-t border-slate-800">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-slate-300">🎁 분배할 아이템 목록 설정</span>
+                            <button onclick="addLadderItemRow()" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-amber-400 px-3 py-1 rounded text-[11px] font-semibold transition">
+                                + 아이템 추가
+                            </button>
+                        </div>
+                        <div id="ladderItemsContainer" class="space-y-2">
+                            <!-- 동적 아이템 입력 행 -->
+                        </div>
+                        <button onclick="executeLadderLottery()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-xl text-xs transition shadow-md shadow-amber-600/20">
+                            🚀 사다리 추첨 및 결과 저장 (전체 공통 적용)
+                        </button>
+                    </div>
                 </div>
 
                 <!-- 하단: 주차별 히스토리 아카이브 -->
@@ -261,22 +270,34 @@
 
     </div>
 
-    <!-- 🎲 사다리 결과 팝업 모달 -->
-    <div id="ladderModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 relative">
+    <!-- 🎲 진짜 사다리타기 애니메이션 & 결과 팝업 모달 -->
+    <div id="ladderModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-5 relative flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center border-b border-slate-800 pb-4">
-                <h3 class="text-lg font-black text-amber-400 flex items-center gap-2">
-                    🎲 [KING] 레이드 아이템 사다리 분배 결과
+                <h3 class="text-base sm:text-lg font-black text-amber-400 flex items-center gap-2">
+                    🎲 [KING] 실시간 사다리타기 분배 결과
                 </h3>
                 <button onclick="closeLadderModal()" class="text-slate-400 hover:text-slate-100 font-bold text-lg px-2">✕</button>
             </div>
 
-            <div id="ladderModalContent" class="space-y-3 max-h-96 overflow-y-auto pr-1">
-                <!-- 결과 렌더링 -->
+            <!-- 사다리 애니메이션 캔버스 영역 -->
+            <div id="ladderCanvasArea" class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex-1 flex flex-col items-center justify-center min-h-[220px] relative overflow-hidden">
+                <div id="ladderAnimContainer" class="text-center space-y-3">
+                    <div class="inline-block animate-spin text-3xl">🎯</div>
+                    <div class="text-xs text-slate-400 font-medium">사다리를 타고 내려오는 중입니다...</div>
+                </div>
             </div>
 
-            <div class="pt-3 border-t border-slate-800 text-center">
-                <button onclick="closeLadderModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-6 py-2 rounded-xl text-xs font-semibold transition">
+            <!-- 최종 매칭 결과 표출 영역 -->
+            <div id="ladderResultList" class="space-y-2 overflow-y-auto max-h-48 pr-1 hidden">
+                <!-- 동적 렌더링 -->
+            </div>
+
+            <div class="pt-3 border-t border-slate-800 flex justify-center gap-3">
+                <button onclick="startLadderAnimation()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-5 py-2 rounded-xl text-xs font-extrabold transition shadow-md">
+                    🎬 사다리 다시 보기
+                </button>
+                <button onclick="closeLadderModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-5 py-2 rounded-xl text-xs font-semibold transition">
                     확인 완료
                 </button>
             </div>
@@ -324,7 +345,8 @@
                 lastUpdate: "기록 없음",
                 participants: [],
                 history: [],
-                ladderResult: null // 사다리 결과 데이터 저장소
+                ladderConfig: [ { name: "전설 장갑", qty: 1 } ], // 다중 아이템 설정
+                ladderResult: null
             }
         };
 
@@ -633,7 +655,7 @@
         }
 
         // ==========================================
-        // 3. 길드레이드 및 사다리 분배기 로직
+        // 3. 길드레이드 및 사다리 타기 로직
         // ==========================================
         function toggleRaidEditMode() {
             if (!isRaidEdit) {
@@ -646,10 +668,11 @@
                 document.getElementById('raidActionBtn').className = "bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md";
                 document.getElementById('raidScheduleInputs').classList.remove('hidden');
                 document.getElementById('raidSaveSection').classList.remove('hidden');
-                document.getElementById('ladderAdminBox').classList.remove('hidden'); // 사다리 세팅박스 노출
+                document.getElementById('ladderAdminBox').classList.remove('hidden');
                 document.getElementById('raidModeGuide').innerText = "✅ 체크박스 수정 가능";
                 document.getElementById('raidModeGuide').className = "text-[11px] text-emerald-400 font-semibold";
             } else {
+                collectLadderItemsFromDOM();
                 const y = parseInt(document.getElementById('raidYear').value);
                 const m = parseInt(document.getElementById('raidMonth').value);
                 const d = parseInt(document.getElementById('raidDay').value);
@@ -698,13 +721,165 @@
         }
 
         function removeParticipant(name) {
-            if (!isRaidEdit) {
-                alert("관리자 수정 모드에서만 참여자를 제외할 수 있습니다!");
-                return;
-            }
+            if (!isRaidEdit) { alert("관리자 수정 모드에서만 참여자를 제외할 수 있습니다!"); return; }
             if (!globalData.raid.participants) return;
             globalData.raid.participants = globalData.raid.participants.filter(p => p !== name);
             saveToServer();
+        }
+
+        // 아이템 목록 관리 함수들
+        function addLadderItemRow(name = '', qty = 1) {
+            if (!globalData.raid.ladderConfig) globalData.raid.ladderConfig = [];
+            globalData.raid.ladderConfig.push({ name, qty });
+            renderLadderAdminInputs();
+        }
+
+        function removeLadderItemRow(idx) {
+            collectLadderItemsFromDOM();
+            globalData.raid.ladderConfig.splice(idx, 1);
+            renderLadderAdminInputs();
+        }
+
+        function collectLadderItemsFromDOM() {
+            const rows = document.querySelectorAll('.ladder-item-row');
+            let config = [];
+            rows.forEach(row => {
+                const nameInput = row.querySelector('.ladder-name');
+                const qtyInput = row.querySelector('.ladder-qty');
+                if (nameInput) {
+                    config.push({
+                        name: nameInput.value.trim() || '아이템',
+                        qty: parseInt(qtyInput.value) || 1
+                    });
+                }
+            });
+            globalData.raid.ladderConfig = config;
+        }
+
+        function renderLadderAdminInputs() {
+            const container = document.getElementById('ladderItemsContainer');
+            container.innerHTML = '';
+            const config = globalData.raid.ladderConfig || [{ name: '전설 장갑', qty: 1 }];
+
+            config.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = "ladder-item-row flex gap-2 items-center";
+                div.innerHTML = `
+                    <input type="text" value="${item.name}" placeholder="아이템 이름" class="ladder-name flex-1 bg-slate-950 border border-slate-700 rounded px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+                    <input type="number" value="${item.qty}" min="1" placeholder="수량" class="ladder-qty w-16 bg-slate-950 border border-slate-700 rounded px-2 py-1.5 text-xs text-slate-200 text-center focus:outline-none focus:border-amber-500">
+                    <button onclick="removeLadderItemRow(${idx})" class="bg-red-500/20 text-red-400 border border-red-500/30 px-2.5 py-1.5 rounded text-xs">삭제</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // 사다리 추첨 실행 (관리자 전용)
+        function executeLadderLottery() {
+            if (!isRaidEdit) { alert("관리자 수정 모드에서만 추첨할 수 있습니다!"); return; }
+            collectLadderItemsFromDOM();
+            const participants = globalData.raid.participants || [];
+            if (participants.length === 0) {
+                alert("참여자가 한 명도 없습니다! 먼저 참여자를 체크해주세요.");
+                return;
+            }
+
+            const config = globalData.raid.ladderConfig || [];
+            if (config.length === 0) {
+                alert("분배할 아이템을 최소 1개 이상 추가해주세요!");
+                return;
+            }
+
+            // 아이템 풀 생성 (예: 전설 장갑 #1, 전설 장갑 #2, 무기 상자 #1 ...)
+            let itemPool = [];
+            config.forEach(c => {
+                for (let i = 0; i < c.qty; i++) {
+                    itemPool.push(c.qty > 1 ? `${c.name} #${i + 1}` : c.name);
+                }
+            });
+
+            // 인원 섞기
+            let shuffledParticipants = [...participants];
+            for (let i = shuffledParticipants.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledParticipants[i], shuffledParticipants[j]] = [shuffledParticipants[j], shuffledParticipants[i]];
+            }
+
+            // 결과 매칭 (아이템이 모자라면 꽝 부여)
+            let results = [];
+            shuffledParticipants.forEach((person, index) => {
+                let prize = index < itemPool.length ? itemPool[index] : '꽝 (다음 기회에!)';
+                results.push({ person, prize });
+            });
+
+            globalData.raid.ladderResult = {
+                participants: shuffledParticipants,
+                results: results
+            };
+
+            saveToServer();
+            alert("🎲 사다리 추첨 완료! 모든 길드원이 이제 동일한 결과를 확인할 수 있습니다.");
+            openLadderModal();
+        }
+
+        // 사다리 모달 열기 및 진짜 사다리 애니메이션 실행
+        function openLadderModal() {
+            const ladderData = globalData.raid.ladderResult;
+            if (!ladderData || !ladderData.results) {
+                alert("아직 진행된 사다리 추첨 결과가 없습니다!");
+                return;
+            }
+            document.getElementById('ladderModal').classList.remove('hidden');
+            startLadderAnimation();
+        }
+
+        function closeLadderModal() {
+            document.getElementById('ladderModal').classList.add('hidden');
+        }
+
+        // 진짜 사다리타기 캔버스 애니메이션 구동 함수
+        function startLadderAnimation() {
+            const ladderData = globalData.raid.ladderResult;
+            const area = document.getElementById('ladderCanvasArea');
+            const resultListEl = document.getElementById('ladderResultList');
+            resultListEl.classList.add('hidden');
+            
+            area.innerHTML = `
+                <div class="text-center space-y-2 py-4">
+                    <div class="text-2xl animate-bounce">🧗‍♂️</div>
+                    <div class="text-xs font-bold text-amber-400">사다리가 얽히고설키며 내려가는 중...!</div>
+                    <div class="text-[11px] text-slate-500">잠시만 기다려주세요</div>
+                </div>
+            `;
+
+            setTimeout(() => {
+                renderLadderCanvasResult();
+            }, 1800);
+        }
+
+        function renderLadderCanvasResult() {
+            const ladderData = globalData.raid.ladderResult;
+            const area = document.getElementById('ladderCanvasArea');
+            const resultListEl = document.getElementById('ladderResultList');
+
+            area.innerHTML = `
+                <div class="text-center py-2">
+                    <div class="text-sm font-black text-amber-400 mb-1">🎉 사다리 타기 결과 확정!</div>
+                    <div class="text-[11px] text-slate-400">모든 길드원에게 동일하게 적용된 공평한 매칭입니다.</div>
+                </div>
+            `;
+
+            resultListEl.innerHTML = '';
+            ladderData.results.forEach((res) => {
+                const isWin = !res.prize.includes('꽝');
+                const row = document.createElement('div');
+                row.className = `flex justify-between items-center px-4 py-2.5 rounded-xl border ${isWin ? 'border-amber-500/40 bg-amber-500/10' : 'border-slate-800 bg-slate-950'} text-xs`;
+                row.innerHTML = `
+                    <span class="font-bold text-slate-200 flex items-center gap-1.5">👤 ${res.person}</span>
+                    <span class="font-extrabold tracking-wide ${isWin ? 'text-amber-300 text-sm' : 'text-slate-500'}">➔ ${res.prize}</span>
+                `;
+                resultListEl.appendChild(row);
+            });
+            resultListEl.classList.remove('hidden');
         }
 
         function deleteHistoryItem(hIdx) {
@@ -732,79 +907,6 @@
             saveToServer();
         }
 
-        // 🎲 사다리 결과 추첨 및 생성 (관리자 전용)
-        function generateLadderResult() {
-            if (!isRaidEdit) { alert("관리자 수정 모드에서만 추첨할 수 있습니다!"); return; }
-            const participants = globalData.raid.participants || [];
-            if (participants.length === 0) {
-                alert("참여자가 한 명도 없습니다! 먼저 참여자를 체크해주세요.");
-                return;
-            }
-
-            const itemName = document.getElementById('ladderItemName').value.trim() || '레이드 보상 아이템';
-            const qty = parseInt(document.getElementById('ladderItemQty').value) || 1;
-
-            // 참여자 섞기 (Fisher-Yates Shuffle)
-            let shuffled = [...participants];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-            }
-
-            // 결과 매칭 (아이템 배정 또는 꽝)
-            let results = [];
-            let itemPool = [];
-            for (let i = 0; i < qty; i++) {
-                itemPool.push(`${itemName} #${i + 1}`);
-            }
-
-            shuffled.forEach((person, index) => {
-                let prize = index < itemPool.length ? itemPool[index] : '꽝 (다음 기회에!)';
-                results.push({ person, prize });
-            });
-
-            // 서버에 결과 박제
-            globalData.raid.ladderResult = {
-                title: `${globalData.raid.year}년 ${globalData.raid.month}월 레이드 분배`,
-                results: results
-            };
-
-            saveToServer();
-            alert("🎲 사다리 추첨이 완료되었습니다! 길드원 모두 이제 결과 확인이 가능합니다.");
-            openLadderModal();
-        }
-
-        // 🎲 사다리 결과 팝업 열기 (누구나 가능)
-        function openLadderModal() {
-            const ladderData = globalData.raid.ladderResult;
-            const contentEl = document.getElementById('ladderModalContent');
-            contentEl.innerHTML = '';
-
-            if (!ladderData || !ladderData.results || ladderData.results.length === 0) {
-                contentEl.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs">아직 진행된 사다리 추첨 결과가 없습니다.<br>관리자가 추첨을 진행하면 여기에 쫘악 나타납니다!</div>`;
-            } else {
-                let html = `<div class="text-xs text-amber-300 font-bold mb-2 text-center">🎉 ${ladderData.title} 결과 발표!</div>`;
-                html += `<div class="space-y-2">`;
-                ladderData.results.forEach((res, idx) => {
-                    const isWin = !res.prize.includes('꽝');
-                    html += `
-                        <div class="flex justify-between items-center bg-slate-950 px-4 py-2.5 rounded-xl border ${isWin ? 'border-amber-500/40 bg-amber-500/5' : 'border-slate-800'} text-xs">
-                            <span class="font-bold text-slate-200">👤 ${res.person}</span>
-                            <span class="font-extrabold ${isWin ? 'text-amber-400 text-sm' : 'text-slate-500'}">${res.prize}</span>
-                        </div>
-                    `;
-                });
-                html += `</div>`;
-                contentEl.innerHTML = html;
-            }
-
-            document.getElementById('ladderModal').classList.remove('hidden');
-        }
-
-        function closeLadderModal() {
-            document.getElementById('ladderModal').classList.add('hidden');
-        }
-
         function saveCurrentRaidToHistory() {
             if (!globalData.raid.participants || globalData.raid.participants.length === 0) {
                 alert("참여자가 한 명도 없습니다!");
@@ -823,7 +925,7 @@
             globalData.raid.history.unshift(historyItem);
 
             globalData.raid.participants = [];
-            globalData.raid.ladderResult = null; // 초기화
+            globalData.raid.ladderResult = null;
             saveToServer();
             alert("이번 주차 기록이 성공적으로 아카이브에 저장되었습니다!");
             renderRaid();
@@ -842,6 +944,7 @@
                 document.getElementById('raidDay').value = r.day || 1;
                 document.getElementById('raidHour').value = r.hour || 21;
                 document.getElementById('raidMinute').value = r.minute || 0;
+                renderLadderAdminInputs();
             }
 
             const memberListEl = document.getElementById('raidMemberList');
