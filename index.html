@@ -71,14 +71,12 @@
                     </div>
                 </div>
 
-                <!-- 길드원 추가 버튼 (상단 배치) -->
                 <div id="memberAddBox" class="mb-4 hidden">
                     <button onclick="addMemberRow()" class="w-full bg-slate-950 hover:bg-slate-900 border border-dashed border-amber-500/50 text-amber-400 py-2.5 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 shadow-sm">
                         + 길드원 추가하기 (맨 위에 추가됨)
                     </button>
                 </div>
 
-                <!-- 검색 및 정렬 바 -->
                 <div class="flex flex-col sm:flex-row gap-3 mb-4">
                     <input type="text" id="memberSearch" placeholder="🔍 닉네임 또는 비고 검색..." oninput="renderMembers()"
                            class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
@@ -89,7 +87,6 @@
                     </select>
                 </div>
 
-                <!-- 길드원 테이블 -->
                 <div class="overflow-x-auto border border-slate-800 rounded-xl bg-slate-950">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
@@ -110,7 +107,6 @@
 
         <!-- ================= [탭 2] 보스 젠타임 테이블 (기존 기능 유지) ================= -->
         <section id="tab-bossTimer" class="space-y-4">
-            <!-- 상단 알림 설정 헤더 -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
                     <h2 class="text-lg font-bold text-amber-400">⚔️ 어비스 보스 젠타임</h2>
@@ -142,7 +138,6 @@
                 </div>
             </div>
 
-            <!-- 보스 카드 리스트 -->
             <main id="bossList" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- 동적 생성 -->
             </main>
@@ -152,7 +147,6 @@
         <section id="tab-guildRaid" class="hidden space-y-4">
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-6">
                 
-                <!-- 상단 헤더 및 일정 설정 -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-800">
                     <div>
                         <h2 class="text-lg sm:text-xl font-bold text-orange-400 flex items-center gap-2">
@@ -163,7 +157,6 @@
                         </p>
                     </div>
 
-                    <!-- 관리자 모드 버튼 -->
                     <div class="flex items-center gap-2 w-full md:w-auto justify-end">
                         <div id="raidViewMode" class="text-xs text-slate-400 bg-slate-950 px-3 py-2 rounded-xl border border-slate-800">
                             🔒 조회 전용 모드
@@ -175,13 +168,11 @@
                     </div>
                 </div>
 
-                <!-- 레이드 일정 표출/수정 영역 -->
                 <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-3">
                     <div class="text-xs text-slate-300 font-semibold flex items-center gap-2">
                         <span>📅 레이드 일정:</span>
                         <span id="raidScheduleDisplay" class="text-orange-400 text-sm font-bold">등록된 일정이 없습니다.</span>
                     </div>
-                    <!-- 수정 모드 시 나타나는 일정 입력박스 -->
                     <div id="raidScheduleInputs" class="hidden flex flex-wrap items-center gap-1.5 text-xs">
                         <input type="number" id="raidYear" placeholder="년" class="w-16 bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-center text-slate-200">년
                         <input type="number" id="raidMonth" placeholder="월" class="w-12 bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-center text-slate-200">월
@@ -191,17 +182,14 @@
                     </div>
                 </div>
 
-                <!-- 좌우 분할: 좌측(길드원 체크 + 검색), 우측(참여자 명단) -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
                     
-                    <!-- 좌측: 길드원 체크 패널 -->
                     <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
                         <div class="flex justify-between items-center">
                             <span class="text-xs font-bold text-slate-300">👥 전체 길드원 선택</span>
                             <span id="raidModeGuide" class="text-[11px] text-slate-500">🔒 관리자 수정 모드에서 체크 가능</span>
                         </div>
                         
-                        <!-- 🔍 좌측 길드원 검색창 -->
                         <div>
                             <input type="text" id="raidMemberSearch" placeholder="🔍 닉네임 검색..." oninput="renderRaid()"
                                    class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-orange-500">
@@ -212,7 +200,6 @@
                         </div>
                     </div>
 
-                    <!-- 우측: 이번 레이드 참여자 패널 -->
                     <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3 flex flex-col justify-between">
                         <div>
                             <div class="flex justify-between items-center mb-3">
@@ -224,7 +211,6 @@
                             </div>
                         </div>
 
-                        <!-- 이번 주차 기록 저장 버튼 -->
                         <div id="raidSaveSection" class="hidden pt-3 border-t border-slate-800">
                             <button onclick="saveCurrentRaidToHistory()" 
                                     class="w-full bg-orange-600 hover:bg-orange-500 text-white font-semibold py-2 rounded-xl text-xs transition shadow-md shadow-orange-500/20">
@@ -235,7 +221,7 @@
 
                 </div>
 
-                <!-- 하단: 주차별 히스토리 아카이브 -->
+                <!-- 하단: 주차별 히스토리 아카이브 (수정 및 삭제 기능 포함) -->
                 <div class="space-y-3 pt-4 border-t border-slate-800">
                     <h3 class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
                         📜 주차별 레이드 참여 히스토리 (아카이브)
@@ -258,9 +244,6 @@
 
     <!-- 자바스크립트 로직 -->
     <script>
-        // ==========================================
-        // 🛠️ 파이어베이스 설정
-        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyChvtfBYpfaNnU37FT4837YyJ35NCQeV3M",
             authDomain: "king-guild-system.firebaseapp.com",
@@ -301,6 +284,7 @@
 
         let isMemberEdit = false;
         let isRaidEdit = false;
+        let editingHistoryIndex = null; // 현재 수정 중인 히스토리 인덱스
 
         function getDefaultObject() {
             const now = new Date();
@@ -606,7 +590,7 @@
         }
 
         // ==========================================
-        // 3. 길드레이드 로직 (참여자 체크 권한 통제 및 삭제 기능 추가)
+        // 3. 길드레이드 로직 (히스토리 수정/삭제 기능 추가)
         // ==========================================
         function toggleRaidEditMode() {
             if (!isRaidEdit) {
@@ -639,6 +623,7 @@
                 saveToServer();
 
                 isRaidEdit = false;
+                editingHistoryIndex = null;
                 document.getElementById('raidViewMode').innerText = "🔒 조회 전용 모드";
                 document.getElementById('raidViewMode').className = "text-xs text-slate-400 bg-slate-950 px-3 py-2 rounded-xl border border-slate-800";
                 document.getElementById('raidActionBtn').innerText = "관리자 수정";
@@ -655,7 +640,7 @@
         function handleParticipantCheck(name, isChecked) {
             if (!isRaidEdit) {
                 alert("관리자 수정 모드에서만 참여자를 변경할 수 있습니다!");
-                renderRaid(); // 체크 강제 원복
+                renderRaid();
                 return;
             }
             if (!globalData.raid.participants) globalData.raid.participants = [];
@@ -667,7 +652,6 @@
             saveToServer();
         }
 
-        // 우측 뱃지에서 바로 제거하는 기능
         function removeParticipant(name) {
             if (!isRaidEdit) {
                 alert("관리자 수정 모드에서만 참여자를 제외할 수 있습니다!");
@@ -675,6 +659,34 @@
             }
             if (!globalData.raid.participants) return;
             globalData.raid.participants = globalData.raid.participants.filter(p => p !== name);
+            saveToServer();
+        }
+
+        // 히스토리 삭제 기능
+        function deleteHistoryItem(hIdx) {
+            if (!isRaidEdit) { alert("관리자 수정 모드에서만 삭제할 수 있습니다!"); return; }
+            if (!confirm("해당 주차 히스토리를 영구 삭제하시겠습니까?")) return;
+            globalData.raid.history.splice(hIdx, 1);
+            saveToServer();
+            alert("히스토리가 삭제되었습니다.");
+        }
+
+        // 히스토리 참여자 수정 토글
+        function toggleEditHistory(hIdx) {
+            if (!isRaidEdit) { alert("관리자 수정 모드에서만 수정할 수 있습니다!"); return; }
+            editingHistoryIndex = (editingHistoryIndex === hIdx) ? null : hIdx;
+            renderRaid();
+        }
+
+        // 히스토리 내부 참여자 체크 변경
+        function handleHistoryParticipantCheck(hIdx, name, isChecked) {
+            let hItem = globalData.raid.history[hIdx];
+            if (!hItem.participants) hItem.participants = [];
+            if (isChecked) {
+                if (!hItem.participants.includes(name)) hItem.participants.push(name);
+            } else {
+                hItem.participants = hItem.participants.filter(p => p !== name);
+            }
             saveToServer();
         }
 
@@ -729,7 +741,6 @@
                 filteredMembers.forEach(m => {
                     const isChecked = r.participants && r.participants.includes(m.name);
                     const div = document.createElement('label');
-                    // 조회 모드일 때 마우스 커서 기본값으로 변경
                     div.className = `flex items-center justify-between bg-slate-900 px-3 py-2 rounded-lg border border-slate-800/80 text-xs ${isRaidEdit ? 'cursor-pointer hover:bg-slate-900/80' : 'cursor-default opacity-90'}`;
                     div.innerHTML = `
                         <div class="flex items-center gap-2">
@@ -745,7 +756,6 @@
                 });
             }
 
-            // 우측 참여자 명단 렌더링 (관리자 모드일 경우 X 버튼 표시하여 바로 제외 가능)
             const pContainer = document.getElementById('participantListContainer');
             pContainer.innerHTML = '';
             const participants = r.participants || [];
@@ -767,6 +777,7 @@
                 });
             }
 
+            // 하단 주차별 히스토리 아카이브 렌더링 (삭제 및 수정 영역 포함)
             const historyContainer = document.getElementById('raidHistoryContainer');
             historyContainer.innerHTML = '';
             const history = r.history || [];
@@ -774,18 +785,63 @@
             if (history.length === 0) {
                 historyContainer.innerHTML = `<div class="text-xs text-slate-500 text-center py-4 bg-slate-950 border border-slate-800/60 rounded-xl">아직 저장된 주차별 히스토리가 없습니다.</div>`;
             } else {
-                history.forEach((hItem) => {
+                history.forEach((hItem, hIdx) => {
+                    const isEditingThis = (editingHistoryIndex === hIdx);
                     const box = document.createElement('div');
                     box.className = "bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs space-y-2";
-                    box.innerHTML = `
+                    
+                    let htmlContent = `
                         <div class="flex justify-between items-center text-slate-400 border-b border-slate-900 pb-2">
                             <span class="font-bold text-orange-400">📅 레이드 일정: ${hItem.dateStr}</span>
-                            <span class="text-[11px]">참여 인원: <strong class="text-slate-200">${hItem.participants.length}명</strong></span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[11px]">참여 인원: <strong class="text-slate-200">${hItem.participants.length}명</strong></span>
+                    `;
+                    
+                    if (isRaidEdit) {
+                        htmlContent += `
+                                <button onclick="toggleEditHistory(${hIdx})" class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded text-[11px]">
+                                    ${isEditingThis ? '수정 닫기' : '✏️ 참여자 수정'}
+                                </button>
+                                <button onclick="deleteHistoryItem(${hIdx})" class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded text-[11px]">
+                                    삭제
+                                </button>
+                        `;
+                    }
+
+                    htmlContent += `
+                            </div>
                         </div>
-                        <div class="flex flex-wrap gap-1">
+                    `;
+
+                    // 수정 모드일 때 펼쳐지는 참여자 체크박스 목록
+                    if (isEditingThis && isRaidEdit) {
+                        htmlContent += `
+                            <div class="bg-slate-900 border border-slate-800 p-3 rounded-lg space-y-2 mt-2">
+                                <div class="text-[11px] font-bold text-indigo-300 mb-1">🛠️ 이 주차의 참여자 추가/제거 (체크 변경 시 실시간 반영)</div>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-40 overflow-y-auto pr-1">
+                        `;
+                        members.forEach(m => {
+                            const isIncluded = hItem.participants && hItem.participants.includes(m.name);
+                            htmlContent += `
+                                <label class="flex items-center gap-1.5 bg-slate-950 px-2 py-1.5 rounded border border-slate-800 cursor-pointer text-[11px]">
+                                    <input type="checkbox" ${isIncluded ? 'checked' : ''} 
+                                           onchange="handleHistoryParticipantCheck(${hIdx}, '${m.name}', this.checked)"
+                                           class="rounded bg-slate-900 border-slate-700 text-indigo-500 focus:ring-0">
+                                    <span class="text-slate-200 font-medium">${m.name}</span>
+                                </label>
+                            `;
+                        });
+                        htmlContent += `</div></div>`;
+                    }
+
+                    // 일반 참여자 뱃지 리스트
+                    htmlContent += `
+                        <div class="flex flex-wrap gap-1 pt-1">
                             ${hItem.participants.map(name => `<span class="bg-slate-900 border border-slate-800 text-slate-300 px-2 py-0.5 rounded text-[11px]">${name}</span>`).join('')}
                         </div>
                     `;
+
+                    box.innerHTML = htmlContent;
                     historyContainer.appendChild(box);
                 });
             }
