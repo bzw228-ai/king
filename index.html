@@ -71,6 +71,13 @@
                     </div>
                 </div>
 
+                <!-- 길드원 추가 버튼 (상단 배치) -->
+                <div id="memberAddBox" class="mb-4 hidden">
+                    <button onclick="addMemberRow()" class="w-full bg-slate-950 hover:bg-slate-900 border border-dashed border-amber-500/50 text-amber-400 py-2.5 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 shadow-sm">
+                        + 길드원 추가하기 (맨 위에 추가됨)
+                    </button>
+                </div>
+
                 <!-- 검색 및 정렬 바 -->
                 <div class="flex flex-col sm:flex-row gap-3 mb-4">
                     <input type="text" id="memberSearch" placeholder="🔍 닉네임 또는 비고 검색..." oninput="renderMembers()"
@@ -97,12 +104,6 @@
                             <!-- 동적 렌더링 -->
                         </tbody>
                     </table>
-                </div>
-
-                <div id="memberAddBox" class="mt-4 hidden">
-                    <button onclick="addMemberRow()" class="w-full bg-slate-950 hover:bg-slate-900 border border-dashed border-slate-700 text-slate-400 py-2.5 rounded-xl text-xs font-semibold transition">
-                        + 길드원 추가하기
-                    </button>
                 </div>
             </div>
         </section>
@@ -190,7 +191,7 @@
                     </div>
                 </div>
 
-                <!-- 좌우 분할: 좌측(길드원 체크), 우측(참여자 명단) -->
+                <!-- 좌우 분할: 좌측(길드원 체크 + 검색), 우측(참여자 명단) -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
                     
                     <!-- 좌측: 길드원 체크 패널 -->
@@ -199,7 +200,14 @@
                             <span class="text-xs font-bold text-slate-300">👥 전체 길드원 선택</span>
                             <span class="text-[11px] text-slate-500">체크시 우측 참여자에 즉시 반영</span>
                         </div>
-                        <div id="raidMemberList" class="space-y-1.5 max-h-64 overflow-y-auto pr-1">
+                        
+                        <!-- 🔍 좌측 길드원 검색창 -->
+                        <div>
+                            <input type="text" id="raidMemberSearch" placeholder="🔍 닉네임 검색..." oninput="renderRaid()"
+                                   class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-orange-500">
+                        </div>
+
+                        <div id="raidMemberList" class="space-y-1.5 max-h-56 overflow-y-auto pr-1">
                             <!-- 동적 렌더링 -->
                         </div>
                     </div>
@@ -227,13 +235,12 @@
 
                 </div>
 
-                <!-- 하단: 주차별 히스토리 아카이브 (제안 A 반영) -->
+                <!-- 하단: 주차별 히스토리 아카이브 -->
                 <div class="space-y-3 pt-4 border-t border-slate-800">
                     <h3 class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
                         📜 주차별 레이드 참여 히스토리 (아카이브)
                     </h3>
                     <div id="raidHistoryContainer" class="space-y-2">
-                        <!-- 동적 렌더링 -->
                         <div class="text-xs text-slate-500 text-center py-4 bg-slate-950 border border-slate-800/60 rounded-xl">
                             아직 저장된 주차별 히스토리가 없습니다.
                         </div>
@@ -252,7 +259,7 @@
     <!-- 자바스크립트 로직 -->
     <script>
         // ==========================================
-        // 🛠️ 새로운 파이어베이스 설정 반영 완료
+        // 🛠️ 파이어베이스 설정
         // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyChvtfBYpfaNnU37FT4837YyJ35NCQeV3M",
@@ -267,10 +274,8 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // 관리자 비밀번호
-        const ADMIN_PASSWORD = "king"; // 원하시는 비밀번호로 변경 가능합니다!
+        const ADMIN_PASSWORD = "king";
 
-        // 공용 데이터 구조
         let globalData = {
             members: [
                 { id: 1, name: "길드마스터", note: "마스터" },
@@ -302,7 +307,6 @@
             return { month: now.getMonth() + 1, day: now.getDate(), hour: now.getHours(), minute: 0 };
         }
 
-        // 데이터 서버 동기화 로직
         function saveToServer() {
             db.ref('kingSystemData').set(globalData);
         }
@@ -318,7 +322,6 @@
                 if (val.soundToggle !== undefined) globalData.soundToggle = val.soundToggle;
                 if (val.raid) globalData.raid = val.raid;
 
-                // UI 반영
                 document.getElementById('alertOffset').value = globalData.alertOffset;
                 document.getElementById('popupToggle').checked = globalData.popupToggle;
                 document.getElementById('soundToggle').checked = globalData.soundToggle;
@@ -331,7 +334,6 @@
             }
         });
 
-        // 탭 전환 함수
         function switchTab(tabName) {
             ['members', 'bossTimer', 'guildRaid'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
@@ -346,7 +348,7 @@
         }
 
         // ==========================================
-        // 1. 길드원 목록 로직
+        // 1. 길드원 목록 로직 (상단 추가 기능 반영)
         // ==========================================
         function toggleMemberEditMode() {
             if (!isMemberEdit) {
@@ -362,7 +364,6 @@
                 document.getElementById('memberActionBtn').className = "bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md";
                 document.getElementById('memberAddBox').classList.remove('hidden');
             } else {
-                // 저장 및 완료
                 collectMemberDataFromDOM();
                 const now = new Date();
                 globalData.memberLastUpdate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
@@ -382,12 +383,11 @@
         function collectMemberDataFromDOM() {
             const rows = document.querySelectorAll('#memberTableBody tr');
             let newMembers = [];
-            rows.forEach((row, idx) => {
+            rows.forEach((row) => {
                 const nameInput = row.querySelector('.member-name');
                 const noteInput = row.querySelector('.member-note');
                 if (nameInput) {
                     newMembers.push({
-                        id: idx + 1,
                         name: nameInput.value.trim() || '이름없음',
                         note: noteInput.value.trim() || ''
                     });
@@ -398,7 +398,8 @@
 
         function addMemberRow() {
             collectMemberDataFromDOM();
-            globalData.members.push({ id: globalData.members.length + 1, name: '', note: '' });
+            // 💡 맨 위에 새로운 빈 칸 추가 (unshift 사용)
+            globalData.members.unshift({ name: '', note: '' });
             renderMembers();
         }
 
@@ -416,16 +417,14 @@
             const keyword = document.getElementById('memberSearch').value.toLowerCase();
             const sortType = document.getElementById('memberSort').value;
 
-            // 필터링
-            let filtered = globalData.members.filter(m => m.name.toLowerCase().includes(keyword) || m.note.toLowerCase().includes(keyword));
+            let filtered = globalData.members.map((m, origIdx) => ({ ...m, origIdx }))
+                                           .filter(m => m.name.toLowerCase().includes(keyword) || m.note.toLowerCase().includes(keyword));
 
-            // 정렬
             filtered.sort((a, b) => {
                 if (sortType === 'nameAsc') return a.name.localeCompare(b.name, 'ko');
                 return b.name.localeCompare(a.name, 'ko');
             });
 
-            // 편집 컬럼 표시 여부
             document.querySelectorAll('.edit-col').forEach(el => {
                 if (isMemberEdit) el.classList.remove('hidden');
                 else el.classList.add('hidden');
@@ -437,7 +436,6 @@
             }
 
             filtered.forEach((m, idx) => {
-                const origIndex = globalData.members.findIndex(item => item === m);
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-900/50 transition";
                 
@@ -452,7 +450,7 @@
                         <td class="p-3 text-center text-slate-400 font-mono">${idx + 1}</td>
                         <td class="p-3"><input type="text" value="${m.name}" class="member-name w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-slate-200"></td>
                         <td class="p-3"><input type="text" value="${m.note}" class="member-note w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-slate-200"></td>
-                        <td class="p-3 text-center"><button onclick="removeMemberRow(${origIndex})" class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-1 rounded text-[10px]">삭제</button></td>
+                        <td class="p-3 text-center"><button onclick="removeMemberRow(${m.origIdx})" class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-1 rounded text-[10px]">삭제</button></td>
                     `;
                 }
                 tbody.appendChild(tr);
@@ -460,7 +458,7 @@
         }
 
         // ==========================================
-        // 2. 보스 젠타임 테이블 로직 (기존 연동)
+        // 2. 보스 젠타임 테이블 로직
         // ==========================================
         function getTimestamp(k) {
             const now = new Date();
@@ -623,7 +621,6 @@
                 document.getElementById('raidScheduleInputs').classList.remove('hidden');
                 document.getElementById('raidSaveSection').classList.remove('hidden');
             } else {
-                // 일정 저장
                 const y = parseInt(document.getElementById('raidYear').value);
                 const m = parseInt(document.getElementById('raidMonth').value);
                 const d = parseInt(document.getElementById('raidDay').value);
@@ -677,9 +674,8 @@
             };
 
             if (!globalData.raid.history) globalData.raid.history = [];
-            globalData.raid.history.unshift(historyItem); // 최신순
+            globalData.raid.history.unshift(historyItem);
 
-            // 이번 주차 참여자 초기화
             globalData.raid.participants = [];
             saveToServer();
             alert("이번 주차 기록이 성공적으로 아카이브에 저장되었습니다!");
@@ -690,7 +686,6 @@
             const r = globalData.raid;
             document.getElementById('raidLastUpdate').innerText = r.lastUpdate || "기록 없음";
             
-            // 일정 표출
             const scheduleText = `${r.year || 2026}년 ${r.month || 11}월 ${r.day || 1}일 ${String(r.hour || 0).padStart(2,'0')}:${String(r.minute || 0).padStart(2,'0')}`;
             document.getElementById('raidScheduleDisplay').innerText = scheduleText;
 
@@ -702,13 +697,17 @@
                 document.getElementById('raidMinute').value = r.minute || 0;
             }
 
-            // 좌측 길드원 체크박스 리스트 렌더링
             const memberListEl = document.getElementById('raidMemberList');
             memberListEl.innerHTML = '';
-            if (!globalData.members || globalData.members.length === 0) {
-                memberListEl.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">등록된 길드원이 없습니다.</div>`;
+            
+            const searchKeyword = (document.getElementById('raidMemberSearch').value || '').toLowerCase();
+            const members = globalData.members || [];
+            const filteredMembers = members.filter(m => m.name.toLowerCase().includes(searchKeyword) || m.note.toLowerCase().includes(searchKeyword));
+
+            if (filteredMembers.length === 0) {
+                memberListEl.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">검색 결과가 없습니다.</div>`;
             } else {
-                globalData.members.forEach(m => {
+                filteredMembers.forEach(m => {
                     const isChecked = r.participants && r.participants.includes(m.name);
                     const div = document.createElement('label');
                     div.className = "flex items-center justify-between bg-slate-900 px-3 py-2 rounded-lg border border-slate-800/80 hover:bg-slate-900 cursor-pointer text-xs";
@@ -725,7 +724,6 @@
                 });
             }
 
-            // 우측 참여자 명단 렌더링
             const pContainer = document.getElementById('participantListContainer');
             pContainer.innerHTML = '';
             const participants = r.participants || [];
@@ -742,7 +740,6 @@
                 });
             }
 
-            // 하단 주차별 히스토리 아카이브 렌더링
             const historyContainer = document.getElementById('raidHistoryContainer');
             historyContainer.innerHTML = '';
             const history = r.history || [];
@@ -750,7 +747,7 @@
             if (history.length === 0) {
                 historyContainer.innerHTML = `<div class="text-xs text-slate-500 text-center py-4 bg-slate-950 border border-slate-800/60 rounded-xl">아직 저장된 주차별 히스토리가 없습니다.</div>`;
             } else {
-                history.forEach((hItem, hIdx) => {
+                history.forEach((hItem) => {
                     const box = document.createElement('div');
                     box.className = "bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs space-y-2";
                     box.innerHTML = `
@@ -767,7 +764,6 @@
             }
         }
 
-        // 실시간 타이머 구동 (1초마다 렌더)
         setInterval(() => {
             if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
             renderBosses();
