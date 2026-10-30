@@ -198,7 +198,7 @@
                     <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
                         <div class="flex justify-between items-center">
                             <span class="text-xs font-bold text-slate-300">👥 전체 길드원 선택</span>
-                            <span class="text-[11px] text-slate-500">체크시 우측 참여자에 즉시 반영</span>
+                            <span id="raidModeGuide" class="text-[11px] text-slate-500">🔒 관리자 수정 모드에서 체크 가능</span>
                         </div>
                         
                         <!-- 🔍 좌측 길드원 검색창 -->
@@ -348,7 +348,7 @@
         }
 
         // ==========================================
-        // 1. 길드원 목록 로직 (상단 추가 기능 반영)
+        // 1. 길드원 목록 로직
         // ==========================================
         function toggleMemberEditMode() {
             if (!isMemberEdit) {
@@ -398,7 +398,6 @@
 
         function addMemberRow() {
             collectMemberDataFromDOM();
-            // 💡 맨 위에 새로운 빈 칸 추가 (unshift 사용)
             globalData.members.unshift({ name: '', note: '' });
             renderMembers();
         }
@@ -607,7 +606,7 @@
         }
 
         // ==========================================
-        // 3. 길드레이드 로직
+        // 3. 길드레이드 로직 (참여자 체크 권한 통제 및 삭제 기능 추가)
         // ==========================================
         function toggleRaidEditMode() {
             if (!isRaidEdit) {
@@ -620,6 +619,8 @@
                 document.getElementById('raidActionBtn').className = "bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md";
                 document.getElementById('raidScheduleInputs').classList.remove('hidden');
                 document.getElementById('raidSaveSection').classList.remove('hidden');
+                document.getElementById('raidModeGuide').innerText = "✅ 체크박스 수정 가능";
+                document.getElementById('raidModeGuide').className = "text-[11px] text-emerald-400 font-semibold";
             } else {
                 const y = parseInt(document.getElementById('raidYear').value);
                 const m = parseInt(document.getElementById('raidMonth').value);
@@ -644,18 +645,36 @@
                 document.getElementById('raidActionBtn').className = "bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md";
                 document.getElementById('raidScheduleInputs').classList.add('hidden');
                 document.getElementById('raidSaveSection').classList.add('hidden');
+                document.getElementById('raidModeGuide').innerText = "🔒 관리자 수정 모드에서 체크 가능";
+                document.getElementById('raidModeGuide').className = "text-[11px] text-slate-500";
                 alert("레이드 설정이 저장되었습니다!");
             }
             renderRaid();
         }
 
         function handleParticipantCheck(name, isChecked) {
+            if (!isRaidEdit) {
+                alert("관리자 수정 모드에서만 참여자를 변경할 수 있습니다!");
+                renderRaid(); // 체크 강제 원복
+                return;
+            }
             if (!globalData.raid.participants) globalData.raid.participants = [];
             if (isChecked) {
                 if (!globalData.raid.participants.includes(name)) globalData.raid.participants.push(name);
             } else {
                 globalData.raid.participants = globalData.raid.participants.filter(p => p !== name);
             }
+            saveToServer();
+        }
+
+        // 우측 뱃지에서 바로 제거하는 기능
+        function removeParticipant(name) {
+            if (!isRaidEdit) {
+                alert("관리자 수정 모드에서만 참여자를 제외할 수 있습니다!");
+                return;
+            }
+            if (!globalData.raid.participants) return;
+            globalData.raid.participants = globalData.raid.participants.filter(p => p !== name);
             saveToServer();
         }
 
@@ -710,12 +729,14 @@
                 filteredMembers.forEach(m => {
                     const isChecked = r.participants && r.participants.includes(m.name);
                     const div = document.createElement('label');
-                    div.className = "flex items-center justify-between bg-slate-900 px-3 py-2 rounded-lg border border-slate-800/80 hover:bg-slate-900 cursor-pointer text-xs";
+                    // 조회 모드일 때 마우스 커서 기본값으로 변경
+                    div.className = `flex items-center justify-between bg-slate-900 px-3 py-2 rounded-lg border border-slate-800/80 text-xs ${isRaidEdit ? 'cursor-pointer hover:bg-slate-900/80' : 'cursor-default opacity-90'}`;
                     div.innerHTML = `
                         <div class="flex items-center gap-2">
                             <input type="checkbox" ${isChecked ? 'checked' : ''} 
+                                   ${!isRaidEdit ? 'disabled' : ''}
                                    onchange="handleParticipantCheck('${m.name}', this.checked)"
-                                   class="rounded bg-slate-950 border-slate-700 text-orange-500 focus:ring-0">
+                                   class="rounded bg-slate-950 border-slate-700 text-orange-500 focus:ring-0 ${!isRaidEdit ? 'opacity-50 cursor-not-allowed' : ''}">
                             <span class="font-bold text-slate-200">${m.name}</span>
                         </div>
                         <span class="text-[11px] text-slate-400">${m.note}</span>
@@ -724,6 +745,7 @@
                 });
             }
 
+            // 우측 참여자 명단 렌더링 (관리자 모드일 경우 X 버튼 표시하여 바로 제외 가능)
             const pContainer = document.getElementById('participantListContainer');
             pContainer.innerHTML = '';
             const participants = r.participants || [];
@@ -735,7 +757,12 @@
                 participants.forEach(pName => {
                     const badge = document.createElement('span');
                     badge.className = "bg-orange-500/20 border border-orange-500/40 text-orange-300 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5";
-                    badge.innerHTML = `⚔️ ${pName}`;
+                    
+                    if (isRaidEdit) {
+                        badge.innerHTML = `⚔️ ${pName} <button onclick="removeParticipant('${pName}')" class="text-orange-400 hover:text-red-400 font-bold ml-1 px-1 rounded bg-slate-900/50">×</button>`;
+                    } else {
+                        badge.innerHTML = `⚔️ ${pName}`;
+                    }
                     pContainer.appendChild(badge);
                 });
             }
