@@ -364,7 +364,7 @@
 
         function getDefaultObject() {
             const now = new Date();
-            return { month: now.getMonth() + 1, day: now.getDate(), hour: now.getHours(), minute: 0 };
+            return { year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate(), hour: now.getHours(), minute: 0, lastApplied: "기록 없음" };
         }
 
         function saveToServer() {
@@ -514,11 +514,17 @@
         }
 
         // ==========================================
-        // 2. 보스 젠타임 테이블 로직
+        // 2. 보스 젠타임 테이블 로직 (정확한 시간 계산 수정완료)
         // ==========================================
         function getTimestamp(k) {
             const now = new Date();
-            let d = new Date(now.getFullYear(), (k.month || 1) - 1, k.day || 1, k.hour || 0, k.minute || 0, 0);
+            const year = k.year || now.getFullYear();
+            const month = (k.month !== undefined && k.month !== null) ? k.month - 1 : now.getMonth();
+            const day = (k.day !== undefined && k.day !== null) ? k.day : now.getDate();
+            const hour = (k.hour !== undefined && k.hour !== null) ? k.hour : 0;
+            const minute = (k.minute !== undefined && k.minute !== null) ? k.minute : 0;
+            
+            let d = new Date(year, month, day, hour, minute, 0);
             return d.getTime();
         }
 
@@ -583,7 +589,9 @@
                 if (isNaN(lastKillTime)) return;
 
                 let nextSpawn = lastKillTime;
-                while (nextSpawn <= now) { nextSpawn += cycleMs; }
+                while (nextSpawn <= now) { 
+                    nextSpawn += cycleMs; 
+                }
                 const secondSpawn = nextSpawn + cycleMs;
 
                 checkAlerts(boss.name, nextSpawn, alertOffset);
@@ -593,6 +601,7 @@
                 const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((diff % (1000 * 60)) / 1000);
                 const isImminent = diff <= alertOffset * 60 * 1000;
+                const lastAppliedStr = boss.lastKill.lastApplied || "기록 없음";
 
                 const card = document.createElement('div');
                 card.className = `bg-slate-900 border rounded-2xl p-4 flex flex-col justify-between shadow-xl transition-all ${
@@ -616,6 +625,9 @@
                         <div class="space-y-1 text-[11px] mb-3 bg-slate-950/50 p-2.5 rounded-xl border border-slate-800/50">
                             <div class="flex justify-between text-slate-300"><span class="text-slate-400">1순위:</span><span class="font-semibold text-amber-300">${new Date(nextSpawn).toLocaleString()}</span></div>
                             <div class="flex justify-between text-slate-300"><span class="text-slate-400">2순위:</span><span class="text-slate-400">${new Date(secondSpawn).toLocaleString()}</span></div>
+                            <div class="flex justify-between text-slate-400 pt-1 border-t border-slate-800/60 text-[10px]">
+                                <span>최종 적용:</span><span class="text-amber-200/90 font-medium">${lastAppliedStr}</span>
+                            </div>
                         </div>
                     </div>
                     <div class="space-y-2 pt-3 border-t border-slate-800 text-[11px]">
@@ -652,14 +664,22 @@
             const h = parseInt(document.getElementById(`h_${index}`).value);
             const min = parseInt(document.getElementById(`min_${index}`).value);
 
-            if (!isNaN(cH)) globalData.bosses[index].cycleHours = cH;
-            if (!isNaN(cM)) globalData.bosses[index].cycleMinutes = cM;
-            if (!isNaN(m)) globalData.bosses[index].lastKill.month = m;
-            if (!isNaN(d)) globalData.bosses[index].lastKill.day = d;
-            if (!isNaN(h)) globalData.bosses[index].lastKill.hour = h;
-            if (!isNaN(min)) globalData.bosses[index].lastKill.minute = min;
+            const now = new Date();
+            const appliedTimeStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
+            globalData.bosses[index].cycleHours = isNaN(cH) ? 0 : cH;
+            globalData.bosses[index].cycleMinutes = isNaN(cM) ? 0 : cM;
+            globalData.bosses[index].lastKill = {
+                year: now.getFullYear(),
+                month: isNaN(m) ? 1 : m,
+                day: isNaN(d) ? 1 : d,
+                hour: isNaN(h) ? 0 : h,
+                minute: isNaN(min) ? 0 : min,
+                lastApplied: appliedTimeStr
+            };
 
             saveToServer();
+            alert(`⚔️ [${globalData.bosses[index].name}] 젠타임이 적용되었습니다! (적용 시각: ${appliedTimeStr})`);
         }
 
         // ==========================================
@@ -788,13 +808,11 @@
         function openLadderAction(hIdx) {
             const hItem = globalData.raid.history[hIdx];
             if (isRaidEdit) {
-                // 관리자 모드: 아이템 목록 작성 모달 오픈
                 adminTargetHistoryIdx = hIdx;
                 document.getElementById('ladderAdminTargetDate').innerText = `대상 히스토리: ${hItem.dateStr}`;
                 renderAdminLadderItems(hItem.ladderConfig || [{ name: '전설 장갑', qty: 1 }]);
                 document.getElementById('ladderAdminModal').classList.remove('hidden');
             } else {
-                // 일반 사용자 모드: 결과 확인 및 사다리 애니메이션
                 if (!hItem.ladderResult || !hItem.ladderResult.results || hItem.ladderResult.results.length === 0) {
                     alert("아직 작성중이에요~~ 🎁 관리자가 아직 사다리 추첨을 완료하지 않았습니다!");
                     return;
@@ -873,7 +891,6 @@
                 return;
             }
 
-            // 아이템 풀 생성 및 섞기 (누구나 같은 결과를 얻도록 서버에 박제)
             let itemPool = [];
             config.forEach(c => {
                 for (let i = 0; i < c.qty; i++) {
@@ -902,7 +919,6 @@
         }
 
         function startLadderAnimation() {
-            const hItem = globalData.raid.history[currentActiveLadderHistoryIdx];
             const area = document.getElementById('ladderCanvasArea');
             const resultListEl = document.getElementById('ladderResultList');
             resultListEl.classList.add('hidden');
@@ -950,7 +966,6 @@
             resultListEl.classList.remove('hidden');
         }
 
-        // 단톡방 공유용 텍스트 복사 기능
         function copyLadderResultText() {
             const hItem = globalData.raid.history[currentActiveLadderHistoryIdx];
             if (!hItem || !hItem.ladderResult) return;
@@ -1032,7 +1047,6 @@
                 });
             }
 
-            // 하단 주차별 히스토리 아카이브 렌더링 (각 기록별 '분배 사다리타기' 버튼 포함)
             const historyContainer = document.getElementById('raidHistoryContainer');
             historyContainer.innerHTML = '';
             const history = r.history || [];
@@ -1050,7 +1064,6 @@
                             <span class="font-bold text-orange-400">📅 레이드 일정: ${hItem.dateStr}</span>
                             <div class="flex flex-wrap items-center gap-2">
                                 <span class="text-[11px]">참여 인원: <strong class="text-slate-200">${hItem.participants.length}명</strong></span>
-                                <!-- 🎲 각 기록별 분배 사다리타기 버튼 -->
                                 <button onclick="openLadderAction(${hIdx})" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 px-2.5 py-1 rounded font-bold text-[11px] transition shadow-sm">
                                     🎲 분배 사다리타기 ${isRaidEdit ? '(설정)' : '(결과)'}
                                 </button>
