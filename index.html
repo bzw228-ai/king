@@ -514,7 +514,7 @@
         }
 
         // ==========================================
-        // 2. 보스 젠타임 테이블 로직 (정확한 시간 계산 수정완료)
+        // 2. 보스 젠타임 테이블 로직 (정확한 다음 젠 계산 완벽 수정)
         // ==========================================
         function getTimestamp(k) {
             const now = new Date();
@@ -582,15 +582,19 @@
 
             globalData.bosses.forEach((boss, index) => {
                 if (!boss.lastKill) boss.lastKill = getDefaultObject();
-                const lastKillTime = getTimestamp(boss.lastKill);
+                const baseTime = getTimestamp(boss.lastKill);
                 const totalCycleMinutes = (boss.cycleHours * 60) + boss.cycleMinutes;
                 const cycleMs = (totalCycleMinutes > 0 ? totalCycleMinutes : 1) * 60 * 1000;
 
-                if (isNaN(lastKillTime)) return;
+                if (isNaN(baseTime)) return;
 
-                let nextSpawn = lastKillTime;
-                while (nextSpawn <= now) { 
-                    nextSpawn += cycleMs; 
+                // [수정된 젠타임 계산 로직]
+                // 기준 시각(baseTime)에서 시작하여 현재 시간(now)보다 뒤에 있는 첫 번째 미래 젠타임을 정확히 계산합니다.
+                let nextSpawn = baseTime;
+                if (nextSpawn <= now) {
+                    const diff = now - baseTime;
+                    const steps = Math.floor(diff / cycleMs) + 1;
+                    nextSpawn = baseTime + (steps * cycleMs);
                 }
                 const secondSpawn = nextSpawn + cycleMs;
 
