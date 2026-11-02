@@ -1168,6 +1168,14 @@
             }
             let pList = globalData.competition.parties[partyNum] || [];
             if (isChecked) {
+                const assignedElsewhere = Object.entries(globalData.competition.parties).some(
+                    ([number, names]) => Number(number) !== Number(partyNum) && (names || []).includes(memberName)
+                );
+                if (assignedElsewhere) {
+                    alert("이미 다른 군에 편성된 길드원입니다. 기존 군에서 체크를 해제한 뒤 편성해주세요.");
+                    renderCompetition();
+                    return;
+                }
                 if (pList.length >= 5) {
                     alert("각 군은 최대 5명까지만 편성할 수 있습니다!");
                     renderCompetition();
@@ -1317,7 +1325,15 @@
                             membersHtml = `<span class="text-[11px] text-slate-500">먼저 위에서 참가 인원을 체크해주세요.</span>`;
                         } else {
                             membersHtml = `<div class="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto pr-1">`;
-                            participants.forEach(pName => {
+                            const availableParticipants = participants.filter(pName =>
+                                partyMembers.includes(pName) || !Object.entries(comp.parties).some(
+                                    ([number, names]) => Number(number) !== i && (names || []).includes(pName)
+                                )
+                            );
+                            if (availableParticipants.length === 0) {
+                                membersHtml += '<span class="col-span-2 text-[11px] text-slate-500 py-2">편성 가능한 인원이 없습니다.</span>';
+                            }
+                            availableParticipants.forEach(pName => {
                                 const isChecked = partyMembers.includes(pName);
                                 membersHtml += `
                                     <label class="flex items-center gap-1.5 bg-slate-900 px-2 py-1 rounded border border-slate-800 cursor-pointer text-[11px]">
