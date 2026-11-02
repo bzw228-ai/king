@@ -1161,6 +1161,39 @@
             renderCompetition();
         }
 
+        function compVoiceMode(name, entries = globalData.competition.voiceModes || []) {
+            const entry = entries.find(item => item.name === name);
+            return entry && ['speak', 'listen'].includes(entry.mode) ? entry.mode : '';
+        }
+
+        function compVoiceLabel(name, entries = globalData.competition.voiceModes || []) {
+            const mode = compVoiceMode(name, entries);
+            return mode === 'speak' ? '👄 말하기 가능' : mode === 'listen' ? '👂 듣기만 가능' : '미설정';
+        }
+
+        function compVoiceMark(name, entries = globalData.competition.voiceModes || []) {
+            const mode = compVoiceMode(name, entries);
+            return mode === 'speak' ? ' 👄' : mode === 'listen' ? ' 👂' : '';
+        }
+
+        async function setCompVoiceMode(name, mode) {
+            if (!isCompEdit || !['', 'speak', 'listen'].includes(mode)) return;
+            const comp = globalData.competition;
+            if (!(comp.participants || []).includes(name)) return;
+            const previous = comp.voiceModes || [];
+            const next = previous.filter(item => item.name !== name);
+            if (mode) next.push({name, mode});
+            comp.voiceModes = next;
+            renderCompetition();
+            try {
+                await db.ref('kingSystemData/competition/voiceModes').set(next);
+            } catch (error) {
+                if (globalData.competition.voiceModes === next) globalData.competition.voiceModes = previous;
+                renderCompetition();
+                alert('음성 설정을 저장하지 못했습니다. 연결 상태와 저장 권한을 확인해주세요.');
+            }
+        }
+
         function handleCompMemberCheck(partyNum, memberName, isChecked) {
             if (!isCompEdit) return;
             if (!globalData.competition.parties) {
@@ -1203,6 +1236,7 @@
                 savedAt: new Date().toLocaleDateString(),
                 discordUrl: globalData.competition.discordUrl || "",
                 participants: [...globalData.competition.participants],
+                voiceModes: JSON.parse(JSON.stringify(globalData.competition.voiceModes || [])),
                 parties: JSON.parse(JSON.stringify(globalData.competition.parties || {}))
             };
 
@@ -1210,6 +1244,7 @@
             globalData.competition.history.unshift(historyItem);
 
             globalData.competition.participants = [];
+            globalData.competition.voiceModes = [];
             globalData.competition.parties = { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[] };
             saveToServer();
             alert("이번 경쟁전 기록이 성공적으로 아카이브에 저장되었습니다!");
@@ -1293,10 +1328,33 @@
                 participants.forEach(pName => {
                     const badge = document.createElement('span');
                     badge.className = "bg-amber-500/20 border border-amber-500/40 text-amber-300 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5";
+                    const nameLabel = document.createElement('span');
+                    nameLabel.textContent = `⚔️ ${pName}`;
+                    badge.appendChild(nameLabel);
                     if (isCompEdit) {
-                        badge.innerHTML = `⚔️ ${pName} <button onclick="removeCompParticipant('${pName}')" class="text-amber-400 hover:text-red-400 font-bold ml-1 px-1 rounded bg-slate-900/50">×</button>`;
+                        const voiceSelect = document.createElement('select');
+                        voiceSelect.className = "bg-slate-950 border border-slate-600 text-slate-100 rounded px-1.5 py-1 text-xs";
+                        voiceSelect.setAttribute('aria-label', `${pName} 음성 참여 방식`);
+                        [['', '음성 미설정'], ['speak', '👄 말하기 가능'], ['listen', '👂 듣기만 가능']].forEach(([value, text]) => {
+                            const option = document.createElement('option');
+                            option.value = value;
+                            option.textContent = text;
+                            voiceSelect.appendChild(option);
+                        });
+                        voiceSelect.value = compVoiceMode(pName);
+                        voiceSelect.addEventListener('change', () => setCompVoiceMode(pName, voiceSelect.value));
+                        badge.appendChild(voiceSelect);
+                        const remove = document.createElement('button');
+                        remove.textContent = '×';
+                        remove.className = "text-amber-400 hover:text-red-400 font-bold ml-1 px-1 rounded bg-slate-900/50";
+                        remove.setAttribute('aria-label', `${pName} 참가 제외`);
+                        remove.addEventListener('click', () => removeCompParticipant(pName));
+                        badge.appendChild(remove);
                     } else {
-                        badge.innerHTML = `⚔️ ${pName}`;
+                        const voiceLabel = document.createElement('span');
+                        voiceLabel.className = "text-slate-300 text-[11px]";
+                        voiceLabel.textContent = compVoiceLabel(pName);
+                        badge.appendChild(voiceLabel);
                     }
                     pContainer.appendChild(badge);
                 });
@@ -1318,7 +1376,7 @@
                         if (partyMembers.length === 0) {
                             membersHtml = `<span class="text-[11px] text-slate-600">편성된 인원이 없습니다.</span>`;
                         } else {
-                            membersHtml = partyMembers.map(name => `<span class="bg-amber-500/10 border border-amber-500/30 text-amber-300 px-2 py-0.5 rounded text-[11px] font-semibold">⚔️ ${name}</span>`).join('');
+                            membersHtml = partyMembers.map(name => `<span class="bg-amber-500/10 border border-amber-500/30 text-amber-300 px-2 py-0.5 rounded text-[11px] font-semibold" title="${compVoiceLabel(name)}">⚔️ ${name}${compVoiceMark(name)}</span>`).join('');
                         }
                     } else {
                         if (participants.length === 0) {
@@ -1340,7 +1398,7 @@
                                         <input type="checkbox" ${isChecked ? 'checked' : ''} 
                                                onchange="handleCompMemberCheck(${i}, '${pName}', this.checked)"
                                                class="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-0">
-                                        <span class="text-slate-200 truncate">${pName}</span>
+                                        <span class="text-slate-200 truncate" title="${compVoiceLabel(pName)}">${pName}${compVoiceMark(pName)}</span>
                                     </label>
                                 `;
                             });
@@ -1382,7 +1440,7 @@
                                     <div class="flex items-center gap-2 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-800/60">
                                         <span class="font-bold text-amber-400 w-10 shrink-0">${i}군</span>
                                         <div class="flex flex-wrap gap-1">
-                                            ${pList.map(n => `<span class="bg-slate-950 text-slate-300 px-1.5 py-0.5 rounded text-[10px]">${n}</span>`).join('')}
+                                            ${pList.map(n => `<span class="bg-slate-950 text-slate-300 px-1.5 py-0.5 rounded text-[10px]">${n}${compVoiceMark(n, hItem.voiceModes || [])}</span>`).join('')}
                                         </div>
                                     </div>
                                 `;
