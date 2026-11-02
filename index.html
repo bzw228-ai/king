@@ -60,17 +60,17 @@
                             👥 길드원 현황판
                         </h2>
                         <p class="text-xs text-slate-400 mt-0.5">
-                            마지막 수정일: <span id="memberLastUpdate" class="text-amber-300 font-semibold">기록 없음</span>[cite: 7]
+                            마지막 수정일: <span id="memberLastUpdate" class="text-amber-300 font-semibold">기록 없음</span>
                         </p>
                     </div>
                     
                     <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
                         <div id="memberViewMode" class="text-xs text-slate-400 bg-slate-950 px-3 py-2 rounded-xl border border-slate-800">
-                            🔒 조회 전용 모드[cite: 8]
+                            🔒 조회 전용 모드
                         </div>
                         <button id="memberActionBtn" onclick="toggleMemberEditMode()" 
                                 class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md">
-                            관리자 수정[cite: 8]
+                            관리자 수정
                         </button>
                     </div>
                 </div>
@@ -157,17 +157,17 @@
                             🐉 길드레이드 참여 관리
                         </h2>
                         <p class="text-xs text-slate-400 mt-1">
-                            마지막 수정일: <span id="raidLastUpdate" class="text-orange-300 font-semibold">기록 없음</span>[cite: 7]
+                            마지막 수정일: <span id="raidLastUpdate" class="text-orange-300 font-semibold">기록 없음</span>
                         </p>
                     </div>
 
                     <div class="flex items-center gap-2 w-full md:w-auto justify-end">
                         <div id="raidViewMode" class="text-xs text-slate-400 bg-slate-950 px-3 py-2 rounded-xl border border-slate-800">
-                            🔒 조회 전용 모드[cite: 8]
+                            🔒 조회 전용 모드
                         </div>
                         <button id="raidActionBtn" onclick="toggleRaidEditMode()" 
                                 class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md">
-                            관리자 수정[cite: 8]
+                            관리자 수정
                         </button>
                     </div>
                 </div>
@@ -215,7 +215,7 @@
                         <div id="raidSaveSection" class="hidden pt-3 border-t border-slate-800">
                             <button onclick="saveCurrentRaidToHistory()" 
                                     class="w-full bg-orange-600 hover:bg-orange-500 text-white font-semibold py-2 rounded-xl text-xs transition shadow-md shadow-orange-500/20">
-                                💾 이번 주차 기록 확정 및 저장[cite: 7]
+                                💾 이번 주차 기록 확정 및 저장
                             </button>
                         </div>
                     </div>
@@ -223,11 +223,11 @@
 
                 <div class="space-y-3 pt-4 border-t border-slate-800">
                     <h3 class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                        📜 주차별 레이드 참여 히스토리 (아카이브)[cite: 7]
+                        📜 주차별 레이드 참여 히스토리 (아카이브)
                     </h3>
                     <div id="raidHistoryContainer" class="space-y-2">
                         <div class="text-xs text-slate-500 text-center py-4 bg-slate-950 border border-slate-800/60 rounded-xl">
-                            아직 저장된 주차별 히스토리가 없습니다.[cite: 7]
+                            아직 저장된 주차별 히스토리가 없습니다.
                         </div>
                     </div>
                 </div>
@@ -235,34 +235,34 @@
             </div>
         </section>
 
-        <!-- ================= [탭 4] 길드 경쟁전 ================= -->
+        <!-- ================= [탭 4] 길드 경쟁전 (원본) ================= -->
         <section id="tab-competition" class="hidden space-y-4">
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-6">
                 
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-800">
                     <div>
                         <h2 class="text-lg sm:text-xl font-bold text-amber-400 flex items-center gap-2">
-                            🏆 길드 경쟁전 (참가 신청 및 1~10군 편성)[cite: 7]
+                            🏆 길드 경쟁전
                         </h2>
                         <p class="text-xs text-slate-400 mt-1">
-                            마지막 수정일: <span id="compLastUpdate" class="text-amber-300 font-semibold">기록 없음</span>[cite: 7]
+                            마지막 수정일: <span id="compLastUpdate" class="text-amber-300 font-semibold">기록 없음</span>
                         </p>
                     </div>
 
                     <div class="flex items-center gap-2 w-full md:w-auto justify-end">
                         <div id="compViewMode" class="text-xs text-slate-400 bg-slate-950 px-3 py-2 rounded-xl border border-slate-800">
-                            🔒 조회 전용 모드[cite: 8]
+                            🔒 조회 전용 모드
                         </div>
                         <button id="compActionBtn" onclick="toggleCompEditMode()" 
                                 class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md">
-                            관리자 수정[cite: 8]
+                            관리자 수정
                         </button>
                     </div>
                 </div>
 
                 <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-xs">
-                        <span class="text-slate-300 font-semibold">📅 경쟁전 일정:[cite: 7]</span>
+                        <span class="text-slate-300 font-semibold">📅 경쟁전 일정:</span>
                         <span id="compScheduleDisplay" class="text-amber-400 font-bold">등록된 일정이 없습니다.</span>
                         <div id="compScheduleInputs" class="hidden flex flex-wrap items-center gap-1">
                             <input type="number" id="compYear" placeholder="년" class="w-14 bg-slate-900 border border-slate-700 rounded px-1 py-1 text-center text-slate-200">년
@@ -274,25 +274,24 @@
                     </div>
 
                     <div class="flex items-center justify-between sm:justify-end gap-2 text-xs">
-                        <span class="text-slate-300 font-semibold">💬 디스코드:[cite: 7]</span>
+                        <span class="text-slate-300 font-semibold">💬 디스코드:</span>
                         <span id="compDiscordDisplay" class="text-indigo-400 truncate max-w-[180px]">등록된 링크 없음</span>
-                        <a id="compDiscordLinkBtn" href="#" target="_blank" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1 rounded-lg font-bold transition">입장[cite: 8]</a>
+                        <a id="compDiscordLinkBtn" href="#" target="_blank" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1 rounded-lg font-bold transition">입장</a>
                         <input type="text" id="compDiscordInput" placeholder="https://discord.gg/..." class="hidden flex-1 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-slate-200">
                     </div>
                 </div>
 
-                <!-- [단계 1] 참가 신청 영역 -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 bg-slate-950 border border-slate-800 rounded-xl p-4">
-                    <div id="compMemberBox" class="space-y-3">
+                    <div class="space-y-3">
                         <div class="flex justify-between items-center">
-                            <span class="text-xs font-bold text-slate-300">👥 1단계: 전체 길드원 참가 신청</span>
-                            <span id="compModeGuide" class="text-[11px] text-slate-500">🔒 관리자 수정 모드에서 체크 가능[cite: 8]</span>
+                            <span class="text-xs font-bold text-slate-300">👥 전체 길드원 참가 신청</span>
+                            <span id="compModeGuide" class="text-[11px] text-slate-500">🔒 관리자 수정 모드에서 체크 가능</span>
                         </div>
                         <div id="compSearchBox" class="hidden">
                             <input type="text" id="compMemberSearch" placeholder="🔍 닉네임 검색..." oninput="renderCompetition()"
                                    class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
                         </div>
-                        <div id="compMemberList" class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                        <div id="compMemberList" class="space-y-1.5 max-h-56 overflow-y-auto pr-1">
                             <!-- 동적 렌더링 -->
                         </div>
                     </div>
@@ -300,39 +299,31 @@
                     <div class="space-y-3 flex flex-col justify-between">
                         <div>
                             <div class="flex justify-between items-center mb-3">
-                                <span class="text-xs font-bold text-amber-400">⚔️ 이번 경쟁전 전체 참가자 명단[cite: 7]</span>
+                                <span class="text-xs font-bold text-amber-400">⚔️ 이번 경쟁전 전체 참가자 명단</span>
                                 <span id="compParticipantCount" class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">0명 참여</span>
                             </div>
-                            <div id="compParticipantListContainer" class="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
+                            <div id="compParticipantListContainer" class="flex flex-wrap gap-1.5 max-h-56 overflow-y-auto">
                                 <!-- 동적 렌더링 -->
                             </div>
                         </div>
-                        <div class="text-[11px] text-slate-500 bg-slate-900 p-2.5 rounded-lg border border-slate-800">
-                            💡 관리자 모드에서 [완료 (저장)]를 누르면, 현재 참가자 명단과 편성이 아카이브에 자동으로 저장됩니다.[cite: 7]
+
+                        <div id="compSaveSection" class="hidden pt-3 border-t border-slate-800">
+                            <button onclick="saveCurrentCompToHistory()" 
+                                    class="w-full bg-amber-600 hover:bg-amber-500 text-white font-semibold py-2 rounded-xl text-xs transition shadow-md shadow-amber-500/20">
+                                💾 이번 주차 기록 확정 및 저장
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- 히스토리 아카이브 -->
-                <div class="space-y-3 pt-2">
+                <div class="space-y-3 pt-4 border-t border-slate-800">
                     <h3 class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                        📜 경쟁전 히스토리 아카이브 (참가자 및 파티 기록)[cite: 7]
+                        📜 주차별 경쟁전 참여 히스토리 (아카이브)
                     </h3>
                     <div id="compHistoryContainer" class="space-y-2">
                         <div class="text-xs text-slate-500 text-center py-4 bg-slate-950 border border-slate-800/60 rounded-xl">
-                            아직 저장된 경쟁전 히스토리가 없습니다. 관리자 모드에서 완료를 누르면 기록됩니다.[cite: 7]
+                            아직 저장된 주차별 히스토리가 없습니다.
                         </div>
-                    </div>
-                </div>
-
-                <!-- [단계 2] 파티 편성 영역 -->
-                <div class="space-y-4 pt-2 border-t border-slate-800">
-                    <div class="flex justify-between items-center pt-2">
-                        <h3 class="text-xs font-bold text-slate-300">⚔️ 2단계: 파티별 편성 현황 (1군 ~ 10군 / 각 최대 5인)[cite: 7]</h3>
-                    </div>
-
-                    <div id="compPartiesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- 동적 렌더링 -->
                     </div>
                 </div>
 
@@ -345,7 +336,7 @@
         [KING] Guild Management System Architecture
     </footer>
 
-    <!-- 자바스크립트 로직 -->
+    <!-- 자바스크립트 로직 (원본 완벽 복구) -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyChvtfBYpfaNnU37FT4837YyJ35NCQeV3M",
@@ -368,7 +359,7 @@
                 { id: 2, name: "부마스터", note: "부관리자" },
                 { id: 3, name: "전사킹", note: "딜러" }
             ],
-            memberLastUpdate: "기록 없음",[cite: 7]
+            memberLastUpdate: "기록 없음",
             bosses: [
                 { id: 1, name: '어비스 (바리탄)', cycleHours: 4, cycleMinutes: 0, lastKill: getDefaultObject() },
                 { id: 2, name: '어비스 (엘다르)', cycleHours: 8, cycleMinutes: 0, lastKill: getDefaultObject() },
@@ -379,16 +370,15 @@
             soundToggle: true,
             raid: {
                 year: 2026, month: 11, day: 5, hour: 21, minute: 0,
-                lastUpdate: "기록 없음",[cite: 7]
+                lastUpdate: "기록 없음",
                 participants: [],
                 history: []
             },
             competition: {
                 year: 2026, month: 11, day: 7, hour: 21, minute: 0,
                 discordUrl: "",
-                lastUpdate: "기록 없음",[cite: 7]
+                lastUpdate: "기록 없음",
                 participants: [],
-                parties: { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[] },
                 history: []
             }
         };
@@ -399,7 +389,7 @@
 
         function getDefaultObject() {
             const now = new Date();
-            return { year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate(), hour: now.getHours(), minute: 0, lastApplied: "기록 없음" };[cite: 7]
+            return { year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate(), hour: now.getHours(), minute: 0, lastApplied: "기록 없음" };
         }
 
         function saveToServer() {
@@ -415,24 +405,12 @@
                 if (val.alertOffset !== undefined) globalData.alertOffset = val.alertOffset;
                 if (val.popupToggle !== undefined) globalData.popupToggle = val.popupToggle;
                 if (val.soundToggle !== undefined) globalData.soundToggle = val.soundToggle;
-                
                 if (val.raid) globalData.raid = val.raid;
-                if (val.competition) {
-                    globalData.competition = val.competition;
-                    if (!globalData.competition.participants) globalData.competition.participants = [];
-                    if (!globalData.competition.parties) {
-                        globalData.competition.parties = { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[] };
-                    }
-                    if (!globalData.competition.history) globalData.competition.history = [];
-                }
+                if (val.competition) globalData.competition = val.competition;
 
-                const alertOffsetEl = document.getElementById('alertOffset');
-                const popupToggleEl = document.getElementById('popupToggle');
-                const soundToggleEl = document.getElementById('soundToggle');
-
-                if (alertOffsetEl) alertOffsetEl.value = globalData.alertOffset;
-                if (popupToggleEl) popupToggleEl.checked = globalData.popupToggle;
-                if (soundToggleEl) soundToggleEl.checked = globalData.soundToggle;
+                document.getElementById('alertOffset').value = globalData.alertOffset;
+                document.getElementById('popupToggle').checked = globalData.popupToggle;
+                document.getElementById('soundToggle').checked = globalData.soundToggle;
 
                 renderMembers();
                 renderBosses();
@@ -445,33 +423,23 @@
 
         function switchTab(tabName) {
             ['members', 'bossTimer', 'guildRaid', 'competition'].forEach(t => {
-                const el = document.getElementById(`tab-${t}`);
-                const btn = document.getElementById(`btn-${t}`);
-                if (el) el.classList.add('hidden');
-                if (btn) {
-                    btn.className = "px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-slate-950 text-slate-400 border border-slate-800 hover:text-slate-200";
-                }
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                document.getElementById(`btn-${t}`).className = "px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-slate-950 text-slate-400 border border-slate-800 hover:text-slate-200";
             });
 
-            const targetTab = document.getElementById(`tab-${tabName}`);
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
             const activeBtn = document.getElementById(`btn-${tabName}`);
-            
-            if (targetTab) targetTab.classList.remove('hidden');
-            if (activeBtn) {
-                const colors = { 
-                    members: 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20', 
-                    bossTimer: 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20', 
-                    guildRaid: 'bg-orange-500 text-slate-950 shadow-lg shadow-orange-500/20',
-                    competition: 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20'
-                };
-                activeBtn.className = `px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${colors[tabName]}`;
-            }
+            const colors = { 
+                members: 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20', 
+                bossTimer: 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20', 
+                guildRaid: 'bg-orange-500 text-slate-950 shadow-lg shadow-orange-500/20',
+                competition: 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20'
+            };
+            activeBtn.className = `px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${colors[tabName]}`;
         }
 
-        // 페이지 최초 로딩 시 기본으로 '보스 젠타임' 탭이 열리도록 설정
-        window.addEventListener('DOMContentLoaded', () => {
-            switchTab('bossTimer');
-        });
+        // 페이지 최초 로딩 시 '보스 젠타임' 탭 표시
+        switchTab('bossTimer');
 
         // ==========================================
         // 1. 길드원 목록 로직
@@ -481,9 +449,9 @@
                 const pw = prompt("관리자 비밀번호를 입력하세요:");
                 if (pw !== ADMIN_PASSWORD) { alert("비밀번호가 틀렸습니다!"); return; }
                 isMemberEdit = true;
-                document.getElementById('memberViewMode').innerText = "🔓 관리자 수정 모드";[cite: 8]
+                document.getElementById('memberViewMode').innerText = "🔓 관리자 수정 모드";
                 document.getElementById('memberViewMode').className = "text-xs text-amber-400 bg-amber-500/10 px-3 py-2 rounded-xl border border-amber-500/30 font-semibold";
-                document.getElementById('memberActionBtn').innerText = "완료 (저장)";[cite: 7]
+                document.getElementById('memberActionBtn').innerText = "완료 (저장)";
                 document.getElementById('memberActionBtn').className = "bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md";
                 document.getElementById('memberAddBox').classList.remove('hidden');
             } else {
@@ -493,9 +461,9 @@
                 saveToServer();
 
                 isMemberEdit = false;
-                document.getElementById('memberViewMode').innerText = "🔒 조회 전용 모드";[cite: 8]
+                document.getElementById('memberViewMode').innerText = "🔒 조회 전용 모드";
                 document.getElementById('memberViewMode').className = "text-xs text-slate-400 bg-slate-950 px-3 py-2 rounded-xl border border-slate-800";
-                document.getElementById('memberActionBtn').innerText = "관리자 수정";[cite: 8]
+                document.getElementById('memberActionBtn').innerText = "관리자 수정";
                 document.getElementById('memberActionBtn').className = "bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md";
                 document.getElementById('memberAddBox').classList.add('hidden');
                 alert("길드원 목록 수정이 완료되었습니다!");
@@ -532,16 +500,12 @@
         }
 
         function renderMembers() {
-            const memberLastUpdateEl = document.getElementById('memberLastUpdate');
-            if (memberLastUpdateEl) memberLastUpdateEl.innerText = globalData.memberLastUpdate;[cite: 7]
+            document.getElementById('memberLastUpdate').innerText = globalData.memberLastUpdate;
             const tbody = document.getElementById('memberTableBody');
-            if (!tbody) return;
             tbody.innerHTML = '';
 
-            const searchInput = document.getElementById('memberSearch');
-            const keyword = searchInput ? searchInput.value.toLowerCase() : '';
-            const sortSelect = document.getElementById('memberSort');
-            const sortType = sortSelect ? sortSelect.value : 'nameAsc';
+            const keyword = document.getElementById('memberSearch').value.toLowerCase();
+            const sortType = document.getElementById('memberSort').value;
 
             let filtered = globalData.members.map((m, origIdx) => ({ ...m, origIdx }))
                                            .filter(m => m.name.toLowerCase().includes(keyword) || m.note.toLowerCase().includes(keyword));
@@ -599,23 +563,15 @@
         }
 
         function saveData() {
-            const alertOffsetEl = document.getElementById('alertOffset');
-            const popupToggleEl = document.getElementById('popupToggle');
-            const soundToggleEl = document.getElementById('soundToggle');
-
-            if (alertOffsetEl) globalData.alertOffset = alertOffsetEl.value;
-            if (popupToggleEl) globalData.popupToggle = popupToggleEl.checked;
-            if (soundToggleEl) globalData.soundToggle = soundToggleEl.checked;
+            globalData.alertOffset = document.getElementById('alertOffset').value;
+            globalData.popupToggle = document.getElementById('popupToggle').checked;
+            globalData.soundToggle = document.getElementById('soundToggle').checked;
             saveToServer();
         }
 
-        const alertOffsetEl = document.getElementById('alertOffset');
-        const popupToggleEl = document.getElementById('popupToggle');
-        const soundToggleEl = document.getElementById('soundToggle');
-
-        if (alertOffsetEl) alertOffsetEl.addEventListener('change', saveData);
-        if (popupToggleEl) popupToggleEl.addEventListener('change', saveData);
-        if (soundToggleEl) soundToggleEl.addEventListener('change', saveData);
+        document.getElementById('alertOffset').addEventListener('change', saveData);
+        document.getElementById('popupToggle').addEventListener('change', saveData);
+        document.getElementById('soundToggle').addEventListener('change', saveData);
 
         function requestNotificationPermission() {
             if (!("Notification" in window)) { alert("알림 미지원 브라우저입니다."); return; }
@@ -623,8 +579,7 @@
         }
 
         function playBeep() {
-            const soundToggleEl = document.getElementById('soundToggle');
-            if (soundToggleEl && !soundToggleEl.checked) return;
+            if (!document.getElementById('soundToggle').checked) return;
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = ctx.createOscillator();
@@ -646,8 +601,7 @@
                 if (!notifiedKeys[key]) {
                     notifiedKeys[key] = true;
                     playBeep();
-                    const popupToggleEl = document.getElementById('popupToggle');
-                    if (popupToggleEl && popupToggleEl.checked && Notification.permission === "granted") {
+                    if (document.getElementById('popupToggle').checked && Notification.permission === "granted") {
                         new Notification(`🚨 [KING] 보스 임박: ${bossName}`, { body: `약 ${offsetMinutes}분 뒤 젠!` });
                     }
                 }
@@ -656,11 +610,9 @@
 
         function renderBosses() {
             const container = document.getElementById('bossList');
-            if (!container) return;
             container.innerHTML = '';
             const now = new Date().getTime();
-            const alertOffsetEl = document.getElementById('alertOffset');
-            const alertOffset = alertOffsetEl ? (parseInt(alertOffsetEl.value) || 10) : 10;
+            const alertOffset = parseInt(document.getElementById('alertOffset').value) || 10;
 
             globalData.bosses.forEach((boss, index) => {
                 if (!boss.lastKill) boss.lastKill = getDefaultObject();
@@ -685,7 +637,7 @@
                 const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((diff % (1000 * 60)) / 1000);
                 const isImminent = diff <= alertOffset * 60 * 1000;
-                const lastAppliedStr = boss.lastKill.lastApplied || "기록 없음";[cite: 7]
+                const lastAppliedStr = boss.lastKill.lastApplied || "기록 없음";
 
                 const card = document.createElement('div');
                 card.className = `bg-slate-900 border rounded-2xl p-4 flex flex-col justify-between shadow-xl transition-all ${
@@ -774,9 +726,9 @@
                 const pw = prompt("관리자 비밀번호를 입력하세요:");
                 if (pw !== ADMIN_PASSWORD) { alert("비밀번호가 틀렸습니다!"); return; }
                 isRaidEdit = true;
-                document.getElementById('raidViewMode').innerText = "🔓 관리자 수정 모드";[cite: 8]
+                document.getElementById('raidViewMode').innerText = "🔓 관리자 수정 모드";
                 document.getElementById('raidViewMode').className = "text-xs text-orange-400 bg-orange-500/10 px-3 py-2 rounded-xl border border-orange-500/30 font-semibold";
-                document.getElementById('raidActionBtn').innerText = "완료 (저장)";[cite: 7]
+                document.getElementById('raidActionBtn').innerText = "완료 (저장)";
                 document.getElementById('raidActionBtn').className = "bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md";
                 document.getElementById('raidScheduleInputs').classList.remove('hidden');
                 document.getElementById('raidSaveSection').classList.remove('hidden');
@@ -796,13 +748,13 @@
                 if (!isNaN(min)) globalData.raid.minute = min;
 
                 const now = new Date();
-                globalData.raid.lastUpdate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;[cite: 7]
+                globalData.raid.lastUpdate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
                 saveToServer();
 
                 isRaidEdit = false;
-                document.getElementById('raidViewMode').innerText = "🔒 조회 전용 모드";[cite: 8]
+                document.getElementById('raidViewMode').innerText = "🔒 조회 전용 모드";
                 document.getElementById('raidViewMode').className = "text-xs text-slate-400 bg-slate-950 px-3 py-2 rounded-xl border border-slate-800";
-                document.getElementById('raidActionBtn').innerText = "관리자 수정";[cite: 8]
+                document.getElementById('raidActionBtn').innerText = "관리자 수정";
                 document.getElementById('raidActionBtn').className = "bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md";
                 document.getElementById('raidScheduleInputs').classList.add('hidden');
                 document.getElementById('raidSaveSection').classList.add('hidden');
@@ -847,7 +799,7 @@
             const scheduleStr = `${globalData.raid.year}년 ${globalData.raid.month}월 ${globalData.raid.day}일 ${globalData.raid.hour}시 ${globalData.raid.minute}분`;
             const historyItem = {
                 dateStr: scheduleStr,
-                savedAt: new Date().toLocaleDateString(),[cite: 7]
+                savedAt: new Date().toLocaleDateString(),
                 participants: [...globalData.raid.participants]
             };
 
@@ -856,7 +808,7 @@
 
             globalData.raid.participants = [];
             saveToServer();
-            alert("이번 주차 기록이 성공적으로 아카이브에 저장되었습니다!");[cite: 7]
+            alert("이번 주차 기록이 성공적으로 아카이브에 저장되었습니다!");
             renderRaid();
         }
 
@@ -870,38 +822,26 @@
 
         function renderRaid() {
             const raid = globalData.raid;
-            const raidLastUpdateEl = document.getElementById('raidLastUpdate');
-            if (raidLastUpdateEl) raidLastUpdateEl.innerText = raid.lastUpdate || "기록 없음";[cite: 7]
-            
-            const scheduleDisplay = document.getElementById('raidScheduleDisplay');
-            if (scheduleDisplay) {
-                const scheduleText = `${raid.year || 2026}년 ${raid.month || 11}월 ${raid.day || 5}일 ${String(raid.hour || 21).padStart(2,'0')}:${String(raid.minute || 0).padStart(2,'0')}`;
-                scheduleDisplay.innerText = scheduleText;
-            }
+            document.getElementById('raidLastUpdate').innerText = raid.lastUpdate || "기록 없음";
+            const scheduleText = `${raid.year || 2026}년 ${raid.month || 11}월 ${raid.day || 5}일 ${String(raid.hour || 21).padStart(2,'0')}:${String(raid.minute || 0).padStart(2,'0')}`;
+            document.getElementById('raidScheduleDisplay').innerText = scheduleText;
 
             if (isRaidEdit) {
-                const ry = document.getElementById('raidYear');
-                const rm = document.getElementById('raidMonth');
-                const rd = document.getElementById('raidDay');
-                const rh = document.getElementById('raidHour');
-                const rmin = document.getElementById('raidMinute');
-                if (ry) ry.value = raid.year || 2026;
-                if (rm) rm.value = raid.month || 11;
-                if (rd) rd.value = raid.day || 5;
-                if (rh) rh.value = raid.hour || 21;
-                if (rmin) rmin.value = raid.minute || 0;
+                document.getElementById('raidYear').value = raid.year || 2026;
+                document.getElementById('raidMonth').value = raid.month || 11;
+                document.getElementById('raidDay').value = raid.day || 5;
+                document.getElementById('raidHour').value = raid.hour || 21;
+                document.getElementById('raidMinute').value = raid.minute || 0;
             }
 
             const memberListEl = document.getElementById('raidMemberList');
-            if (!memberListEl) return;
             memberListEl.innerHTML = '';
-            const searchInput = document.getElementById('raidMemberSearch');
-            const searchKeyword = searchInput ? (searchInput.value || '').toLowerCase() : '';
+            const searchKeyword = (document.getElementById('raidMemberSearch').value || '').toLowerCase();
             const members = globalData.members || [];
             const filtered = members.filter(m => m.name.toLowerCase().includes(searchKeyword) || m.note.toLowerCase().includes(searchKeyword));
 
             if (!isRaidEdit) {
-                memberListEl.innerHTML = `<div class="text-xs text-slate-500 py-3 text-center">🔒 조회 모드입니다. 참여 변경은 관리자 모드에서 가능합니다.[cite: 8]</div>`;
+                memberListEl.innerHTML = `<div class="text-xs text-slate-500 py-3 text-center">🔒 조회 모드입니다. 참여 변경은 관리자 모드에서 가능합니다.</div>`;
             } else {
                 if (filtered.length === 0) {
                     memberListEl.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">검색 결과가 없습니다.</div>`;
@@ -925,74 +865,70 @@
             }
 
             const pContainer = document.getElementById('participantListContainer');
-            if (pContainer) {
-                pContainer.innerHTML = '';
-                const participants = raid.participants || [];
-                const pCountEl = document.getElementById('participantCount');
-                if (pCountEl) pCountEl.innerText = `${participants.length}명 참여`;
+            pContainer.innerHTML = '';
+            const participants = raid.participants || [];
+            document.getElementById('participantCount').innerText = `${participants.length}명 참여`;
 
-                if (participants.length === 0) {
-                    pContainer.innerHTML = `<div class="text-xs text-slate-500 py-4 text-center w-full">참여 신청한 인원이 없습니다.</div>`;
-                } else {
-                    participants.forEach(pName => {
-                        const badge = document.createElement('span');
-                        badge.className = "bg-orange-500/20 border border-orange-500/40 text-orange-300 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5";
-                        if (isRaidEdit) {
-                            badge.innerHTML = `⚔️ ${pName} <button onclick="removeParticipant('${pName}')" class="text-orange-400 hover:text-red-400 font-bold ml-1 px-1 rounded bg-slate-900/50">×</button>`;
-                        } else {
-                            badge.innerHTML = `⚔️ ${pName}`;
-                        }
-                        pContainer.appendChild(badge);
-                    });
-                }
+            if (participants.length === 0) {
+                pContainer.innerHTML = `<div class="text-xs text-slate-500 py-4 text-center w-full">참여 신청한 인원이 없습니다.</div>`;
+            } else {
+                participants.forEach(pName => {
+                    const badge = document.createElement('span');
+                    badge.className = "bg-orange-500/20 border border-orange-500/40 text-orange-300 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5";
+                    if (isRaidEdit) {
+                        badge.innerHTML = `⚔️ ${pName} <button onclick="removeParticipant('${pName}')" class="text-orange-400 hover:text-red-400 font-bold ml-1 px-1 rounded bg-slate-900/50">×</button>`;
+                    } else {
+                        badge.innerHTML = `⚔️ ${pName}`;
+                    }
+                    pContainer.appendChild(badge);
+                });
             }
 
             const historyContainer = document.getElementById('raidHistoryContainer');
-            if (historyContainer) {
-                historyContainer.innerHTML = '';
-                const history = raid.history || [];
+            historyContainer.innerHTML = '';
+            const history = raid.history || [];
 
-                if (history.length === 0) {
-                    historyContainer.innerHTML = `<div class="text-xs text-slate-500 text-center py-4 bg-slate-950 border border-slate-800/60 rounded-xl">아직 저장된 주차별 히스토리가 없습니다.[cite: 7]</div>`;
-                } else {
-                    history.forEach((hItem, hIdx) => {
-                        const box = document.createElement('div');
-                        box.className = "bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs space-y-2";
-                        box.innerHTML = `
-                            <div class="flex justify-between items-center border-b border-slate-900 pb-2">
-                                <span class="font-bold text-orange-400">📅 일정: ${hItem.dateStr}</span>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[11px] text-slate-400">참여: ${hItem.participants.length}명 / 저장: ${hItem.savedAt}</span>[cite: 7]
-                                    ${isRaidEdit ? `<button onclick="deleteRaidHistoryItem(${hIdx})" class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded text-[11px]">삭제</button>` : ''}
-                                </div>
+            if (history.length === 0) {
+                historyContainer.innerHTML = `<div class="text-xs text-slate-500 text-center py-4 bg-slate-950 border border-slate-800/60 rounded-xl">아직 저장된 주차별 히스토리가 없습니다.</div>`;
+            } else {
+                history.forEach((hItem, hIdx) => {
+                    const box = document.createElement('div');
+                    box.className = "bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs space-y-2";
+                    box.innerHTML = `
+                        <div class="flex justify-between items-center border-b border-slate-900 pb-2">
+                            <span class="font-bold text-orange-400">📅 일정: ${hItem.dateStr}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[11px] text-slate-400">참여: ${hItem.participants.length}명 / 저장: ${hItem.savedAt}</span>
+                                ${isRaidEdit ? `<button onclick="deleteRaidHistoryItem(${hIdx})" class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded text-[11px]">삭제</button>` : ''}
                             </div>
-                            <div class="flex flex-wrap gap-1 pt-1">
-                                ${hItem.participants.map(n => `<span class="bg-slate-900 text-slate-300 px-2 py-0.5 rounded text-[11px]">⚔️ ${n}</span>`).join('')}
-                            </div>
-                        `;
-                        historyContainer.appendChild(box);
-                    });
-                }
+                        </div>
+                        <div class="flex flex-wrap gap-1 pt-1">
+                            ${hItem.participants.map(n => `<span class="bg-slate-900 text-slate-300 px-2 py-0.5 rounded text-[11px]">⚔️ ${n}</span>`).join('')}
+                        </div>
+                    `;
+                    historyContainer.appendChild(box);
+                });
             }
         }
 
         // ==========================================
-        // 4. 길드 경쟁전 로직
+        // 4. 길드 경쟁전 로직 (원본)
         // ==========================================
         function toggleCompEditMode() {
             if (!isCompEdit) {
                 const pw = prompt("관리자 비밀번호를 입력하세요:");
                 if (pw !== ADMIN_PASSWORD) { alert("비밀번호가 틀렸습니다!"); return; }
                 isCompEdit = true;
-                document.getElementById('compViewMode').innerText = "🔓 관리자 수정 모드";[cite: 8]
+                document.getElementById('compViewMode').innerText = "🔓 관리자 수정 모드";
                 document.getElementById('compViewMode').className = "text-xs text-amber-400 bg-amber-500/10 px-3 py-2 rounded-xl border border-amber-500/30 font-semibold";
-                document.getElementById('compActionBtn').innerText = "완료 (저장)";[cite: 7]
+                document.getElementById('compActionBtn').innerText = "완료 (저장)";
                 document.getElementById('compActionBtn').className = "bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md";
                 document.getElementById('compScheduleInputs').classList.remove('hidden');
                 document.getElementById('compDiscordDisplay').classList.add('hidden');
                 document.getElementById('compDiscordLinkBtn').classList.add('hidden');
                 document.getElementById('compDiscordInput').classList.remove('hidden');
                 document.getElementById('compSearchBox').classList.remove('hidden');
+                document.getElementById('compSaveSection').classList.remove('hidden');
                 document.getElementById('compModeGuide').innerText = "✅ 체크박스 수정 가능";
                 document.getElementById('compModeGuide').className = "text-[11px] text-emerald-400 font-semibold";
             } else {
@@ -1011,39 +947,22 @@
                 globalData.competition.discordUrl = discordVal;
 
                 const now = new Date();
-                globalData.competition.lastUpdate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;[cite: 7]
-                
-                const comp = globalData.competition;
-                if (comp.participants && comp.participants.length > 0) {
-                    const scheduleStr = `${comp.year}년 ${comp.month}월 ${comp.day}일 ${comp.hour}시 ${comp.minute}분`;
-                    const historyItem = {
-                        dateStr: scheduleStr,
-                        savedAt: new Date().toLocaleDateString(),[cite: 7]
-                        discordUrl: comp.discordUrl || "",
-                        participants: [...comp.participants],
-                        parties: JSON.parse(JSON.stringify(comp.parties))
-                    };
-                    if (!comp.history) comp.history = [];
-                    const isDuplicate = comp.history.length > 0 && JSON.stringify(comp.history[0].participants) === JSON.stringify(historyItem.participants);
-                    if (!isDuplicate) {
-                        comp.history.unshift(historyItem);
-                    }
-                }
-
+                globalData.competition.lastUpdate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
                 saveToServer();
 
                 isCompEdit = false;
-                document.getElementById('compViewMode').innerText = "🔒 조회 전용 모드";[cite: 8]
+                document.getElementById('compViewMode').innerText = "🔒 조회 전용 모드";
                 document.getElementById('compViewMode').className = "text-xs text-slate-400 bg-slate-950 px-3 py-2 rounded-xl border border-slate-800";
-                document.getElementById('compActionBtn').innerText = "관리자 수정";[cite: 8]
+                document.getElementById('compActionBtn').innerText = "관리자 수정";
                 document.getElementById('compActionBtn').className = "bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md";
                 document.getElementById('compScheduleInputs').classList.add('hidden');
                 document.getElementById('compDiscordDisplay').classList.remove('hidden');
                 document.getElementById('compDiscordInput').classList.add('hidden');
                 document.getElementById('compSearchBox').classList.add('hidden');
+                document.getElementById('compSaveSection').classList.add('hidden');
                 document.getElementById('compModeGuide').innerText = "🔒 관리자 수정 모드에서 체크 가능";
                 document.getElementById('compModeGuide').className = "text-[11px] text-slate-500";
-                alert("경쟁전 명단과 편성이 안전하게 저장되었습니다!");
+                alert("경쟁전 설정이 저장되었습니다!");
             }
             renderCompetition();
         }
@@ -1059,11 +978,6 @@
                 if (!globalData.competition.participants.includes(name)) globalData.competition.participants.push(name);
             } else {
                 globalData.competition.participants = globalData.competition.participants.filter(p => p !== name);
-                for (let i = 1; i <= 10; i++) {
-                    if (globalData.competition.parties[i]) {
-                        globalData.competition.parties[i] = globalData.competition.parties[i].filter(n => n !== name);
-                    }
-                }
             }
             saveToServer();
             renderCompetition();
@@ -1073,32 +987,31 @@
             if (!isCompEdit) { alert("관리자 수정 모드에서만 제외할 수 있습니다!"); return; }
             if (!globalData.competition.participants) return;
             globalData.competition.participants = globalData.competition.participants.filter(p => p !== name);
-            for (let i = 1; i <= 10; i++) {
-                if (globalData.competition.parties[i]) {
-                    globalData.competition.parties[i] = globalData.competition.parties[i].filter(n => n !== name);
-                }
-            }
             saveToServer();
             renderCompetition();
         }
 
-        function handleCompMemberCheck(partyNum, memberName, isChecked) {
-            if (!isCompEdit) return;
-            if (!globalData.competition.parties) globalData.competition.parties = { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[] };
-            
-            let pList = globalData.competition.parties[partyNum] || [];
-            if (isChecked) {
-                if (pList.length >= 5) {
-                    alert("각 군은 최대 5명까지만 편성할 수 있습니다!");
-                    renderCompetition();
-                    return;
-                }
-                if (!pList.includes(memberName)) pList.push(memberName);
-            } else {
-                pList = pList.filter(name => name !== memberName);
+        function saveCurrentCompToHistory() {
+            if (!globalData.competition.participants || globalData.competition.participants.length === 0) {
+                alert("참가자가 한 명도 없습니다!");
+                return;
             }
-            globalData.competition.parties[partyNum] = pList;
+            if (!confirm("현재 참가자 명단을 이번 주차 경쟁전 히스토리에 확정 저장하시겠습니까?")) return;
+
+            const scheduleStr = `${globalData.competition.year}년 ${globalData.competition.month}월 ${globalData.competition.day}일 ${globalData.competition.hour}시 ${globalData.competition.minute}분`;
+            const historyItem = {
+                dateStr: scheduleStr,
+                savedAt: new Date().toLocaleDateString(),
+                discordUrl: globalData.competition.discordUrl || "",
+                participants: [...globalData.competition.participants]
+            };
+
+            if (!globalData.competition.history) globalData.competition.history = [];
+            globalData.competition.history.unshift(historyItem);
+
+            globalData.competition.participants = [];
             saveToServer();
+            alert("이번 경쟁전 기록이 성공적으로 아카이브에 저장되었습니다!");
             renderCompetition();
         }
 
@@ -1112,205 +1025,109 @@
 
         function renderCompetition() {
             const comp = globalData.competition;
-            const compLastUpdateEl = document.getElementById('compLastUpdate');
-            if (compLastUpdateEl) compLastUpdateEl.innerText = comp.lastUpdate || "기록 없음";[cite: 7]
-
-            const compScheduleDisplay = document.getElementById('compScheduleDisplay');
-            if (compScheduleDisplay) {
-                const scheduleText = `${comp.year || 2026}년 ${comp.month || 11}월 ${comp.day || 7}일 ${String(comp.hour || 21).padStart(2,'0')}:${String(comp.minute || 0).padStart(2,'0')}`;
-                compScheduleDisplay.innerText = scheduleText;
-            }
-
-            const discordUrl = comp.discordUrl || "";
-            const discordDisplay = document.getElementById('compDiscordDisplay');
-            const discordLinkBtn = document.getElementById('compDiscordLinkBtn');
-            const discordInput = document.getElementById('compDiscordInput');
+            document.getElementById('compLastUpdate').innerText = comp.lastUpdate || "기록 없음";
+            const scheduleText = `${comp.year || 2026}년 ${comp.month || 11}월 ${comp.day || 7}일 ${String(comp.hour || 21).padStart(2,'0')}:${String(comp.minute || 0).padStart(2,'0')}`;
+            document.getElementById('compScheduleDisplay').innerText = scheduleText;
 
             if (isCompEdit) {
-                const cy = document.getElementById('compYear');
-                const cm = document.getElementById('compMonth');
-                const cd = document.getElementById('compDay');
-                const ch = document.getElementById('compHour');
-                const cmin = document.getElementById('compMinute');
-                if (cy) cy.value = comp.year || 2026;
-                if (cm) cm.value = comp.month || 11;
-                if (cd) cd.value = comp.day || 7;
-                if (ch) ch.value = comp.hour || 21;
-                if (cmin) cmin.value = comp.minute || 0;
-                if (discordInput) discordInput.value = discordUrl;
+                document.getElementById('compYear').value = comp.year || 2026;
+                document.getElementById('compMonth').value = comp.month || 11;
+                document.getElementById('compDay').value = comp.day || 7;
+                document.getElementById('compHour').value = comp.hour || 21;
+                document.getElementById('compMinute').value = comp.minute || 0;
+                document.getElementById('compDiscordInput').value = comp.discordUrl || "";
+            }
+
+            const discordDisplay = document.getElementById('compDiscordDisplay');
+            const discordLinkBtn = document.getElementById('compDiscordLinkBtn');
+            if (comp.discordUrl) {
+                discordDisplay.innerText = "디스코드 링크 있음";
+                discordDisplay.className = "text-indigo-400 font-semibold";
+                discordLinkBtn.href = comp.discordUrl;
+                discordLinkBtn.classList.remove('hidden');
             } else {
-                if (discordDisplay && discordLinkBtn) {
-                    if (discordUrl) {
-                        discordDisplay.innerText = "디스코드 링크 있음";[cite: 8]
-                        discordDisplay.className = "text-indigo-400 font-semibold";
-                        discordLinkBtn.href = discordUrl;
-                        discordLinkBtn.classList.remove('hidden');
-                    } else {
-                        discordDisplay.innerText = "등록된 링크 없음";[cite: 8]
-                        discordDisplay.className = "text-slate-500";
-                        discordLinkBtn.classList.add('hidden');
-                    }
-                }
+                discordDisplay.innerText = "등록된 링크 없음";
+                discordDisplay.className = "text-slate-500";
+                discordLinkBtn.classList.add('hidden');
             }
 
-            const compSearchBox = document.getElementById('compSearchBox');
-            if (compSearchBox) {
-                if (isCompEdit) compSearchBox.classList.remove('hidden');
-                else compSearchBox.classList.add('hidden');
-            }
+            const memberListEl = document.getElementById('compMemberList');
+            memberListEl.innerHTML = '';
+            const searchKeyword = (document.getElementById('compMemberSearch').value || '').toLowerCase();
+            const members = globalData.members || [];
+            const filtered = members.filter(m => m.name.toLowerCase().includes(searchKeyword) || m.note.toLowerCase().includes(searchKeyword));
 
-            const compMemberListEl = document.getElementById('compMemberList');
-            if (compMemberListEl) {
-                compMemberListEl.innerHTML = '';
-                const searchInput = document.getElementById('compMemberSearch');
-                const searchKeyword = searchInput ? (searchInput.value || '').toLowerCase() : '';
-                const members = globalData.members || [];
-                const filteredMembers = members.filter(m => m.name.toLowerCase().includes(searchKeyword) || m.note.toLowerCase().includes(searchKeyword));
-
-                if (!isCompEdit) {
-                    compMemberListEl.innerHTML = `<div class="text-xs text-slate-500 py-3 text-center">🔒 조회 모드입니다. 참가 신청 변경은 관리자 모드에서 가능합니다.[cite: 8]</div>`;
+            if (!isCompEdit) {
+                memberListEl.innerHTML = `<div class="text-xs text-slate-500 py-3 text-center">🔒 조회 모드입니다. 참가 신청 변경은 관리자 모드에서 가능합니다.</div>`;
+            } else {
+                if (filtered.length === 0) {
+                    memberListEl.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">검색 결과가 없습니다.</div>`;
                 } else {
-                    if (filteredMembers.length === 0) {
-                        compMemberListEl.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">검색 결과가 없습니다.</div>`;
-                    } else {
-                        filteredMembers.forEach(m => {
-                            const isChecked = comp.participants && comp.participants.includes(m.name);
-                            const div = document.createElement('label');
-                            div.className = "flex items-center justify-between bg-slate-900 px-3 py-2 rounded-lg border border-slate-800/80 text-xs cursor-pointer hover:bg-slate-900/80";
-                            div.innerHTML = `
-                                <div class="flex items-center gap-2">
-                                    <input type="checkbox" ${isChecked ? 'checked' : ''} 
-                                           onchange="handleCompParticipantCheck('${m.name}', this.checked)"
-                                           class="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-0">
-                                    <span class="font-bold text-slate-200">${m.name}</span>
-                                </div>
-                                <span class="text-[11px] text-slate-400">${m.note}</span>
-                            `;
-                            compMemberListEl.appendChild(div);
-                        });
-                    }
-                }
-            }
-
-            const compPContainer = document.getElementById('compParticipantListContainer');
-            if (compPContainer) {
-                compPContainer.innerHTML = '';
-                const participants = comp.participants || [];
-                const compPCountEl = document.getElementById('compParticipantCount');
-                if (compPCountEl) compPCountEl.innerText = `${participants.length}명 참여`;
-
-                if (participants.length === 0) {
-                    compPContainer.innerHTML = `<div class="text-xs text-slate-500 py-4 text-center w-full">참여 신청한 인원이 없습니다.</div>`;
-                } else {
-                    participants.forEach(pName => {
-                        const badge = document.createElement('span');
-                        badge.className = "bg-amber-500/20 border border-amber-500/40 text-amber-300 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5";
-                        if (isCompEdit) {
-                            badge.innerHTML = `⚔️ ${pName} <button onclick="removeCompParticipant('${pName}')" class="text-amber-400 hover:text-red-400 font-bold ml-1 px-1 rounded bg-slate-900/50">×</button>`;
-                        } else {
-                            badge.innerHTML = `⚔️ ${pName}`;
-                        }
-                        compPContainer.appendChild(badge);
-                    });
-                }
-            }
-
-            const compHistoryContainer = document.getElementById('compHistoryContainer');
-            if (compHistoryContainer) {
-                compHistoryContainer.innerHTML = '';
-                const history = comp.history || [];
-
-                if (history.length === 0) {
-                    compHistoryContainer.innerHTML = `<div class="text-xs text-slate-500 text-center py-4 bg-slate-950 border border-slate-800/60 rounded-xl">아직 저장된 경쟁전 히스토리가 없습니다. 관리자 모드에서 완료를 누르면 기록됩니다.[cite: 7]</div>`;
-                } else {
-                    history.forEach((hItem, hIdx) => {
-                        const box = document.createElement('div');
-                        box.className = "bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs space-y-2.5";
-                        
-                        let partiesSummaryHtml = '';
-                        for (let i = 1; i <= 10; i++) {
-                            const pList = hItem.parties[i] || [];
-                            if (pList.length > 0) {
-                                partiesSummaryHtml += `
-                                    <div class="flex items-center gap-2 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-800/60">
-                                        <span class="font-bold text-amber-400 w-10 shrink-0">${i}군</span>
-                                        <div class="flex flex-wrap gap-1">
-                                            ${pList.map(n => `<span class="bg-slate-950 text-slate-300 px-1.5 py-0.5 rounded text-[10px]">${n}</span>`).join('')}
-                                        </div>
-                                    </div>
-                                `;
-                            }
-                        }
-
-                        box.innerHTML = `
-                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-900 pb-2">
-                                <div>
-                                    <span class="font-bold text-amber-400">📅 경쟁전 일정: ${hItem.dateStr}</span>[cite: 7]
-                                    ${hItem.discordUrl ? `<a href="${hItem.discordUrl}" target="_blank" class="ml-2 text-[11px] bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded font-semibold">디스코드 입장[cite: 8]</a>` : ''}
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[11px] text-slate-400">참여: ${hItem.participants.length}명 / 저장: ${hItem.savedAt}</span>[cite: 7]
-                                    ${isCompEdit ? `<button onclick="deleteCompHistoryItem(${hIdx})" class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded text-[11px]">삭제</button>` : ''}
-                                </div>
+                    filtered.forEach(m => {
+                        const isChecked = comp.participants && comp.participants.includes(m.name);
+                        const div = document.createElement('label');
+                        div.className = "flex items-center justify-between bg-slate-900 px-3 py-2 rounded-lg border border-slate-800 text-xs cursor-pointer hover:bg-slate-900/80";
+                        div.innerHTML = `
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" ${isChecked ? 'checked' : ''} 
+                                       onchange="handleCompParticipantCheck('${m.name}', this.checked)"
+                                       class="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-0">
+                                <span class="font-bold text-slate-200">${m.name}</span>
                             </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                                ${partiesSummaryHtml || '<div class="text-[11px] text-slate-500">편성된 파티가 없습니다.</div>'}
-                            </div>
+                            <span class="text-[11px] text-slate-400">${m.note}</span>
                         `;
-                        compHistoryContainer.appendChild(box);
+                        memberListEl.appendChild(div);
                     });
                 }
             }
 
-            const partiesContainer = document.getElementById('compPartiesContainer');
-            if (partiesContainer) {
-                partiesContainer.innerHTML = '';
-                if (!comp.parties) comp.parties = { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[] };
+            const pContainer = document.getElementById('compParticipantListContainer');
+            pContainer.innerHTML = '';
+            const participants = comp.participants || [];
+            document.getElementById('compParticipantCount').innerText = `${participants.length}명 참여`;
 
-                for (let i = 1; i <= 10; i++) {
-                    const partyMembers = comp.parties[i] || [];
-                    const card = document.createElement('div');
-                    card.className = "bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2.5";
-
-                    let membersHtml = '';
-                    if (!isCompEdit) {
-                        if (partyMembers.length === 0) {
-                            membersHtml = `<span class="text-[11px] text-slate-600">편성된 인원이 없습니다.</span>`;
-                        } else {
-                            membersHtml = partyMembers.map(name => `<span class="bg-amber-500/10 border border-amber-500/30 text-amber-300 px-2 py-0.5 rounded text-[11px] font-semibold">⚔️ ${name}</span>`).join('');
-                        }
+            if (participants.length === 0) {
+                pContainer.innerHTML = `<div class="text-xs text-slate-500 py-4 text-center w-full">참여 신청한 인원이 없습니다.</div>`;
+            } else {
+                participants.forEach(pName => {
+                    const badge = document.createElement('span');
+                    badge.className = "bg-amber-500/20 border border-amber-500/40 text-amber-300 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5";
+                    if (isCompEdit) {
+                        badge.innerHTML = `⚔️ ${pName} <button onclick="removeCompParticipant('${pName}')" class="text-amber-400 hover:text-red-400 font-bold ml-1 px-1 rounded bg-slate-900/50">×</button>`;
                     } else {
-                        const participants = comp.participants || [];
-                        if (participants.length === 0) {
-                            membersHtml = `<span class="text-[11px] text-slate-500">먼저 위에서 참가 인원을 체크해주세요.</span>`;
-                        } else {
-                            membersHtml = `<div class="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto pr-1">`;
-                            participants.forEach(pName => {
-                                const isChecked = partyMembers.includes(pName);
-                                membersHtml += `
-                                    <label class="flex items-center gap-1.5 bg-slate-900 px-2 py-1 rounded border border-slate-800 cursor-pointer text-[11px]">
-                                        <input type="checkbox" ${isChecked ? 'checked' : ''} 
-                                               onchange="handleCompMemberCheck(${i}, '${pName}', this.checked)"
-                                               class="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-0">
-                                        <span class="text-slate-200 truncate">${pName}</span>
-                                    </label>
-                                `;
-                            });
-                            membersHtml += `</div>`;
-                        }
+                        badge.innerHTML = `⚔️ ${pName}`;
                     }
+                    pContainer.appendChild(badge);
+                });
+            }
 
-                    card.innerHTML = `
-                        <div class="flex justify-between items-center border-b border-slate-900 pb-1.5">
-                            <span class="text-xs font-black text-amber-400">🏆 ${i}군</span>
-                            <span class="text-[11px] text-slate-400 font-mono">${partyMembers.length}/5명</span>
+            const historyContainer = document.getElementById('compHistoryContainer');
+            historyContainer.innerHTML = '';
+            const history = comp.history || [];
+
+            if (history.length === 0) {
+                historyContainer.innerHTML = `<div class="text-xs text-slate-500 text-center py-4 bg-slate-950 border border-slate-800/60 rounded-xl">아직 저장된 주차별 히스토리가 없습니다.</div>`;
+            } else {
+                history.forEach((hItem, hIdx) => {
+                    const box = document.createElement('div');
+                    box.className = "bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs space-y-2";
+                    box.innerHTML = `
+                        <div class="flex justify-between items-center border-b border-slate-900 pb-2">
+                            <div>
+                                <span class="font-bold text-amber-400">📅 일정: ${hItem.dateStr}</span>
+                                ${hItem.discordUrl ? `<a href="${hItem.discordUrl}" target="_blank" class="ml-2 text-[11px] bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded font-semibold">디스코드 입장</a>` : ''}
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[11px] text-slate-400">참여: ${hItem.participants.length}명 / 저장: ${hItem.savedAt}</span>
+                                ${isCompEdit ? `<button onclick="deleteCompHistoryItem(${hIdx})" class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded text-[11px]">삭제</button>` : ''}
+                            </div>
                         </div>
-                        <div class="flex flex-wrap gap-1 pt-0.5">
-                            ${membersHtml}
+                        <div class="flex flex-wrap gap-1 pt-1">
+                            ${hItem.participants.map(n => `<span class="bg-slate-900 text-slate-300 px-2 py-0.5 rounded text-[11px]">⚔️ ${n}</span>`).join('')}
                         </div>
                     `;
-                    partiesContainer.appendChild(card);
-                }
+                    historyContainer.appendChild(box);
+                });
             }
         }
 
