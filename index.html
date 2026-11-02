@@ -426,9 +426,13 @@
                     if (!globalData.competition.history) globalData.competition.history = [];
                 }
 
-                document.getElementById('alertOffset').value = globalData.alertOffset;
-                document.getElementById('popupToggle').checked = globalData.popupToggle;
-                document.getElementById('soundToggle').checked = globalData.soundToggle;
+                const alertOffsetEl = document.getElementById('alertOffset');
+                const popupToggleEl = document.getElementById('popupToggle');
+                const soundToggleEl = document.getElementById('soundToggle');
+
+                if (alertOffsetEl) alertOffsetEl.value = globalData.alertOffset;
+                if (popupToggleEl) popupToggleEl.checked = globalData.popupToggle;
+                if (soundToggleEl) soundToggleEl.checked = globalData.soundToggle;
 
                 renderMembers();
                 renderBosses();
@@ -528,12 +532,16 @@
         }
 
         function renderMembers() {
-            document.getElementById('memberLastUpdate').innerText = globalData.memberLastUpdate;[cite: 7]
+            const memberLastUpdateEl = document.getElementById('memberLastUpdate');
+            if (memberLastUpdateEl) memberLastUpdateEl.innerText = globalData.memberLastUpdate;[cite: 7]
             const tbody = document.getElementById('memberTableBody');
+            if (!tbody) return;
             tbody.innerHTML = '';
 
-            const keyword = document.getElementById('memberSearch').value.toLowerCase();
-            const sortType = document.getElementById('memberSort').value;
+            const searchInput = document.getElementById('memberSearch');
+            const keyword = searchInput ? searchInput.value.toLowerCase() : '';
+            const sortSelect = document.getElementById('memberSort');
+            const sortType = sortSelect ? sortSelect.value : 'nameAsc';
 
             let filtered = globalData.members.map((m, origIdx) => ({ ...m, origIdx }))
                                            .filter(m => m.name.toLowerCase().includes(keyword) || m.note.toLowerCase().includes(keyword));
@@ -591,15 +599,23 @@
         }
 
         function saveData() {
-            globalData.alertOffset = document.getElementById('alertOffset').value;
-            globalData.popupToggle = document.getElementById('popupToggle').checked;
-            globalData.soundToggle = document.getElementById('soundToggle').checked;
+            const alertOffsetEl = document.getElementById('alertOffset');
+            const popupToggleEl = document.getElementById('popupToggle');
+            const soundToggleEl = document.getElementById('soundToggle');
+
+            if (alertOffsetEl) globalData.alertOffset = alertOffsetEl.value;
+            if (popupToggleEl) globalData.popupToggle = popupToggleEl.checked;
+            if (soundToggleEl) globalData.soundToggle = soundToggleEl.checked;
             saveToServer();
         }
 
-        document.getElementById('alertOffset').addEventListener('change', saveData);
-        document.getElementById('popupToggle').addEventListener('change', saveData);
-        document.getElementById('soundToggle').addEventListener('change', saveData);
+        const alertOffsetEl = document.getElementById('alertOffset');
+        const popupToggleEl = document.getElementById('popupToggle');
+        const soundToggleEl = document.getElementById('soundToggle');
+
+        if (alertOffsetEl) alertOffsetEl.addEventListener('change', saveData);
+        if (popupToggleEl) popupToggleEl.addEventListener('change', saveData);
+        if (soundToggleEl) soundToggleEl.addEventListener('change', saveData);
 
         function requestNotificationPermission() {
             if (!("Notification" in window)) { alert("알림 미지원 브라우저입니다."); return; }
@@ -607,7 +623,8 @@
         }
 
         function playBeep() {
-            if (!document.getElementById('soundToggle').checked) return;
+            const soundToggleEl = document.getElementById('soundToggle');
+            if (soundToggleEl && !soundToggleEl.checked) return;
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = ctx.createOscillator();
@@ -629,7 +646,8 @@
                 if (!notifiedKeys[key]) {
                     notifiedKeys[key] = true;
                     playBeep();
-                    if (document.getElementById('popupToggle').checked && Notification.permission === "granted") {
+                    const popupToggleEl = document.getElementById('popupToggle');
+                    if (popupToggleEl && popupToggleEl.checked && Notification.permission === "granted") {
                         new Notification(`🚨 [KING] 보스 임박: ${bossName}`, { body: `약 ${offsetMinutes}분 뒤 젠!` });
                     }
                 }
@@ -641,7 +659,8 @@
             if (!container) return;
             container.innerHTML = '';
             const now = new Date().getTime();
-            const alertOffset = parseInt(document.getElementById('alertOffset').value) || 10;
+            const alertOffsetEl = document.getElementById('alertOffset');
+            const alertOffset = alertOffsetEl ? (parseInt(alertOffsetEl.value) || 10) : 10;
 
             globalData.bosses.forEach((boss, index) => {
                 if (!boss.lastKill) boss.lastKill = getDefaultObject();
