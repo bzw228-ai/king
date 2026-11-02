@@ -221,31 +221,30 @@
                     </div>
                 </div>
 
-                <!-- 🌟 [길드레이드 사다리 타기 영역 복원] -->
-                <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-4">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-900 pb-3">
-                        <div>
-                            <h3 class="text-xs font-bold text-orange-400 flex items-center gap-1.5">
-                                🪜 아이템 분배 사다리 타기
-                            </h3>
-                            <p class="text-[11px] text-slate-400 mt-0.5">참여자를 대상으로 아이템/결과 매칭 사다리를 돌립니다.</p>
-                        </div>
-                        <button onclick="runLadderGame()" class="bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 border border-orange-500/40 text-xs font-bold px-3 py-1.5 rounded-lg transition">
-                            🎲 사다리 시작하기
-                        </button>
-                    </div>
 
-                    <div class="space-y-2">
-                        <label class="text-[11px] text-slate-400 font-medium">분배할 결과 항목 (쉼표로 구분, 예: 당첨, 꽝, 1번템, 2번템)</label>
-                        <input type="text" id="ladderItemsInput" value="당첨, 꽝, 획득" 
-                               class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-orange-500">
+                <div class="bg-slate-950 border border-orange-500/30 rounded-xl p-4 sm:p-5 space-y-4">
+                    <div class="flex flex-wrap justify-between items-center gap-3">
+                        <div><h3 class="font-bold text-orange-400">🎁 레이드 아이템 추첨</h3>
+                        <p class="text-xs text-slate-400 mt-1">아이템 수량을 정하고 추첨 → 결과 확인 → 확정 → 단체톡 복사</p></div>
+                        <span id="ladderParticipantSummary" class="text-xs bg-orange-500/15 text-orange-300 px-3 py-2 rounded-lg"></span>
                     </div>
-
-                    <div id="ladderResultBox" class="hidden bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs space-y-2">
-                        <div class="font-bold text-orange-300 border-b border-slate-800 pb-1.5">🎯 사다리 결과 매칭</div>
-                        <div id="ladderResultContent" class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                            <!-- 결과 동적 출력 -->
+                    <div id="ladderAdminPanel" class="hidden space-y-3">
+                        <label for="ladderItemsInput" class="block text-xs text-slate-300">한 줄에 아이템 하나씩, 끝에 수량을 입력하세요. (예: 전설 무기, 1)</label>
+                        <textarea id="ladderItemsInput" rows="4" oninput="updateLadderPlan()" placeholder="전설 무기, 1&#10;강화석, 2" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-3 text-sm text-slate-100 focus:outline-none focus:border-orange-500">당첨, 1</textarea>
+                        <div id="ladderPlan" aria-live="polite" class="text-xs text-slate-300 bg-slate-900 rounded-lg p-3"></div>
+                        <p class="text-xs text-slate-500">한 사람당 결과 하나 · 남는 인원은 미당첨 · 참여자 전원을 대상으로 추첨합니다.</p>
+                        <button id="ladderRunBtn" onclick="runLadderGame()" class="w-full bg-orange-500 hover:bg-orange-400 text-slate-950 font-bold py-3 rounded-xl disabled:opacity-40">🎲 추첨하기</button>
+                    </div>
+                    <p id="ladderReadOnlyGuide" class="text-xs text-slate-400">관리자 수정 모드에서 아이템을 설정하고 추첨할 수 있습니다.</p>
+                    <div id="ladderResultBox" class="hidden bg-slate-900 border border-slate-700 rounded-xl p-4 space-y-3">
+                        <div id="ladderResultTitle" class="font-bold text-orange-300"></div>
+                        <div id="ladderResultContent" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+                        <div class="flex flex-wrap gap-2">
+                            <button id="ladderConfirmBtn" onclick="confirmLadderResult()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold px-4 py-2 rounded-lg">✓ 결과 확정 및 공유</button>
+                            <button id="ladderCopyBtn" onclick="copyLadderResult()" class="hidden bg-orange-500 hover:bg-orange-400 text-slate-950 text-sm font-bold px-4 py-2 rounded-lg">📋 카카오톡용 결과 복사</button>
                         </div>
+                        <textarea id="ladderCopyText" readonly rows="8" aria-label="카카오톡 공유용 확정 결과" class="hidden w-full bg-slate-950 text-slate-300 text-xs p-3 rounded-lg border border-slate-700"></textarea>
+                        <p id="ladderStatus" role="status" aria-live="polite" class="text-xs text-slate-400"></p>
                     </div>
                 </div>
 
@@ -839,45 +838,114 @@
             renderRaid();
         }
 
-        // 사다리 타기 실행 함수
+
+        let ladderDraft = null;
+        let ladderSaving = false;
+        function ladderParticipants() { return [...(globalData.raid.participants || [])]; }
+        function ladderSignature(names) { return JSON.stringify([...names].sort()); }
+        function readLadderPlan() {
+            const lines = document.getElementById('ladderItemsInput').value.split(/\n/).map(s => s.trim()).filter(Boolean);
+            const items = [];
+            if (!lines.length) throw new Error('추첨할 아이템을 입력해주세요.');
+            for (const line of lines) {
+                const match = line.match(/^(.+),\s*(\d+)$/);
+                if (!match || !match[1].trim()) throw new Error('각 줄을 “아이템 이름, 수량” 형식으로 입력해주세요.');
+                const count = Number(match[2]);
+                if (!Number.isSafeInteger(count) || count < 1 || count > 500) throw new Error('수량은 1~500 사이의 정수로 입력해주세요.');
+                items.push({name: match[1].trim(), count});
+            }
+            const total = items.reduce((sum, item) => sum + item.count, 0);
+            if (total > ladderParticipants().length) throw new Error(`아이템 ${total}개가 참여자 ${ladderParticipants().length}명보다 많습니다. 수량을 줄여주세요.`);
+            return {items, total};
+        }
+        function updateLadderPlan() {
+            const count = ladderParticipants().length;
+            document.getElementById('ladderParticipantSummary').textContent = `추첨 대상 ${count}명`;
+            const run = document.getElementById('ladderRunBtn');
+            try {
+                if (!count) throw new Error('위에서 레이드 참여자를 먼저 선택해주세요.');
+                const plan = readLadderPlan();
+                document.getElementById('ladderPlan').textContent = `아이템 ${plan.total}개 · 당첨 ${plan.total}명 · 미당첨 ${count - plan.total}명`;
+                run.disabled = ladderSaving || !isRaidEdit;
+            } catch (e) {
+                document.getElementById('ladderPlan').textContent = e.message;
+                run.disabled = true;
+            }
+        }
+        function renderLadder() {
+            document.getElementById('ladderAdminPanel').classList.toggle('hidden', !isRaidEdit);
+            document.getElementById('ladderReadOnlyGuide').classList.toggle('hidden', isRaidEdit);
+            updateLadderPlan();
+            if (ladderDraft && ladderSignature(ladderDraft.participants) !== ladderSignature(ladderParticipants())) ladderDraft = null;
+            const result = ladderDraft || globalData.raid.ladderResult;
+            document.getElementById('ladderResultBox').classList.toggle('hidden', !result);
+            if (!result) return;
+            const draft = !!ladderDraft;
+            document.getElementById('ladderResultTitle').textContent = draft ? '🎲 추첨 미리보기 · 아직 공유되지 않았습니다' : '✅ 확정된 추첨 결과';
+            const content = document.getElementById('ladderResultContent');
+            content.replaceChildren();
+            for (const row of result.rows) {
+                const card = document.createElement('div');
+                card.className = row.won ? 'flex justify-between gap-3 bg-orange-500/10 border border-orange-500/40 rounded-lg p-3 text-sm' : 'flex justify-between gap-3 bg-slate-950 rounded-lg p-3 text-xs text-slate-400';
+                const name = document.createElement('span'); name.textContent = row.name;
+                const item = document.createElement('strong'); item.textContent = row.item;
+                card.append(name, item); content.append(card);
+            }
+            document.getElementById('ladderConfirmBtn').classList.toggle('hidden', !draft || !isRaidEdit);
+            document.getElementById('ladderConfirmBtn').disabled = ladderSaving;
+            document.getElementById('ladderCopyBtn').classList.toggle('hidden', draft);
+            document.getElementById('ladderCopyText').classList.toggle('hidden', draft);
+            document.getElementById('ladderCopyText').value = draft ? '' : ladderText(result);
+            document.getElementById('ladderStatus').textContent = draft ? '결과를 확인한 뒤 확정해주세요. 다시 추첨하면 미리보기가 바뀝니다.' : `확정 시각: ${new Date(result.confirmedAt).toLocaleString('ko-KR')} · 확정 당시 참여자 ${result.participants.length}명`;
+        }
         function runLadderGame() {
-            const participants = globalData.raid.participants || [];
-            if (participants.length === 0) {
-                alert("사다리를 탈 참여자가 없습니다! 먼저 참여자를 등록해주세요.");
-                return;
-            }
-            const inputVal = document.getElementById('ladderItemsInput').value.trim();
-            if (!inputVal) {
-                alert("분배할 결과 항목을 입력해주세요!");
-                return;
-            }
-            const items = inputVal.split(',').map(s => s.trim()).filter(s => s.length > 0);
-            if (items.length === 0) {
-                alert("유효한 결과 항목이 없습니다.");
-                return;
-            }
-
-            let shuffledParticipants = [...participants];
-            for (let i = shuffledParticipants.length - 1; i > 0; i--) {
+            if (!isRaidEdit || ladderSaving) return;
+            let plan;
+            try { plan = readLadderPlan(); } catch (e) { alert(e.message); return; }
+            const participants = ladderParticipants();
+            if (!participants.length) return;
+            if ((ladderDraft || globalData.raid.ladderResult) && !confirm('다시 추첨하시겠습니까? 기존 확정 결과는 새 결과를 확정할 때까지 유지됩니다.')) return;
+            const shuffled = [...participants];
+            for (let i = shuffled.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [shuffledParticipants[i], shuffledParticipants[j]] = [shuffledParticipants[j], shuffledParticipants[i]];
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
             }
-
-            const resultBox = document.getElementById('ladderResultBox');
-            const resultContent = document.getElementById('ladderResultContent');
-            resultContent.innerHTML = '';
-            resultBox.classList.remove('hidden');
-
-            shuffledParticipants.forEach((pName, idx) => {
-                const assignedItem = items[idx % items.length];
-                const div = document.createElement('div');
-                div.className = "flex justify-between items-center bg-slate-950 px-3 py-2 rounded-lg border border-slate-800 text-xs";
-                div.innerHTML = `
-                    <span class="font-bold text-slate-200">⚔️ ${pName}</span>
-                    <span class="bg-orange-500/20 text-orange-300 px-2 py-0.5 rounded font-bold">${assignedItem}</span>
-                `;
-                resultContent.appendChild(div);
-            });
+            const prizes = plan.items.flatMap(item => Array(item.count).fill(item.name));
+            const raid = globalData.raid;
+            ladderDraft = {participants, schedule: `${raid.year}년 ${raid.month}월 ${raid.day}일 ${String(raid.hour).padStart(2,'0')}:${String(raid.minute).padStart(2,'0')}`, rows: shuffled.map((name, i) => ({name, item: i < prizes.length ? prizes[i] : '미당첨', won: i < prizes.length}))};
+            renderLadder();
+        }
+        async function confirmLadderResult() {
+            if (!isRaidEdit || !ladderDraft || ladderSaving) return;
+            if (ladderSignature(ladderDraft.participants) !== ladderSignature(ladderParticipants())) { ladderDraft = null; renderLadder(); alert('참여자가 변경되었습니다. 다시 추첨해주세요.'); return; }
+            if (!confirm('이 결과를 확정하여 모든 접속자에게 공유하시겠습니까?')) return;
+            ladderSaving = true;
+            const result = {...ladderDraft, confirmedAt: new Date().toISOString()};
+            renderLadder();
+            try {
+                await db.ref('kingSystemData/raid/ladderResult').set(result);
+                globalData.raid.ladderResult = result;
+                ladderDraft = null;
+            } catch (e) { alert('결과를 저장하지 못했습니다. 연결 상태와 쓰기 권한을 확인한 뒤 다시 확정해주세요.'); }
+            finally { ladderSaving = false; renderLadder(); }
+        }
+        function ladderText(result) {
+            const winners = result.rows.filter(row => row.won);
+            const others = result.rows.filter(row => !row.won);
+            return ['[KING] 길드레이드 추첨 결과', `일정: ${result.schedule}`, `참여: ${result.participants.length}명`, '', '🎁 당첨 결과', ...winners.map((row, i) => `${i + 1}. ${row.item} → ${row.name}`), '', `미당첨 (${others.length}명): ${others.map(row => row.name).join(', ') || '없음'}`, '', `확정: ${new Date(result.confirmedAt).toLocaleString('ko-KR')}`].join('\n');
+        }
+        async function copyLadderResult() {
+            const result = globalData.raid.ladderResult;
+            if (!result || ladderDraft) return;
+            const text = ladderText(result);
+            try {
+                await navigator.clipboard.writeText(text);
+                document.getElementById('ladderStatus').textContent = '✓ 복사했습니다. 카카오톡 단체톡에 붙여넣으세요.';
+            } catch (e) {
+                const field = document.getElementById('ladderCopyText');
+                field.value = text; field.focus(); field.select();
+                document.getElementById('ladderStatus').textContent = '자동 복사가 제한되어 텍스트를 선택했습니다. Ctrl+C 또는 길게 눌러 복사해주세요.';
+            }
         }
 
         function saveCurrentRaidToHistory() {
@@ -913,6 +981,7 @@
 
         function renderRaid() {
             const raid = globalData.raid;
+            renderLadder();
             document.getElementById('raidLastUpdate').innerText = raid.lastUpdate || "기록 없음";
             const scheduleText = `${raid.year || 2026}년 ${raid.month || 11}월 ${raid.day || 5}일 ${String(raid.hour || 21).padStart(2,'0')}:${String(raid.minute || 0).padStart(2,'0')}`;
             document.getElementById('raidScheduleDisplay').innerText = scheduleText;
