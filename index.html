@@ -241,7 +241,7 @@
             </div>
         </section>
 
-        <!-- ================= [탭 4] 길드 경쟁전 (참가 신청 + 파티 편성 + 히스토리) ================= -->
+        <!-- ================= [탭 4] 길드 경쟁전 (참가 신청 + 히스토리 + 파티 편성) ================= -->
         <section id="tab-competition" class="hidden space-y-4">
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-6">
                 
@@ -288,11 +288,11 @@
                     </div>
                 </div>
 
-                <!-- 전체 참가 신청 영역 -->
+                <!-- [단계 1] 전체 참가 신청 영역 -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 bg-slate-950 border border-slate-800 rounded-xl p-4">
                     <div id="compMemberBox" class="space-y-3">
                         <div class="flex justify-between items-center">
-                            <span class="text-xs font-bold text-slate-300">👥 전체 길드원 참가 신청</span>
+                            <span class="text-xs font-bold text-slate-300">👥 1단계: 전체 길드원 참가 신청</span>
                             <span id="compModeGuide" class="text-[11px] text-slate-500">🔒 관리자 수정 모드에서 체크 가능</span>
                         </div>
                         <div id="compSearchBox" class="hidden">
@@ -307,7 +307,7 @@
                     <div class="space-y-3 flex flex-col justify-between">
                         <div>
                             <div class="flex justify-between items-center mb-3">
-                                <span class="text-xs font-bold text-amber-400">⚔️ 이번 경쟁전 전체 참가자 명단</span>
+                                <span class="text-xs font-bold text-amber-400">⚔️ 확정된 참가자 명단</span>
                                 <span id="compParticipantCount" class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">0명 참여</span>
                             </div>
                             <div id="compParticipantListContainer" class="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
@@ -315,12 +315,12 @@
                             </div>
                         </div>
                         <div class="text-[11px] text-slate-500 bg-slate-900 p-2.5 rounded-lg border border-slate-800">
-                            💡 관리자 모드에서 [완료 (저장)]를 누르면, 현재 참가자 명단과 편성이 아카이브에 자동으로 복사/저장됩니다.
+                            💡 관리자 모드에서 [완료 (저장)]를 누르면, 참가자 명단이 아래 히스토리에 확정 저장됩니다.
                         </div>
                     </div>
                 </div>
 
-                <!-- 히스토리 아카이브 (파티별 편성 현황 바로 위에 위치) -->
+                <!-- [히스토리 아카이브] 파티별 편성 현황 바로 위에 위치 -->
                 <div class="space-y-3 pt-2">
                     <h3 class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
                         📜 경쟁전 히스토리 아카이브 (참가자 및 파티 기록)
@@ -332,10 +332,10 @@
                     </div>
                 </div>
 
-                <!-- 1군 ~ 10군 파티 편성 영역 -->
+                <!-- [단계 2] 1군 ~ 10군 파티 편성 영역 -->
                 <div class="space-y-4 pt-2 border-t border-slate-800">
                     <div class="flex justify-between items-center pt-2">
-                        <h3 class="text-xs font-bold text-slate-300">⚔️ 파티별 편성 현황 (1군 ~ 10군 / 각 최대 5인)</h3>
+                        <h3 class="text-xs font-bold text-slate-300">⚔️ 2단계: 파티별 편성 현황 (1군 ~ 10군 / 각 최대 5인)</h3>
                     </div>
 
                     <div id="compPartiesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -920,25 +920,8 @@
             alert("히스토리가 삭제되었습니다.");
         }
 
-        function toggleEditHistory(hIdx) {
-            if (!isRaidEdit) { alert("관리자 수정 모드에서만 수정할 수 있습니다!"); return; }
-            editingHistoryIndex = (editingHistoryIndex === hIdx) ? null : hIdx;
-            renderRaid();
-        }
-
-        function handleHistoryParticipantCheck(hIdx, name, isChecked) {
-            let hItem = globalData.raid.history[hIdx];
-            if (!hItem.participants) hItem.participants = [];
-            if (isChecked) {
-                if (!hItem.participants.includes(name)) hItem.participants.push(name);
-            } else {
-                hItem.participants = hItem.participants.filter(p => p !== name);
-            }
-            saveToServer();
-        }
-
         // ==========================================
-        // 4. 길드 경쟁전 로직 (참가 신청 + 파티 편성 + 히스토리 자동저장)
+        // 4. 길드 경쟁전 로직 (1단계 참가 명단 꾸리기 -> 2단계 파티 꾸리기)
         // ==========================================
         function toggleCompEditMode() {
             if (!isCompEdit) {
@@ -973,7 +956,7 @@
                 const now = new Date();
                 globalData.competition.lastUpdate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
                 
-                // [수정 포인트] 완료(저장)를 누를 때 기존 참가자 명단(participants)을 비우지 않고, 히스토리에 기록만 추가하도록 변경
+                // [핵심] 완료(저장)를 누를 때 확정된 참가자 명단과 편성을 히스토리에 자동 추가 (참가자 명단은 유지됨)
                 const comp = globalData.competition;
                 if (comp.participants && comp.participants.length > 0) {
                     const scheduleStr = `${comp.year}년 ${comp.month}월 ${comp.day}일 ${comp.hour}시 ${comp.minute}분`;
@@ -985,9 +968,9 @@
                         parties: JSON.parse(JSON.stringify(comp.parties))
                     };
                     if (!comp.history) comp.history = [];
-                    // 중복 저장 방지를 위해 맨 처음에 똑같은 내용이 없으면 unshift
-                    const isAlreadySaved = comp.history.length > 0 && JSON.stringify(comp.history[0].participants) === JSON.stringify(historyItem.participants);
-                    if (!isAlreadySaved) {
+                    // 최근 기록과 중복되지 않으면 맨 위에 추가
+                    const isDuplicate = comp.history.length > 0 && JSON.stringify(comp.history[0].participants) === JSON.stringify(historyItem.participants);
+                    if (!isDuplicate) {
                         comp.history.unshift(historyItem);
                     }
                 }
