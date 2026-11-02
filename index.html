@@ -315,19 +315,19 @@
                             </div>
                         </div>
                         <div class="text-[11px] text-slate-500 bg-slate-900 p-2.5 rounded-lg border border-slate-800">
-                            💡 관리자 모드에서 [완료 (저장)]를 누르면, 현재 참가자 명단과 편성이 아카이브에 자동으로 저장됩니다.
+                            💡 관리자 모드에서 [완료 (저장)]를 누르면, 현재 참가자 명단과 편성이 아카이브에 자동으로 복사/저장됩니다.
                         </div>
                     </div>
                 </div>
 
-                <!-- [요청사항 반영] 파티별 편성 현황 바로 위에 위치한 히스토리 아카이브 영역 -->
+                <!-- 히스토리 아카이브 (파티별 편성 현황 바로 위에 위치) -->
                 <div class="space-y-3 pt-2">
                     <h3 class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
                         📜 경쟁전 히스토리 아카이브 (참가자 및 파티 기록)
                     </h3>
                     <div id="compHistoryContainer" class="space-y-2">
                         <div class="text-xs text-slate-500 text-center py-4 bg-slate-950 border border-slate-800/60 rounded-xl">
-                            아직 저장된 경쟁전 히스토리가 없습니다.
+                            아직 저장된 경쟁전 히스토리가 없습니다. 관리자 모드에서 완료를 누르면 기록됩니다.
                         </div>
                     </div>
                 </div>
@@ -973,7 +973,7 @@
                 const now = new Date();
                 globalData.competition.lastUpdate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
                 
-                // [요청 반영] 관리자가 '완료(저장)'를 누를 때 현재 참가자와 파티 편성이 자동으로 히스토리에 기록됨
+                // [수정 포인트] 완료(저장)를 누를 때 기존 참가자 명단(participants)을 비우지 않고, 히스토리에 기록만 추가하도록 변경
                 const comp = globalData.competition;
                 if (comp.participants && comp.participants.length > 0) {
                     const scheduleStr = `${comp.year}년 ${comp.month}월 ${comp.day}일 ${comp.hour}시 ${comp.minute}분`;
@@ -985,7 +985,11 @@
                         parties: JSON.parse(JSON.stringify(comp.parties))
                     };
                     if (!comp.history) comp.history = [];
-                    comp.history.unshift(historyItem);
+                    // 중복 저장 방지를 위해 맨 처음에 똑같은 내용이 없으면 unshift
+                    const isAlreadySaved = comp.history.length > 0 && JSON.stringify(comp.history[0].participants) === JSON.stringify(historyItem.participants);
+                    if (!isAlreadySaved) {
+                        comp.history.unshift(historyItem);
+                    }
                 }
 
                 saveToServer();
@@ -1000,7 +1004,7 @@
                 document.getElementById('compDiscordInput').classList.add('hidden');
                 document.getElementById('compModeGuide').innerText = "🔒 관리자 수정 모드에서 체크 가능";
                 document.getElementById('compModeGuide').className = "text-[11px] text-slate-500";
-                alert("경쟁전 명단과 편성이 저장 및 아카이브에 기록되었습니다!");
+                alert("경쟁전 명단과 편성이 안전하게 저장되었습니다!");
             }
             renderCompetition();
         }
@@ -1159,7 +1163,7 @@
                 });
             }
 
-            // 3. [요청 반영] 히스토리 아카이브를 파티별 편성 현황 바로 위에 위치시킴
+            // 3. 히스토리 아카이브 렌더링 (파티별 편성 현황 바로 위)
             const compHistoryContainer = document.getElementById('compHistoryContainer');
             compHistoryContainer.innerHTML = '';
             const history = comp.history || [];
