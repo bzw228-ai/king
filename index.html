@@ -507,7 +507,6 @@
                 if (val.popupToggle !== undefined) globalData.popupToggle = val.popupToggle;
                 if (val.soundToggle !== undefined) globalData.soundToggle = val.soundToggle;
                 
-                // 기존 데이터 손실 방지 안전장치 적용
                 if (val.raid) globalData.raid = val.raid;
                 if (val.competition) {
                     globalData.competition = val.competition;
@@ -981,6 +980,8 @@
 
                 const now = new Date();
                 globalData.competition.lastUpdate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+                
+                // 즉시 서버에 저장하고 화면 갱신
                 saveToServer();
 
                 isCompEdit = false;
@@ -1017,6 +1018,7 @@
                 }
             }
             saveToServer();
+            renderCompetition(); // 즉시 화면 반영
         }
 
         function removeCompParticipant(name) {
@@ -1029,6 +1031,7 @@
                 }
             }
             saveToServer();
+            renderCompetition(); // 즉시 화면 반영
         }
 
         function handleCompMemberCheck(partyNum, memberName, isChecked) {
@@ -1048,6 +1051,7 @@
             }
             globalData.competition.parties[partyNum] = pList;
             saveToServer();
+            renderCompetition(); // 즉시 화면 반영
         }
 
         function saveCurrentCompToHistory() {
@@ -1082,7 +1086,7 @@
             if (!confirm("해당 경쟁전 히스토리를 영구 삭제하시겠습니까?")) return;
             globalData.competition.history.splice(hIdx, 1);
             saveToServer();
-            alert("히스토리가 삭제되었습니다.");
+            renderCompetition();
         }
 
         function renderCompetition() {
@@ -1125,7 +1129,7 @@
                 compSearchBox.classList.add('hidden');
             }
 
-            // 1. 전체 참가 신청 리스트 렌더링 (조회 모드일 때는 체크박스 대신 안내 문구 표시)
+            // 1. 전체 참가 신청 리스트 렌더링
             const compMemberListEl = document.getElementById('compMemberList');
             compMemberListEl.innerHTML = '';
             const searchKeyword = (document.getElementById('compMemberSearch').value || '').toLowerCase();
@@ -1156,7 +1160,7 @@
                 }
             }
 
-            // 2. 전체 참가자 뱃지 명단 렌더링
+            // 2. 전체 참가자 뱃지 명단 렌더링 (조회모드일 때도 정상 출력)
             const compPContainer = document.getElementById('compParticipantListContainer');
             compPContainer.innerHTML = '';
             const participants = comp.participants || [];
@@ -1177,7 +1181,7 @@
                 });
             }
 
-            // 3. 1군 ~ 10군 파티 편성 카드 렌더링
+            // 3. 1군 ~ 10군 파티 편성 카드 렌더링 (조회모드일 때도 편성된 파티원 즉시 출력)
             const partiesContainer = document.getElementById('compPartiesContainer');
             partiesContainer.innerHTML = '';
             if (!comp.parties) comp.parties = { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[] };
