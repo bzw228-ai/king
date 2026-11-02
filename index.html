@@ -876,7 +876,8 @@
             const memberListEl = document.getElementById('raidMemberList');
             if (!memberListEl) return;
             memberListEl.innerHTML = '';
-            const searchKeyword = (document.getElementById('raidMemberSearch').value || '').toLowerCase();
+            const searchInput = document.getElementById('raidMemberSearch');
+            const searchKeyword = searchInput ? (searchInput.value || '').toLowerCase() : '';
             const members = globalData.members || [];
             const filtered = members.filter(m => m.name.toLowerCase().includes(searchKeyword) || m.note.toLowerCase().includes(searchKeyword));
 
@@ -1180,7 +1181,7 @@
                 if (compPCountEl) compPCountEl.innerText = `${participants.length}명 참여`;
 
                 if (participants.length === 0) {
-                    compPContainer.innerHTML = `<div class="text-xs text-slate-500 py-4 text-center w-full">참가 신청한 인원이 없습니다.</div>`;
+                    compPContainer.innerHTML = `<div class="text-xs text-slate-500 py-4 text-center w-full">참여 신청한 인원이 없습니다.</div>`;
                 } else {
                     participants.forEach(pName => {
                         const badge = document.createElement('span');
