@@ -288,14 +288,14 @@
                     </div>
                 </div>
 
-                <!-- 전체 참가 신청 영역 (조회모드일 때는 검색창 숨기고 깔끔하게 처리) -->
+                <!-- 전체 참가 신청 영역 -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 bg-slate-950 border border-slate-800 rounded-xl p-4">
                     <div id="compMemberBox" class="space-y-3">
                         <div class="flex justify-between items-center">
                             <span class="text-xs font-bold text-slate-300">👥 전체 길드원 참가 신청</span>
                             <span id="compModeGuide" class="text-[11px] text-slate-500">🔒 관리자 수정 모드에서 체크 가능</span>
                         </div>
-                        <div id="compSearchBox">
+                        <div id="compSearchBox" class="hidden">
                             <input type="text" id="compMemberSearch" placeholder="🔍 닉네임 검색..." oninput="renderCompetition()"
                                    class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
                         </div>
@@ -506,6 +506,8 @@
                 if (val.alertOffset !== undefined) globalData.alertOffset = val.alertOffset;
                 if (val.popupToggle !== undefined) globalData.popupToggle = val.popupToggle;
                 if (val.soundToggle !== undefined) globalData.soundToggle = val.soundToggle;
+                
+                // 기존 데이터 손실 방지 안전장치 적용
                 if (val.raid) globalData.raid = val.raid;
                 if (val.competition) {
                     globalData.competition = val.competition;
@@ -1115,7 +1117,7 @@
                 }
             }
 
-            // 조회 전용 모드일 때 검색창 영역 숨기기 처리
+            // 조회/수정 모드에 따라 검색창 표시 제어
             const compSearchBox = document.getElementById('compSearchBox');
             if (isCompEdit) {
                 compSearchBox.classList.remove('hidden');
@@ -1123,7 +1125,7 @@
                 compSearchBox.classList.add('hidden');
             }
 
-            // 1. 전체 참가 신청 체크박스 리스트 렌더링 (조회 모드일 때는 체크박스 대신 안내 문구 또는 신청자만 표시)
+            // 1. 전체 참가 신청 리스트 렌더링 (조회 모드일 때는 체크박스 대신 안내 문구 표시)
             const compMemberListEl = document.getElementById('compMemberList');
             compMemberListEl.innerHTML = '';
             const searchKeyword = (document.getElementById('compMemberSearch').value || '').toLowerCase();
@@ -1131,7 +1133,7 @@
             const filteredMembers = members.filter(m => m.name.toLowerCase().includes(searchKeyword) || m.note.toLowerCase().includes(searchKeyword));
 
             if (!isCompEdit) {
-                compMemberListEl.innerHTML = `<div class="text-xs text-slate-500 py-2">🔒 조회 모드입니다. 참가 신청 변경은 관리자 모드에서 가능합니다.</div>`;
+                compMemberListEl.innerHTML = `<div class="text-xs text-slate-500 py-3 text-center">🔒 조회 모드입니다. 참가 신청 변경은 관리자 모드에서 가능합니다.</div>`;
             } else {
                 if (filteredMembers.length === 0) {
                     compMemberListEl.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">검색 결과가 없습니다.</div>`;
