@@ -241,14 +241,14 @@
             </div>
         </section>
 
-        <!-- ================= [탭 4] 길드 경쟁전 (1~10군 파티 편성) ================= -->
+        <!-- ================= [탭 4] 길드 경쟁전 (전체 참가 인원 + 1~10군 편성) ================= -->
         <section id="tab-competition" class="hidden space-y-4">
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-6">
                 
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-800">
                     <div>
                         <h2 class="text-lg sm:text-xl font-bold text-amber-400 flex items-center gap-2">
-                            🏆 길드 경쟁전 (1군 ~ 10군 편성)
+                            🏆 길드 경쟁전 (참가 신청 및 1~10군 편성)
                         </h2>
                         <p class="text-xs text-slate-400 mt-1">
                             마지막 수정일: <span id="compLastUpdate" class="text-amber-300 font-semibold">기록 없음</span>
@@ -288,11 +288,42 @@
                     </div>
                 </div>
 
+                <!-- [추가] 전체 참가 인원 선택 영역 (길드레이드 동일 방식) -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 bg-slate-950 border border-slate-800 rounded-xl p-4">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-slate-300">👥 전체 길드원 참가 신청</span>
+                            <span id="compModeGuide" class="text-[11px] text-slate-500">🔒 관리자 수정 모드에서 체크 가능</span>
+                        </div>
+                        <div>
+                            <input type="text" id="compMemberSearch" placeholder="🔍 닉네임 검색..." oninput="renderCompetition()"
+                                   class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+                        </div>
+                        <div id="compMemberList" class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                            <!-- 동적 렌더링 -->
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-xs font-bold text-amber-400">⚔️ 이번 경쟁전 전체 참가자 명단</span>
+                                <span id="compParticipantCount" class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">0명 참여</span>
+                            </div>
+                            <div id="compParticipantListContainer" class="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
+                                <!-- 동적 렌더링 -->
+                            </div>
+                        </div>
+                        <div class="text-[11px] text-slate-500 bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+                            💡 위에서 참가 신청된 인원을 아래 1군~10군 파티에 나누어 배치할 수 있습니다.
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 1군 ~ 10군 파티 편성 영역 -->
-                <div class="space-y-4">
+                <div class="space-y-4 pt-2">
                     <div class="flex justify-between items-center">
                         <h3 class="text-xs font-bold text-slate-300">⚔️ 파티별 편성 현황 (1군 ~ 10군 / 각 최대 5인)</h3>
-                        <span id="compModeGuide" class="text-[11px] text-slate-500">🔒 관리자 수정 모드에서 파티별 멤버 체크 가능</span>
                     </div>
 
                     <div id="compPartiesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -444,6 +475,7 @@
                 year: 2026, month: 11, day: 7, hour: 21, minute: 0,
                 discordUrl: "",
                 lastUpdate: "기록 없음",
+                participants: [],
                 parties: { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[] },
                 history: []
             }
@@ -477,6 +509,7 @@
                 if (val.raid) globalData.raid = val.raid;
                 if (val.competition) {
                     globalData.competition = val.competition;
+                    if (!globalData.competition.participants) globalData.competition.participants = [];
                     if (!globalData.competition.parties) {
                         globalData.competition.parties = { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[] };
                     }
@@ -791,7 +824,7 @@
         }
 
         // ==========================================
-        // 3. 길드레이드 및 사다리 타기 로직
+        // 3. 길드레이드 로직
         // ==========================================
         function toggleRaidEditMode() {
             if (!isRaidEdit) {
@@ -911,7 +944,7 @@
         }
 
         // ==========================================
-        // 4. 길드 경쟁전 로직 (1~10군 편성)
+        // 4. 길드 경쟁전 로직 (참가 신청 + 1~10군 편성)
         // ==========================================
         function toggleCompEditMode() {
             if (!isCompEdit) {
@@ -927,7 +960,7 @@
                 document.getElementById('compDiscordLinkBtn').classList.add('hidden');
                 document.getElementById('compDiscordInput').classList.remove('hidden');
                 document.getElementById('compSaveSection').classList.remove('hidden');
-                document.getElementById('compModeGuide').innerText = "✅ 파티별 멤버 체크 가능 (각 군 최대 5인)";
+                document.getElementById('compModeGuide').innerText = "✅ 체크박스 수정 가능";
                 document.getElementById('compModeGuide').className = "text-[11px] text-emerald-400 font-semibold";
             } else {
                 const y = parseInt(document.getElementById('compYear').value);
@@ -957,11 +990,44 @@
                 document.getElementById('compDiscordDisplay').classList.remove('hidden');
                 document.getElementById('compDiscordInput').classList.add('hidden');
                 document.getElementById('compSaveSection').classList.add('hidden');
-                document.getElementById('compModeGuide').innerText = "🔒 관리자 수정 모드에서 파티별 멤버 체크 가능";
+                document.getElementById('compModeGuide').innerText = "🔒 관리자 수정 모드에서 체크 가능";
                 document.getElementById('compModeGuide').className = "text-[11px] text-slate-500";
                 alert("경쟁전 설정이 저장되었습니다!");
             }
             renderCompetition();
+        }
+
+        function handleCompParticipantCheck(name, isChecked) {
+            if (!isCompEdit) {
+                alert("관리자 수정 모드에서만 참가자를 변경할 수 있습니다!");
+                renderCompetition();
+                return;
+            }
+            if (!globalData.competition.participants) globalData.competition.participants = [];
+            if (isChecked) {
+                if (!globalData.competition.participants.includes(name)) globalData.competition.participants.push(name);
+            } else {
+                globalData.competition.participants = globalData.competition.participants.filter(p => p !== name);
+                // 참가 취소된 인원은 파티에서도 자동 제외
+                for (let i = 1; i <= 10; i++) {
+                    if (globalData.competition.parties[i]) {
+                        globalData.competition.parties[i] = globalData.competition.parties[i].filter(n => n !== name);
+                    }
+                }
+            }
+            saveToServer();
+        }
+
+        function removeCompParticipant(name) {
+            if (!isCompEdit) { alert("관리자 수정 모드에서만 제외할 수 있습니다!"); return; }
+            if (!globalData.competition.participants) return;
+            globalData.competition.participants = globalData.competition.participants.filter(p => p !== name);
+            for (let i = 1; i <= 10; i++) {
+                if (globalData.competition.parties[i]) {
+                    globalData.competition.parties[i] = globalData.competition.parties[i].filter(n => n !== name);
+                }
+            }
+            saveToServer();
         }
 
         function handleCompMemberCheck(partyNum, memberName, isChecked) {
@@ -971,7 +1037,7 @@
             let pList = globalData.competition.parties[partyNum] || [];
             if (isChecked) {
                 if (pList.length >= 5) {
-                    alert("각 군은 최대 5까지만 편성할 수 있습니다!");
+                    alert("각 군은 최대 5명까지만 편성할 수 있습니다!");
                     renderCompetition();
                     return;
                 }
@@ -985,28 +1051,25 @@
 
         function saveCurrentCompToHistory() {
             const comp = globalData.competition;
-            let totalCount = 0;
-            for (let i = 1; i <= 10; i++) {
-                if (comp.parties[i]) totalCount += comp.parties[i].length;
-            }
-            if (totalCount === 0) {
-                alert("편성된 인원이 한 명도 없습니다!");
+            if (!comp.participants || comp.participants.length === 0) {
+                alert("참가 신청한 인원이 한 명도 없습니다!");
                 return;
             }
-            if (!confirm("현재 1~10군 편성을 경쟁전 히스토리에 확정 저장하시겠습니까?")) return;
+            if (!confirm("현재 참가자 및 1~10군 편성을 경쟁전 히스토리에 확정 저장하시겠습니까?")) return;
 
             const scheduleStr = `${comp.year}년 ${comp.month}월 ${comp.day}일 ${comp.hour}시 ${comp.minute}분`;
             const historyItem = {
                 dateStr: scheduleStr,
                 savedAt: new Date().toLocaleDateString(),
                 discordUrl: comp.discordUrl || "",
+                participants: [...comp.participants],
                 parties: JSON.parse(JSON.stringify(comp.parties))
             };
 
             if (!comp.history) comp.history = [];
             comp.history.unshift(historyItem);
 
-            // 현재 편성은 초기화
+            globalData.competition.participants = [];
             globalData.competition.parties = { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[] };
             saveToServer();
             alert("경쟁전 회차 기록이 성공적으로 아카이브에 저장되었습니다!");
@@ -1053,10 +1116,58 @@
                 }
             }
 
-            // 1군 ~ 10군 파티 카드 렌더링
+            // 1. 전체 참가 신청 체크박스 리스트 렌더링
+            const compMemberListEl = document.getElementById('compMemberList');
+            compMemberListEl.innerHTML = '';
+            const searchKeyword = (document.getElementById('compMemberSearch').value || '').toLowerCase();
+            const members = globalData.members || [];
+            const filteredMembers = members.filter(m => m.name.toLowerCase().includes(searchKeyword) || m.note.toLowerCase().includes(searchKeyword));
+
+            if (filteredMembers.length === 0) {
+                compMemberListEl.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">검색 결과가 없습니다.</div>`;
+            } else {
+                filteredMembers.forEach(m => {
+                    const isChecked = comp.participants && comp.participants.includes(m.name);
+                    const div = document.createElement('label');
+                    div.className = `flex items-center justify-between bg-slate-900 px-3 py-2 rounded-lg border border-slate-800/80 text-xs ${isCompEdit ? 'cursor-pointer hover:bg-slate-900/80' : 'cursor-default opacity-90'}`;
+                    div.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" ${isChecked ? 'checked' : ''} 
+                                   ${!isCompEdit ? 'disabled' : ''}
+                                   onchange="handleCompParticipantCheck('${m.name}', this.checked)"
+                                   class="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-0 ${!isCompEdit ? 'opacity-50 cursor-not-allowed' : ''}">
+                            <span class="font-bold text-slate-200">${m.name}</span>
+                        </div>
+                        <span class="text-[11px] text-slate-400">${m.note}</span>
+                    `;
+                    compMemberListEl.appendChild(div);
+                });
+            }
+
+            // 2. 전체 참가자 뱃지 명단 렌더링
+            const compPContainer = document.getElementById('compParticipantListContainer');
+            compPContainer.innerHTML = '';
+            const participants = comp.participants || [];
+            document.getElementById('compParticipantCount').innerText = `${participants.length}명 참여`;
+
+            if (participants.length === 0) {
+                compPContainer.innerHTML = `<div class="text-xs text-slate-500 py-4 text-center w-full">참가 신청한 인원이 없습니다. 좌측에서 체크해주세요.</div>`;
+            } else {
+                participants.forEach(pName => {
+                    const badge = document.createElement('span');
+                    badge.className = "bg-amber-500/20 border border-amber-500/40 text-amber-300 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5";
+                    if (isCompEdit) {
+                        badge.innerHTML = `⚔️ ${pName} <button onclick="removeCompParticipant('${pName}')" class="text-amber-400 hover:text-red-400 font-bold ml-1 px-1 rounded bg-slate-900/50">×</button>`;
+                    } else {
+                        badge.innerHTML = `⚔️ ${pName}`;
+                    }
+                    compPContainer.appendChild(badge);
+                });
+            }
+
+            // 3. 1군 ~ 10군 파티 편성 카드 렌더링 (참가 신청된 인원 중에서만 배정 가능하도록 필터링)
             const partiesContainer = document.getElementById('compPartiesContainer');
             partiesContainer.innerHTML = '';
-            const members = globalData.members || [];
             if (!comp.parties) comp.parties = { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[] };
 
             for (let i = 1; i <= 10; i++) {
@@ -1066,27 +1177,29 @@
 
                 let membersHtml = '';
                 if (!isCompEdit) {
-                    // 조회 모드: 배정된 멤버 뱃지
                     if (partyMembers.length === 0) {
                         membersHtml = `<span class="text-[11px] text-slate-600">편성된 인원이 없습니다.</span>`;
                     } else {
                         membersHtml = partyMembers.map(name => `<span class="bg-amber-500/10 border border-amber-500/30 text-amber-300 px-2 py-0.5 rounded text-[11px] font-semibold">⚔️ ${name}</span>`).join('');
                     }
                 } else {
-                    // 관리자 수정 모드: 전체 길드원 체크박스 리스트 (각 파티별)
-                    membersHtml = `<div class="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto pr-1">`;
-                    members.forEach(m => {
-                        const isChecked = partyMembers.includes(m.name);
-                        membersHtml += `
-                            <label class="flex items-center gap-1.5 bg-slate-900 px-2 py-1 rounded border border-slate-800 cursor-pointer text-[11px]">
-                                <input type="checkbox" ${isChecked ? 'checked' : ''} 
-                                       onchange="handleCompMemberCheck(${i}, '${m.name}', this.checked)"
-                                       class="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-0">
-                                <span class="text-slate-200 truncate">${m.name}</span>
-                            </label>
-                        `;
-                    });
-                    membersHtml += `</div>`;
+                    if (participants.length === 0) {
+                        membersHtml = `<span class="text-[11px] text-slate-500">먼저 위에서 참가 인원을 체크해주세요.</span>`;
+                    } else {
+                        membersHtml = `<div class="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto pr-1">`;
+                        participants.forEach(pName => {
+                            const isChecked = partyMembers.includes(pName);
+                            membersHtml += `
+                                <label class="flex items-center gap-1.5 bg-slate-900 px-2 py-1 rounded border border-slate-800 cursor-pointer text-[11px]">
+                                    <input type="checkbox" ${isChecked ? 'checked' : ''} 
+                                           onchange="handleCompMemberCheck(${i}, '${pName}', this.checked)"
+                                           class="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-0">
+                                    <span class="text-slate-200 truncate">${pName}</span>
+                                </label>
+                            `;
+                        });
+                        membersHtml += `</div>`;
+                    }
                 }
 
                 card.innerHTML = `
@@ -1101,7 +1214,7 @@
                 partiesContainer.appendChild(card);
             }
 
-            // 경쟁전 히스토리 아카이브 렌더링
+            // 4. 경쟁전 히스토리 아카이브 렌더링
             const compHistoryContainer = document.getElementById('compHistoryContainer');
             compHistoryContainer.innerHTML = '';
             const history = comp.history || [];
@@ -1135,7 +1248,7 @@
                                 ${hItem.discordUrl ? `<a href="${hItem.discordUrl}" target="_blank" class="ml-2 text-[11px] bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded font-semibold">디스코드 입장</a>` : ''}
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="text-[11px] text-slate-400">저장일: ${hItem.savedAt}</span>
+                                <span class="text-[11px] text-slate-400">참여: ${hItem.participants.length}명 / 저장: ${hItem.savedAt}</span>
                                 ${isCompEdit ? `<button onclick="deleteCompHistoryItem(${hIdx})" class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded text-[11px]">삭제</button>` : ''}
                             </div>
                         </div>
