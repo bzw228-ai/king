@@ -30,7 +30,7 @@
                 👑 길드 통합 관리 및 실시간 시스템
             </p>
 
-            <!-- 3대 탭 메뉴 -->
+            <!-- 4대 탭 메뉴 -->
             <div class="flex flex-wrap justify-center gap-2 sm:gap-3 mt-6">
                 <button onclick="switchTab('members')" id="btn-members" 
                         class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-slate-950 text-slate-400 border border-slate-800 hover:text-slate-200">
@@ -43,6 +43,10 @@
                 <button onclick="switchTab('guildRaid')" id="btn-guildRaid" 
                         class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-slate-950 text-slate-400 border border-slate-800 hover:text-slate-200">
                     🐉 길드레이드
+                </button>
+                <button onclick="switchTab('competition')" id="btn-competition" 
+                        class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-slate-950 text-slate-400 border border-slate-800 hover:text-slate-200">
+                    🏆 길드 경쟁전
                 </button>
             </div>
         </header>
@@ -237,6 +241,88 @@
             </div>
         </section>
 
+        <!-- ================= [탭 4] 길드 경쟁전 (1~10군 파티 편성) ================= -->
+        <section id="tab-competition" class="hidden space-y-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-6">
+                
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-800">
+                    <div>
+                        <h2 class="text-lg sm:text-xl font-bold text-amber-400 flex items-center gap-2">
+                            🏆 길드 경쟁전 (1군 ~ 10군 편성)
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">
+                            마지막 수정일: <span id="compLastUpdate" class="text-amber-300 font-semibold">기록 없음</span>
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                        <div id="compViewMode" class="text-xs text-slate-400 bg-slate-950 px-3 py-2 rounded-xl border border-slate-800">
+                            🔒 조회 전용 모드
+                        </div>
+                        <button id="compActionBtn" onclick="toggleCompEditMode()" 
+                                class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md">
+                            관리자 수정
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 경쟁전 일정 및 디스코드 URL 설정 영역 -->
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-xs">
+                        <span class="text-slate-300 font-semibold">📅 경쟁전 일정:</span>
+                        <span id="compScheduleDisplay" class="text-amber-400 font-bold">등록된 일정이 없습니다.</span>
+                        <div id="compScheduleInputs" class="hidden flex flex-wrap items-center gap-1">
+                            <input type="number" id="compYear" placeholder="년" class="w-14 bg-slate-900 border border-slate-700 rounded px-1 py-1 text-center text-slate-200">년
+                            <input type="number" id="compMonth" placeholder="월" class="w-10 bg-slate-900 border border-slate-700 rounded px-1 py-1 text-center text-slate-200">월
+                            <input type="number" id="compDay" placeholder="일" class="w-10 bg-slate-900 border border-slate-700 rounded px-1 py-1 text-center text-slate-200">일
+                            <input type="number" id="compHour" placeholder="시" class="w-10 bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-center text-slate-200">시
+                            <input type="number" id="compMinute" placeholder="분" class="w-10 bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-center text-slate-200">분
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between sm:justify-end gap-2 text-xs">
+                        <span class="text-slate-300 font-semibold">💬 디스코드:</span>
+                        <span id="compDiscordDisplay" class="text-indigo-400 truncate max-w-[180px]">등록된 링크 없음</span>
+                        <a id="compDiscordLinkBtn" href="#" target="_blank" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1 rounded-lg font-bold transition">입장</a>
+                        <input type="text" id="compDiscordInput" placeholder="https://discord.gg/..." class="hidden flex-1 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-slate-200">
+                    </div>
+                </div>
+
+                <!-- 1군 ~ 10군 파티 편성 영역 -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold text-slate-300">⚔️ 파티별 편성 현황 (1군 ~ 10군 / 각 최대 5인)</h3>
+                        <span id="compModeGuide" class="text-[11px] text-slate-500">🔒 관리자 수정 모드에서 파티별 멤버 체크 가능</span>
+                    </div>
+
+                    <div id="compPartiesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- 동적 렌더링 (1~10군 카드) -->
+                    </div>
+                </div>
+
+                <!-- 이번 회차 저장 버튼 -->
+                <div id="compSaveSection" class="hidden pt-3 border-t border-slate-800">
+                    <button onclick="saveCurrentCompToHistory()" 
+                            class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md shadow-amber-500/20">
+                        💾 이번 회차 경쟁전 명단 확정 및 저장
+                    </button>
+                </div>
+
+                <!-- 하단: 경쟁전 주차별 히스토리 아카이브 -->
+                <div class="space-y-3 pt-4 border-t border-slate-800">
+                    <h3 class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                        📜 경쟁전 히스토리 아카이브
+                    </h3>
+                    <div id="compHistoryContainer" class="space-y-2">
+                        <div class="text-xs text-slate-500 text-center py-4 bg-slate-950 border border-slate-800/60 rounded-xl">
+                            아직 저장된 경쟁전 히스토리가 없습니다.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
     </div>
 
     <!-- 🎲 진짜 사다리타기 애니메이션 & 결과 팝업 모달 -->
@@ -353,11 +439,19 @@
                 lastUpdate: "기록 없음",
                 participants: [],
                 history: []
+            },
+            competition: {
+                year: 2026, month: 11, day: 7, hour: 21, minute: 0,
+                discordUrl: "",
+                lastUpdate: "기록 없음",
+                parties: { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[] },
+                history: []
             }
         };
 
         let isMemberEdit = false;
         let isRaidEdit = false;
+        let isCompEdit = false;
         let editingHistoryIndex = null;
         let currentActiveLadderHistoryIdx = null;
         let adminTargetHistoryIdx = null;
@@ -381,6 +475,12 @@
                 if (val.popupToggle !== undefined) globalData.popupToggle = val.popupToggle;
                 if (val.soundToggle !== undefined) globalData.soundToggle = val.soundToggle;
                 if (val.raid) globalData.raid = val.raid;
+                if (val.competition) {
+                    globalData.competition = val.competition;
+                    if (!globalData.competition.parties) {
+                        globalData.competition.parties = { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[] };
+                    }
+                }
 
                 document.getElementById('alertOffset').value = globalData.alertOffset;
                 document.getElementById('popupToggle').checked = globalData.popupToggle;
@@ -389,13 +489,14 @@
                 renderMembers();
                 renderBosses();
                 renderRaid();
+                renderCompetition();
             } else {
                 saveToServer();
             }
         });
 
         function switchTab(tabName) {
-            ['members', 'bossTimer', 'guildRaid'].forEach(t => {
+            ['members', 'bossTimer', 'guildRaid', 'competition'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
                 const btn = document.getElementById(`btn-${t}`);
                 btn.className = "px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-slate-950 text-slate-400 border border-slate-800 hover:text-slate-200";
@@ -403,7 +504,12 @@
 
             document.getElementById(`tab-${tabName}`).classList.remove('hidden');
             const activeBtn = document.getElementById(`btn-${tabName}`);
-            const colors = { members: 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20', bossTimer: 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20', guildRaid: 'bg-orange-500 text-slate-950 shadow-lg shadow-orange-500/20' };
+            const colors = { 
+                members: 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20', 
+                bossTimer: 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20', 
+                guildRaid: 'bg-orange-500 text-slate-950 shadow-lg shadow-orange-500/20',
+                competition: 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20'
+            };
             activeBtn.className = `px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${colors[tabName]}`;
         }
 
@@ -514,7 +620,7 @@
         }
 
         // ==========================================
-        // 2. 보스 젠타임 테이블 로직 (정확한 다음 젠 계산 완벽 수정)
+        // 2. 보스 젠타임 테이블 로직
         // ==========================================
         function getTimestamp(k) {
             const now = new Date();
@@ -588,8 +694,6 @@
 
                 if (isNaN(baseTime)) return;
 
-                // [수정된 젠타임 계산 로직]
-                // 기준 시각(baseTime)에서 시작하여 현재 시간(now)보다 뒤에 있는 첫 번째 미래 젠타임을 정확히 계산합니다.
                 let nextSpawn = baseTime;
                 if (nextSpawn <= now) {
                     const diff = now - baseTime;
@@ -807,320 +911,244 @@
         }
 
         // ==========================================
-        // 🎲 히스토리별 사다리타기 관련 로직
+        // 4. 길드 경쟁전 로직 (1~10군 편성)
         // ==========================================
-        function openLadderAction(hIdx) {
-            const hItem = globalData.raid.history[hIdx];
-            if (isRaidEdit) {
-                adminTargetHistoryIdx = hIdx;
-                document.getElementById('ladderAdminTargetDate').innerText = `대상 히스토리: ${hItem.dateStr}`;
-                renderAdminLadderItems(hItem.ladderConfig || [{ name: '전설 장갑', qty: 1 }]);
-                document.getElementById('ladderAdminModal').classList.remove('hidden');
+        function toggleCompEditMode() {
+            if (!isCompEdit) {
+                const pw = prompt("관리자 비밀번호를 입력하세요:");
+                if (pw !== ADMIN_PASSWORD) { alert("비밀번호가 틀렸습니다!"); return; }
+                isCompEdit = true;
+                document.getElementById('compViewMode').innerText = "🔓 관리자 수정 모드";
+                document.getElementById('compViewMode').className = "text-xs text-amber-400 bg-amber-500/10 px-3 py-2 rounded-xl border border-amber-500/30 font-semibold";
+                document.getElementById('compActionBtn').innerText = "완료 (저장)";
+                document.getElementById('compActionBtn').className = "bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md";
+                document.getElementById('compScheduleInputs').classList.remove('hidden');
+                document.getElementById('compDiscordDisplay').classList.add('hidden');
+                document.getElementById('compDiscordLinkBtn').classList.add('hidden');
+                document.getElementById('compDiscordInput').classList.remove('hidden');
+                document.getElementById('compSaveSection').classList.remove('hidden');
+                document.getElementById('compModeGuide').innerText = "✅ 파티별 멤버 체크 가능 (각 군 최대 5인)";
+                document.getElementById('compModeGuide').className = "text-[11px] text-emerald-400 font-semibold";
             } else {
-                if (!hItem.ladderResult || !hItem.ladderResult.results || hItem.ladderResult.results.length === 0) {
-                    alert("아직 작성중이에요~~ 🎁 관리자가 아직 사다리 추첨을 완료하지 않았습니다!");
+                const y = parseInt(document.getElementById('compYear').value);
+                const m = parseInt(document.getElementById('compMonth').value);
+                const d = parseInt(document.getElementById('compDay').value);
+                const h = parseInt(document.getElementById('compHour').value);
+                const min = parseInt(document.getElementById('compMinute').value);
+                const discordVal = document.getElementById('compDiscordInput').value.trim();
+
+                if (!isNaN(y)) globalData.competition.year = y;
+                if (!isNaN(m)) globalData.competition.month = m;
+                if (!isNaN(d)) globalData.competition.day = d;
+                if (!isNaN(h)) globalData.competition.hour = h;
+                if (!isNaN(min)) globalData.competition.minute = min;
+                globalData.competition.discordUrl = discordVal;
+
+                const now = new Date();
+                globalData.competition.lastUpdate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+                saveToServer();
+
+                isCompEdit = false;
+                document.getElementById('compViewMode').innerText = "🔒 조회 전용 모드";
+                document.getElementById('compViewMode').className = "text-xs text-slate-400 bg-slate-950 px-3 py-2 rounded-xl border border-slate-800";
+                document.getElementById('compActionBtn').innerText = "관리자 수정";
+                document.getElementById('compActionBtn').className = "bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md";
+                document.getElementById('compScheduleInputs').classList.add('hidden');
+                document.getElementById('compDiscordDisplay').classList.remove('hidden');
+                document.getElementById('compDiscordInput').classList.add('hidden');
+                document.getElementById('compSaveSection').classList.add('hidden');
+                document.getElementById('compModeGuide').innerText = "🔒 관리자 수정 모드에서 파티별 멤버 체크 가능";
+                document.getElementById('compModeGuide').className = "text-[11px] text-slate-500";
+                alert("경쟁전 설정이 저장되었습니다!");
+            }
+            renderCompetition();
+        }
+
+        function handleCompMemberCheck(partyNum, memberName, isChecked) {
+            if (!isCompEdit) return;
+            if (!globalData.competition.parties) globalData.competition.parties = { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[] };
+            
+            let pList = globalData.competition.parties[partyNum] || [];
+            if (isChecked) {
+                if (pList.length >= 5) {
+                    alert("각 군은 최대 5까지만 편성할 수 있습니다!");
+                    renderCompetition();
                     return;
                 }
-                currentActiveLadderHistoryIdx = hIdx;
-                document.getElementById('ladderModalTitle').innerText = `🎲 [KING] ${hItem.dateStr} 사다리타기 결과`;
-                document.getElementById('ladderModal').classList.remove('hidden');
-                startLadderAnimation();
+                if (!pList.includes(memberName)) pList.push(memberName);
+            } else {
+                pList = pList.filter(name => name !== memberName);
             }
+            globalData.competition.parties[partyNum] = pList;
+            saveToServer();
         }
 
-        function closeLadderModal() {
-            document.getElementById('ladderModal').classList.add('hidden');
-        }
-
-        function closeLadderAdminModal() {
-            document.getElementById('ladderAdminModal').classList.add('hidden');
-        }
-
-        function renderAdminLadderItems(config) {
-            const container = document.getElementById('ladderAdminItemsContainer');
-            container.innerHTML = '';
-            config.forEach((c, idx) => {
-                const div = document.createElement('div');
-                div.className = "admin-ladder-row flex gap-2 items-center";
-                div.innerHTML = `
-                    <input type="text" value="${c.name}" placeholder="아이템 이름" class="admin-ladder-name flex-1 bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
-                    <input type="number" value="${c.qty}" min="1" placeholder="수량" class="admin-ladder-qty w-16 bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-200 text-center focus:outline-none focus:border-amber-500">
-                    <button onclick="removeAdminItemRow(${idx})" class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-1.5 rounded text-xs">삭제</button>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function addHistoryItemRow() {
-            const rows = document.querySelectorAll('.admin-ladder-row');
-            let config = [];
-            rows.forEach(r => {
-                config.push({
-                    name: r.querySelector('.admin-ladder-name').value.trim() || '아이템',
-                    qty: parseInt(r.querySelector('.admin-ladder-qty').value) || 1
-                });
-            });
-            config.push({ name: '', qty: 1 });
-            renderAdminLadderItems(config);
-        }
-
-        function removeAdminItemRow(idx) {
-            const rows = document.querySelectorAll('.admin-ladder-row');
-            let config = [];
-            rows.forEach(r => {
-                config.push({
-                    name: r.querySelector('.admin-ladder-name').value.trim() || '아이템',
-                    qty: parseInt(r.querySelector('.admin-ladder-qty').value) || 1
-                });
-            });
-            config.splice(idx, 1);
-            renderAdminLadderItems(config);
-        }
-
-        function saveAndExecuteHistoryLadder() {
-            if (adminTargetHistoryIdx === null) return;
-            const rows = document.querySelectorAll('.admin-ladder-row');
-            let config = [];
-            rows.forEach(r => {
-                config.push({
-                    name: r.querySelector('.admin-ladder-name').value.trim() || '아이템',
-                    qty: parseInt(r.querySelector('.admin-ladder-qty').value) || 1
-                });
-            });
-
-            const hItem = globalData.raid.history[adminTargetHistoryIdx];
-            const participants = hItem.participants || [];
-            if (participants.length === 0) {
-                alert("이 주차에는 참여자가 없습니다!");
+        function saveCurrentCompToHistory() {
+            const comp = globalData.competition;
+            let totalCount = 0;
+            for (let i = 1; i <= 10; i++) {
+                if (comp.parties[i]) totalCount += comp.parties[i].length;
+            }
+            if (totalCount === 0) {
+                alert("편성된 인원이 한 명도 없습니다!");
                 return;
             }
+            if (!confirm("현재 1~10군 편성을 경쟁전 히스토리에 확정 저장하시겠습니까?")) return;
 
-            let itemPool = [];
-            config.forEach(c => {
-                for (let i = 0; i < c.qty; i++) {
-                    itemPool.push(c.qty > 1 ? `${c.name} #${i + 1}` : c.name);
-                }
-            });
+            const scheduleStr = `${comp.year}년 ${comp.month}월 ${comp.day}일 ${comp.hour}시 ${comp.minute}분`;
+            const historyItem = {
+                dateStr: scheduleStr,
+                savedAt: new Date().toLocaleDateString(),
+                discordUrl: comp.discordUrl || "",
+                parties: JSON.parse(JSON.stringify(comp.parties))
+            };
 
-            let shuffledParticipants = [...participants];
-            for (let i = shuffledParticipants.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffledParticipants[i], shuffledParticipants[j]] = [shuffledParticipants[j], shuffledParticipants[i]];
-            }
+            if (!comp.history) comp.history = [];
+            comp.history.unshift(historyItem);
 
-            let results = [];
-            shuffledParticipants.forEach((person, index) => {
-                let prize = index < itemPool.length ? itemPool[index] : '꽝 (다음 기회에!)';
-                results.push({ person, prize });
-            });
-
-            hItem.ladderConfig = config;
-            hItem.ladderResult = { results: results };
-
+            // 현재 편성은 초기화
+            globalData.competition.parties = { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[] };
             saveToServer();
-            closeLadderAdminModal();
-            alert("🚀 사다리 추첨이 완료되어 서버에 저장되었습니다! 길드원 누구나 이제 동일한 결과를 확인할 수 있습니다.");
+            alert("경쟁전 회차 기록이 성공적으로 아카이브에 저장되었습니다!");
+            renderCompetition();
         }
 
-        function startLadderAnimation() {
-            const area = document.getElementById('ladderCanvasArea');
-            const resultListEl = document.getElementById('ladderResultList');
-            resultListEl.classList.add('hidden');
-            
-            area.innerHTML = `
-                <div class="text-center space-y-2 py-6">
-                    <div class="text-3xl animate-bounce">🧗‍♂️</div>
-                    <div class="text-xs font-bold text-amber-400">사다리를 타고 공평하게 내려오는 중...!</div>
-                    <div class="text-[11px] text-slate-500">잠시만 기다려주세요</div>
-                </div>
-            `;
-
-            setTimeout(() => {
-                renderLadderCardResult();
-            }, 1800);
+        function deleteCompHistoryItem(hIdx) {
+            if (!isCompEdit) { alert("관리자 수정 모드에서만 삭제할 수 있습니다!"); return; }
+            if (!confirm("해당 경쟁전 히스토리를 영구 삭제하시겠습니까?")) return;
+            globalData.competition.history.splice(hIdx, 1);
+            saveToServer();
+            alert("히스토리가 삭제되었습니다.");
         }
 
-        function restartCurrentLadderAnim() {
-            startLadderAnimation();
-        }
+        function renderCompetition() {
+            const comp = globalData.competition;
+            document.getElementById('compLastUpdate').innerText = comp.lastUpdate || "기록 없음";
 
-        function renderLadderCardResult() {
-            const hItem = globalData.raid.history[currentActiveLadderHistoryIdx];
-            const area = document.getElementById('ladderCanvasArea');
-            const resultListEl = document.getElementById('ladderResultList');
+            const scheduleText = `${comp.year || 2026}년 ${comp.month || 11}월 ${comp.day || 7}일 ${String(comp.hour || 21).padStart(2,'0')}:${String(comp.minute || 0).padStart(2,'0')}`;
+            document.getElementById('compScheduleDisplay').innerText = scheduleText;
 
-            area.innerHTML = `
-                <div class="text-center py-2">
-                    <div class="text-sm font-black text-amber-400 mb-1">🎉 사다리 타기 결과 확정!</div>
-                    <div class="text-[11px] text-slate-400">참여자 - 당첨목록 매칭 완료</div>
-                </div>
-            `;
+            const discordUrl = comp.discordUrl || "";
+            const discordDisplay = document.getElementById('compDiscordDisplay');
+            const discordLinkBtn = document.getElementById('compDiscordLinkBtn');
+            const discordInput = document.getElementById('compDiscordInput');
 
-            resultListEl.innerHTML = '';
-            hItem.ladderResult.results.forEach((res) => {
-                const isWin = !res.prize.includes('꽝');
-                const card = document.createElement('div');
-                card.className = `flex justify-between items-center px-4 py-3 rounded-xl border ${isWin ? 'border-amber-500/40 bg-amber-500/10' : 'border-slate-800 bg-slate-950'} text-xs shadow-md`;
-                card.innerHTML = `
-                    <span class="font-bold text-slate-200 flex items-center gap-1.5">👤 <strong class="text-white">${res.person}</strong></span>
-                    <span class="font-extrabold tracking-wide ${isWin ? 'text-amber-300 text-sm' : 'text-slate-500'}">${res.prize}</span>
-                `;
-                resultListEl.appendChild(card);
-            });
-            resultListEl.classList.remove('hidden');
-        }
-
-        function copyLadderResultText() {
-            const hItem = globalData.raid.history[currentActiveLadderHistoryIdx];
-            if (!hItem || !hItem.ladderResult) return;
-
-            let text = `👑 [KING 길드 레이드 분배 결과]\n📅 일정: ${hItem.dateStr}\n----------------------------------\n`;
-            hItem.ladderResult.results.forEach(res => {
-                text += `⚔️ ${res.person} ➔ ${res.prize}\n`;
-            });
-            text += `----------------------------------\n고생하셨습니다! 🎉`;
-
-            navigator.clipboard.writeText(text).then(() => {
-                alert("📋 단톡방 공유용 텍스트가 클립보드에 복사되었습니다! 그대로 붙여넣기 하세요.");
-            }).catch(err => {
-                alert("복사 실패: 브라우저 권한을 확인해주세요.");
-            });
-        }
-
-        function renderRaid() {
-            const r = globalData.raid;
-            document.getElementById('raidLastUpdate').innerText = r.lastUpdate || "기록 없음";
-            
-            const scheduleText = `${r.year || 2026}년 ${r.month || 11}월 ${r.day || 1}일 ${String(r.hour || 0).padStart(2,'0')}:${String(r.minute || 0).padStart(2,'0')}`;
-            document.getElementById('raidScheduleDisplay').innerText = scheduleText;
-
-            if (isRaidEdit) {
-                document.getElementById('raidYear').value = r.year || 2026;
-                document.getElementById('raidMonth').value = r.month || 11;
-                document.getElementById('raidDay').value = r.day || 1;
-                document.getElementById('raidHour').value = r.hour || 21;
-                document.getElementById('raidMinute').value = r.minute || 0;
+            if (isCompEdit) {
+                document.getElementById('compYear').value = comp.year || 2026;
+                document.getElementById('compMonth').value = comp.month || 11;
+                document.getElementById('compDay').value = comp.day || 7;
+                document.getElementById('compHour').value = comp.hour || 21;
+                document.getElementById('compMinute').value = comp.minute || 0;
+                discordInput.value = discordUrl;
+            } else {
+                if (discordUrl) {
+                    discordDisplay.innerText = "디스코드 링크 있음";
+                    discordDisplay.className = "text-indigo-400 font-semibold";
+                    discordLinkBtn.href = discordUrl;
+                    discordLinkBtn.classList.remove('hidden');
+                } else {
+                    discordDisplay.innerText = "등록된 링크 없음";
+                    discordDisplay.className = "text-slate-500";
+                    discordLinkBtn.classList.add('hidden');
+                }
             }
 
-            const memberListEl = document.getElementById('raidMemberList');
-            memberListEl.innerHTML = '';
-            
-            const searchKeyword = (document.getElementById('raidMemberSearch').value || '').toLowerCase();
+            // 1군 ~ 10군 파티 카드 렌더링
+            const partiesContainer = document.getElementById('compPartiesContainer');
+            partiesContainer.innerHTML = '';
             const members = globalData.members || [];
-            const filteredMembers = members.filter(m => m.name.toLowerCase().includes(searchKeyword) || m.note.toLowerCase().includes(searchKeyword));
+            if (!comp.parties) comp.parties = { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[] };
 
-            if (filteredMembers.length === 0) {
-                memberListEl.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">검색 결과가 없습니다.</div>`;
-            } else {
-                filteredMembers.forEach(m => {
-                    const isChecked = r.participants && r.participants.includes(m.name);
-                    const div = document.createElement('label');
-                    div.className = `flex items-center justify-between bg-slate-900 px-3 py-2 rounded-lg border border-slate-800/80 text-xs ${isRaidEdit ? 'cursor-pointer hover:bg-slate-900/80' : 'cursor-default opacity-90'}`;
-                    div.innerHTML = `
-                        <div class="flex items-center gap-2">
-                            <input type="checkbox" ${isChecked ? 'checked' : ''} 
-                                   ${!isRaidEdit ? 'disabled' : ''}
-                                   onchange="handleParticipantCheck('${m.name}', this.checked)"
-                                   class="rounded bg-slate-950 border-slate-700 text-orange-500 focus:ring-0 ${!isRaidEdit ? 'opacity-50 cursor-not-allowed' : ''}">
-                            <span class="font-bold text-slate-200">${m.name}</span>
-                        </div>
-                        <span class="text-[11px] text-slate-400">${m.note}</span>
-                    `;
-                    memberListEl.appendChild(div);
-                });
-            }
+            for (let i = 1; i <= 10; i++) {
+                const partyMembers = comp.parties[i] || [];
+                const card = document.createElement('div');
+                card.className = "bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2.5";
 
-            const pContainer = document.getElementById('participantListContainer');
-            pContainer.innerHTML = '';
-            const participants = r.participants || [];
-            document.getElementById('participantCount').innerText = `${participants.length}명 참여`;
-
-            if (participants.length === 0) {
-                pContainer.innerHTML = `<div class="text-xs text-slate-500 py-6 text-center w-full">선택된 참여자가 없습니다. 좌측에서 체크해주세요.</div>`;
-            } else {
-                participants.forEach(pName => {
-                    const badge = document.createElement('span');
-                    badge.className = "bg-orange-500/20 border border-orange-500/40 text-orange-300 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5";
-                    
-                    if (isRaidEdit) {
-                        badge.innerHTML = `⚔️ ${pName} <button onclick="removeParticipant('${pName}')" class="text-orange-400 hover:text-red-400 font-bold ml-1 px-1 rounded bg-slate-900/50">×</button>`;
+                let membersHtml = '';
+                if (!isCompEdit) {
+                    // 조회 모드: 배정된 멤버 뱃지
+                    if (partyMembers.length === 0) {
+                        membersHtml = `<span class="text-[11px] text-slate-600">편성된 인원이 없습니다.</span>`;
                     } else {
-                        badge.innerHTML = `⚔️ ${pName}`;
+                        membersHtml = partyMembers.map(name => `<span class="bg-amber-500/10 border border-amber-500/30 text-amber-300 px-2 py-0.5 rounded text-[11px] font-semibold">⚔️ ${name}</span>`).join('');
                     }
-                    pContainer.appendChild(badge);
-                });
+                } else {
+                    // 관리자 수정 모드: 전체 길드원 체크박스 리스트 (각 파티별)
+                    membersHtml = `<div class="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto pr-1">`;
+                    members.forEach(m => {
+                        const isChecked = partyMembers.includes(m.name);
+                        membersHtml += `
+                            <label class="flex items-center gap-1.5 bg-slate-900 px-2 py-1 rounded border border-slate-800 cursor-pointer text-[11px]">
+                                <input type="checkbox" ${isChecked ? 'checked' : ''} 
+                                       onchange="handleCompMemberCheck(${i}, '${m.name}', this.checked)"
+                                       class="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-0">
+                                <span class="text-slate-200 truncate">${m.name}</span>
+                            </label>
+                        `;
+                    });
+                    membersHtml += `</div>`;
+                }
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center border-b border-slate-900 pb-1.5">
+                        <span class="text-xs font-black text-amber-400">🏆 ${i}군</span>
+                        <span class="text-[11px] text-slate-400 font-mono">${partyMembers.length}/5명</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1 pt-0.5">
+                        ${membersHtml}
+                    </div>
+                `;
+                partiesContainer.appendChild(card);
             }
 
-            const historyContainer = document.getElementById('raidHistoryContainer');
-            historyContainer.innerHTML = '';
-            const history = r.history || [];
+            // 경쟁전 히스토리 아카이브 렌더링
+            const compHistoryContainer = document.getElementById('compHistoryContainer');
+            compHistoryContainer.innerHTML = '';
+            const history = comp.history || [];
 
             if (history.length === 0) {
-                historyContainer.innerHTML = `<div class="text-xs text-slate-500 text-center py-4 bg-slate-950 border border-slate-800/60 rounded-xl">아직 저장된 주차별 히스토리가 없습니다.</div>`;
+                compHistoryContainer.innerHTML = `<div class="text-xs text-slate-500 text-center py-4 bg-slate-950 border border-slate-800/60 rounded-xl">아직 저장된 경쟁전 히스토리가 없습니다.</div>`;
             } else {
                 history.forEach((hItem, hIdx) => {
-                    const isEditingThis = (editingHistoryIndex === hIdx);
                     const box = document.createElement('div');
-                    box.className = "bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs space-y-2";
+                    box.className = "bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs space-y-2.5";
                     
-                    let htmlContent = `
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-slate-400 border-b border-slate-900 pb-2">
-                            <span class="font-bold text-orange-400">📅 레이드 일정: ${hItem.dateStr}</span>
-                            <div class="flex flex-wrap items-center gap-2">
-                                <span class="text-[11px]">참여 인원: <strong class="text-slate-200">${hItem.participants.length}명</strong></span>
-                                <button onclick="openLadderAction(${hIdx})" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 px-2.5 py-1 rounded font-bold text-[11px] transition shadow-sm">
-                                    🎲 분배 사다리타기 ${isRaidEdit ? '(설정)' : '(결과)'}
-                                </button>
-                    `;
-                    
-                    if (isRaidEdit) {
-                        htmlContent += `
-                                <button onclick="toggleEditHistory(${hIdx})" class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-1 rounded text-[11px]">
-                                    ${isEditingThis ? '수정 닫기' : '✏️ 참여자 수정'}
-                                </button>
-                                <button onclick="deleteHistoryItem(${hIdx})" class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-1 rounded text-[11px]">
-                                    삭제
-                                </button>
-                        `;
+                    let partiesSummaryHtml = '';
+                    for (let i = 1; i <= 10; i++) {
+                        const pList = hItem.parties[i] || [];
+                        if (pList.length > 0) {
+                            partiesSummaryHtml += `
+                                <div class="flex items-center gap-2 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-800/60">
+                                    <span class="font-bold text-amber-400 w-10 shrink-0">${i}군</span>
+                                    <div class="flex flex-wrap gap-1">
+                                        ${pList.map(n => `<span class="bg-slate-950 text-slate-300 px-1.5 py-0.5 rounded text-[10px]">${n}</span>`).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }
                     }
 
-                    htmlContent += `
+                    box.innerHTML = `
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-900 pb-2">
+                            <div>
+                                <span class="font-bold text-amber-400">📅 경쟁전 일정: ${hItem.dateStr}</span>
+                                ${hItem.discordUrl ? `<a href="${hItem.discordUrl}" target="_blank" class="ml-2 text-[11px] bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded font-semibold">디스코드 입장</a>` : ''}
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[11px] text-slate-400">저장일: ${hItem.savedAt}</span>
+                                ${isCompEdit ? `<button onclick="deleteCompHistoryItem(${hIdx})" class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded text-[11px]">삭제</button>` : ''}
                             </div>
                         </div>
-                    `;
-
-                    if (isEditingThis && isRaidEdit) {
-                        htmlContent += `
-                            <div class="bg-slate-900 border border-slate-800 p-3 rounded-lg space-y-2 mt-2">
-                                <div class="text-[11px] font-bold text-indigo-300 mb-1">🛠️ 이 주차의 참여자 추가/제거 (체크 변경 시 실시간 반영)</div>
-                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-40 overflow-y-auto pr-1">
-                        `;
-                        members.forEach(m => {
-                            const isIncluded = hItem.participants && hItem.participants.includes(m.name);
-                            htmlContent += `
-                                <label class="flex items-center gap-1.5 bg-slate-950 px-2 py-1.5 rounded border border-slate-800 cursor-pointer text-[11px]">
-                                    <input type="checkbox" ${isIncluded ? 'checked' : ''} 
-                                           onchange="handleHistoryParticipantCheck(${hIdx}, '${m.name}', this.checked)"
-                                           class="rounded bg-slate-900 border-slate-700 text-indigo-500 focus:ring-0">
-                                    <span class="text-slate-200 font-medium">${m.name}</span>
-                                </label>
-                            `;
-                        });
-                        htmlContent += `</div></div>`;
-                    }
-
-                    htmlContent += `
-                        <div class="flex flex-wrap gap-1 pt-1">
-                            ${hItem.participants.map(name => `<span class="bg-slate-900 border border-slate-800 text-slate-300 px-2 py-0.5 rounded text-[11px]">${name}</span>`).join('')}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                            ${partiesSummaryHtml || '<div class="text-[11px] text-slate-500">편성된 파티가 없습니다.</div>'}
                         </div>
                     `;
-
-                    box.innerHTML = htmlContent;
-                    historyContainer.appendChild(box);
+                    compHistoryContainer.appendChild(box);
                 });
             }
         }
 
+        // 1초마다 보스 젠타임 갱신
         setInterval(() => {
             if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
             renderBosses();
