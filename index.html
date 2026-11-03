@@ -505,7 +505,7 @@
         function memberClassBadge(name) {
             const member = (globalData.members || []).find(m => m.name === name);
             const info = memberClassInfo(member && member.classKey);
-            return info ? `<span class="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] whitespace-nowrap ${info.color}" title="클래스: ${info.label}">${info.icon} ${info.label}</span>` : '';
+            return info ? `<span class="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] whitespace-nowrap ${info.color}" title="클래스: ${info.label}">${info.icon}</span>` : '';
         }
 
         function memberClassText(name) {
