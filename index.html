@@ -347,8 +347,8 @@
                 <!-- [단계 2] 파티별 편성 영역 (1군 ~ 10군) -->
                 <div class="space-y-4 pt-2 border-t border-slate-800">
                     <div class="flex justify-between items-center pt-2">
-                        <h3 class="text-xs font-bold text-slate-300">⚔️ 2단계: 파티별 편성 현황 (1군 ~ 10군 / 각 최대 5인)</h3>
-                        <span class="text-[11px] text-slate-500">* 관리자 모드에서 체크하여 각 군에 배치할 수 있습니다.</span>
+                        <h3 class="text-xs font-bold text-slate-300">⚔️ 2단계: 파티별 편성 현황 (1군 ~ 10군 / 인원 제한 없음)</h3>
+                        <span class="text-[11px] text-slate-500">* 관리자 모드에서 파티원과 조장을 지정할 수 있습니다.</span>
                     </div>
 
                     <div id="compPartiesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1204,6 +1204,7 @@
                     }
                 }
             }
+            clearRemovedCompLeaders();
             saveToServer();
             renderCompetition();
         }
@@ -1217,6 +1218,7 @@
                     globalData.competition.parties[i] = globalData.competition.parties[i].filter(n => n !== name);
                 }
             }
+            clearRemovedCompLeaders();
             saveToServer();
             renderCompetition();
         }
@@ -1254,6 +1256,45 @@
             }
         }
 
+        function compPartyLeader(number, comp = globalData.competition) {
+            const name = (comp.partyLeaders || {})[number];
+            return name && ((comp.parties || {})[number] || []).includes(name) ? name : '';
+        }
+
+        function compLeaderMark(number, name, comp = globalData.competition) {
+            return compPartyLeader(number, comp) === name ? ' 👑' : '';
+        }
+
+        function clearRemovedCompLeaders() {
+            const comp = globalData.competition;
+            if (!comp.partyLeaders) return;
+            Object.keys(comp.partyLeaders).forEach(number => {
+                if (!compPartyLeader(number, comp)) delete comp.partyLeaders[number];
+            });
+        }
+
+        async function setCompPartyLeader(number, name) {
+            if (!isCompEdit || !Number.isInteger(number) || number < 1 || number > 10) return;
+            const comp = globalData.competition;
+            if (name && !((comp.parties || {})[number] || []).includes(name)) return;
+            if (!comp.partyLeaders) comp.partyLeaders = {};
+            const previous = comp.partyLeaders[number];
+            if (name) comp.partyLeaders[number] = name;
+            else delete comp.partyLeaders[number];
+            renderCompetition();
+            try {
+                await db.ref(`kingSystemData/competition/partyLeaders/${number}`).set(name || null);
+            } catch (error) {
+                const current = globalData.competition.partyLeaders || {};
+                if ((current[number] || '') === name) {
+                    if (previous === undefined) delete current[number];
+                    else current[number] = previous;
+                }
+                renderCompetition();
+                alert('조장을 저장하지 못했습니다. 연결 상태와 저장 권한을 확인해주세요.');
+            }
+        }
+
         function handleCompMemberCheck(partyNum, memberName, isChecked) {
             if (!isCompEdit) return;
             if (!globalData.competition.parties) {
@@ -1269,16 +1310,12 @@
                     renderCompetition();
                     return;
                 }
-                if (pList.length >= 5) {
-                    alert("각 군은 최대 5명까지만 편성할 수 있습니다!");
-                    renderCompetition();
-                    return;
-                }
                 if (!pList.includes(memberName)) pList.push(memberName);
             } else {
                 pList = pList.filter(n => n !== memberName);
             }
             globalData.competition.parties[partyNum] = pList;
+            clearRemovedCompLeaders();
             saveToServer();
             renderCompetition();
         }
@@ -1296,6 +1333,7 @@
                 savedAt: new Date().toLocaleDateString(),
                 discordUrl: globalData.competition.discordUrl || "",
                 participants: [...globalData.competition.participants],
+                partyLeaders: JSON.parse(JSON.stringify(globalData.competition.partyLeaders || {})),
                 partyNames: JSON.parse(JSON.stringify(globalData.competition.partyNames || {})),
                 voiceModes: JSON.parse(JSON.stringify(globalData.competition.voiceModes || [])),
                 parties: JSON.parse(JSON.stringify(globalData.competition.parties || {}))
@@ -1306,6 +1344,7 @@
 
             globalData.competition.participants = [];
             globalData.competition.voiceModes = [];
+            globalData.competition.partyLeaders = {};
             globalData.competition.parties = { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[] };
             saveToServer();
             alert("이번 경쟁전 기록이 성공적으로 아카이브에 저장되었습니다!");
@@ -1437,7 +1476,7 @@
                         if (partyMembers.length === 0) {
                             membersHtml = `<span class="text-[11px] text-slate-600">편성된 인원이 없습니다.</span>`;
                         } else {
-                            membersHtml = partyMembers.map(name => `<span class="bg-amber-500/10 border border-amber-500/30 text-amber-300 px-2 py-0.5 rounded text-[11px] font-semibold" title="${compVoiceLabel(name)}">⚔️ ${name} ${memberClassBadge(name)}${compVoiceMark(name)}</span>`).join('');
+                            membersHtml = partyMembers.map(name => `<span class="bg-amber-500/10 border border-amber-500/30 text-amber-300 px-2 py-0.5 rounded text-[11px] font-semibold" title="${compVoiceLabel(name)}">⚔️ ${name}${compLeaderMark(i, name)} ${memberClassBadge(name)}${compVoiceMark(name)}</span>`).join('');
                         }
                     } else {
                         if (participants.length === 0) {
@@ -1459,7 +1498,7 @@
                                         <input type="checkbox" ${isChecked ? 'checked' : ''} 
                                                onchange="handleCompMemberCheck(${i}, '${pName}', this.checked)"
                                                class="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-0">
-                                        <span class="text-slate-200 truncate" title="${compVoiceLabel(pName)}">${pName} ${memberClassBadge(pName)}${compVoiceMark(pName)}</span>
+                                        <span class="text-slate-200 truncate" title="${compVoiceLabel(pName)}">${pName}${compLeaderMark(i, pName)} ${memberClassBadge(pName)}${compVoiceMark(pName)}</span>
                                     </label>
                                 `;
                             });
@@ -1470,12 +1509,43 @@
                     card.innerHTML = `
                         <div class="flex justify-between items-center border-b border-slate-900 pb-1.5">
                             <div class="flex items-center gap-2 min-w-0"><span class="text-xs font-black text-amber-400 break-all">🏆 ${escapePartyName(compPartyName(i))}</span>${isCompEdit ? `<button type="button" onclick="renameCompParty(${i})" class="shrink-0 text-[10px] text-slate-300 border border-slate-700 hover:border-amber-500 rounded px-1.5 py-1" aria-label="${i}번 파티 이름 수정">✏️ 이름 수정</button>` : ''}</div>
-                            <span class="text-[11px] text-slate-400 font-mono">${partyMembers.length}/5명</span>
+                            <span class="text-[11px] text-slate-400 font-mono">${partyMembers.length}명</span>
                         </div>
                         <div class="flex flex-wrap gap-1 pt-0.5">
                             ${membersHtml}
                         </div>
                     `;
+                    const leaderBox = document.createElement('div');
+                    leaderBox.className = "flex flex-wrap items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/20 px-2.5 py-2 text-xs";
+                    const leaderLabel = document.createElement('span');
+                    leaderLabel.className = "text-amber-300 font-bold";
+                    leaderLabel.textContent = '👑 조장';
+                    leaderBox.appendChild(leaderLabel);
+                    if (isCompEdit) {
+                        const select = document.createElement('select');
+                        select.className = "flex-1 min-w-0 bg-slate-950 border border-slate-700 rounded px-2 py-1 text-slate-200 text-xs";
+                        select.setAttribute('aria-label', `${compPartyName(i)} 조장 선택`);
+                        const empty = document.createElement('option');
+                        empty.value = '';
+                        empty.textContent = partyMembers.length ? '조장 미지정' : '파티원을 먼저 편성해주세요';
+                        select.appendChild(empty);
+                        partyMembers.forEach(name => {
+                            const option = document.createElement('option');
+                            option.value = name;
+                            option.textContent = `${name}${memberClassText(name)}${compVoiceMark(name)}`;
+                            select.appendChild(option);
+                        });
+                        select.value = compPartyLeader(i);
+                        select.disabled = !partyMembers.length;
+                        select.addEventListener('change', () => setCompPartyLeader(i, select.value));
+                        leaderBox.appendChild(select);
+                    } else {
+                        const name = document.createElement('span');
+                        name.className = "text-slate-200 break-all";
+                        name.textContent = compPartyLeader(i) || '미지정';
+                        leaderBox.appendChild(name);
+                    }
+                    card.insertBefore(leaderBox, card.children[1]);
                     partiesContainer.appendChild(card);
                 }
             }
@@ -1501,7 +1571,7 @@
                                     <div class="flex items-center gap-2 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-800/60">
                                         <span class="font-bold text-amber-400 max-w-[120px] break-all shrink-0">${escapePartyName(compPartyName(i, hItem.partyNames || {}))}</span>
                                         <div class="flex flex-wrap gap-1">
-                                            ${pList.map(n => `<span class="bg-slate-950 text-slate-300 px-1.5 py-0.5 rounded text-[10px]">${n} ${memberClassBadge(n)}${compVoiceMark(n, hItem.voiceModes || [])}</span>`).join('')}
+                                            ${pList.map(n => `<span class="bg-slate-950 text-slate-300 px-1.5 py-0.5 rounded text-[10px]">${n}${compLeaderMark(i, n, hItem)} ${memberClassBadge(n)}${compVoiceMark(n, hItem.voiceModes || [])}</span>`).join('')}
                                         </div>
                                     </div>
                                 `;
