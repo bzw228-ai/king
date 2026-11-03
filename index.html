@@ -493,6 +493,63 @@
         // ==========================================
         // 1. 길드원 목록 로직
         // ==========================================
+        function memberClassInfo(key) {
+            return {
+                shield: {icon: '🛡️', label: '방패', color: 'text-sky-300 bg-sky-500/15 border-sky-500/30'},
+                sword: {icon: '⚔️', label: '검', color: 'text-rose-300 bg-rose-500/15 border-rose-500/30'},
+                arrow: {icon: '🏹', label: '화살', color: 'text-emerald-300 bg-emerald-500/15 border-emerald-500/30'},
+                staff: {icon: '🪄', label: '지팡이', color: 'text-violet-300 bg-violet-500/15 border-violet-500/30'}
+            }[key] || null;
+        }
+
+        function memberClassBadge(name) {
+            const member = (globalData.members || []).find(m => m.name === name);
+            const info = memberClassInfo(member && member.classKey);
+            return info ? `<span class="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] whitespace-nowrap ${info.color}" title="클래스: ${info.label}">${info.icon} ${info.label}</span>` : '';
+        }
+
+        function memberClassText(name) {
+            const member = (globalData.members || []).find(m => m.name === name);
+            const info = memberClassInfo(member && member.classKey);
+            return info ? ` ${info.icon}` : '';
+        }
+
+        function memberClassOptions(key) {
+            return [['', '클래스 미설정'], ['shield', '🛡️ 방패'], ['sword', '⚔️ 검'], ['arrow', '🏹 화살'], ['staff', '🪄 지팡이']]
+                .map(([value, label]) => `<option value="${value}" ${key === value ? 'selected' : ''}>${label}</option>`).join('');
+        }
+
+        function escapePartyName(value) {
+            return String(value).replace(/[&<>"']/g, char => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
+        }
+
+        function compPartyName(number, names = globalData.competition.partyNames || {}) {
+            return names[number] || `${number}군`;
+        }
+
+        async function renameCompParty(number) {
+            if (!isCompEdit || !Number.isInteger(number) || number < 1 || number > 10) return;
+            const entered = prompt(`${number}번 파티 이름을 입력하세요. (최대 20자, 빈칸이면 ${number}군으로 표시)`, compPartyName(number));
+            if (entered === null) return;
+            const name = entered.trim() || `${number}군`;
+            if ([...name].length > 20) { alert('파티 이름은 최대 20자까지 입력해주세요.'); return; }
+            const comp = globalData.competition;
+            if (!comp.partyNames) comp.partyNames = {};
+            const previous = comp.partyNames[number];
+            comp.partyNames[number] = name;
+            renderCompetition();
+            try {
+                await db.ref(`kingSystemData/competition/partyNames/${number}`).set(name);
+            } catch (error) {
+                if (globalData.competition.partyNames && globalData.competition.partyNames[number] === name) {
+                    if (previous === undefined) delete globalData.competition.partyNames[number];
+                    else globalData.competition.partyNames[number] = previous;
+                }
+                renderCompetition();
+                alert('파티 이름을 저장하지 못했습니다. 연결 상태와 저장 권한을 확인해주세요.');
+            }
+        }
+
         function toggleMemberEditMode() {
             if (!isMemberEdit) {
                 const pw = prompt("관리자 비밀번호를 입력하세요:");
@@ -505,6 +562,7 @@
                 document.getElementById('memberAddBox').classList.remove('hidden');
             } else {
                 collectMemberDataFromDOM();
+                globalData.members.forEach(member => { if (!member.name.trim()) member.name = '이름없음'; });
                 const now = new Date();
                 globalData.memberLastUpdate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
                 saveToServer();
@@ -521,24 +579,21 @@
         }
 
         function collectMemberDataFromDOM() {
-            const rows = document.querySelectorAll('#memberTableBody tr');
-            let newMembers = [];
-            rows.forEach((row) => {
-                const nameInput = row.querySelector('.member-name');
-                const noteInput = row.querySelector('.member-note');
-                if (nameInput) {
-                    newMembers.push({
-                        name: nameInput.value.trim() || '이름없음',
-                        note: noteInput.value.trim() || ''
-                    });
+            document.querySelectorAll('#memberTableBody tr[data-member-index]').forEach(row => {
+                const index = Number(row.dataset.memberIndex);
+                const member = globalData.members[index];
+                const name = row.querySelector('.member-name');
+                const note = row.querySelector('.member-note');
+                const classSelect = row.querySelector('.member-class');
+                if (member && name && note && classSelect) {
+                    globalData.members[index] = {...member, name: name.value.trim(), note: note.value.trim(), classKey: classSelect.value};
                 }
             });
-            globalData.members = newMembers;
         }
 
         function addMemberRow() {
             collectMemberDataFromDOM();
-            globalData.members.unshift({ name: '', note: '' });
+            globalData.members.unshift({ name: '', note: '', classKey: '' });
             renderMembers();
         }
 
@@ -577,20 +632,25 @@
             filtered.forEach((m, idx) => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-900/50 transition";
+                tr.dataset.memberIndex = m.origIdx;
                 
                 if (!isMemberEdit) {
                     tr.innerHTML = `
                         <td class="p-3 text-center text-slate-400 font-mono">${idx + 1}</td>
-                        <td class="p-3 font-bold text-slate-200">${m.name}</td>
+                        <td class="p-3 font-bold text-slate-200"><span class="inline-flex flex-wrap items-center gap-2">${m.name} ${memberClassBadge(m.name)}</span></td>
                         <td class="p-3 text-slate-400">${m.note}</td>
                     `;
                 } else {
                     tr.innerHTML = `
                         <td class="p-3 text-center text-slate-400 font-mono">${idx + 1}</td>
-                        <td class="p-3"><input type="text" value="${m.name}" class="member-name w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-slate-200"></td>
+                        <td class="p-3"><div class="flex flex-wrap gap-2"><input type="text" value="${m.name}" class="member-name flex-1 min-w-[100px] bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-slate-200"><select aria-label="클래스 선택" class="member-class bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-slate-200">${memberClassOptions(m.classKey || '')}</select></div></td>
                         <td class="p-3"><input type="text" value="${m.note}" class="member-note w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-slate-200"></td>
                         <td class="p-3 text-center"><button onclick="removeMemberRow(${m.origIdx})" class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-1 rounded text-[10px]">삭제</button></td>
                     `;
+                }
+                if (isMemberEdit) {
+                    tr.querySelectorAll('input, select').forEach(input => input.addEventListener('input', collectMemberDataFromDOM));
+                    tr.querySelector('.member-class').addEventListener('change', collectMemberDataFromDOM);
                 }
                 tbody.appendChild(tr);
             });
@@ -887,7 +947,7 @@
             for (const row of result.rows) {
                 const card = document.createElement('div');
                 card.className = row.won ? 'flex justify-between gap-3 bg-orange-500/10 border border-orange-500/40 rounded-lg p-3 text-sm' : 'flex justify-between gap-3 bg-slate-950 rounded-lg p-3 text-xs text-slate-400';
-                const name = document.createElement('span'); name.textContent = row.name;
+                const name = document.createElement('span'); name.textContent = `${row.name}${memberClassText(row.name)}`;
                 const item = document.createElement('strong'); item.textContent = row.item;
                 card.append(name, item); content.append(card);
             }
@@ -932,7 +992,7 @@
         function ladderText(result) {
             const winners = result.rows.filter(row => row.won);
             const others = result.rows.filter(row => !row.won);
-            return ['[KING] 길드레이드 추첨 결과', `일정: ${result.schedule}`, `참여: ${result.participants.length}명`, '', '🎁 당첨 결과', ...winners.map((row, i) => `${i + 1}. ${row.item} → ${row.name}`), '', `미당첨 (${others.length}명): ${others.map(row => row.name).join(', ') || '없음'}`, '', `확정: ${new Date(result.confirmedAt).toLocaleString('ko-KR')}`].join('\n');
+            return ['[KING] 길드레이드 추첨 결과', `일정: ${result.schedule}`, `참여: ${result.participants.length}명`, '', '🎁 당첨 결과', ...winners.map((row, i) => `${i + 1}. ${row.item} → ${row.name}${memberClassText(row.name)}`), '', `미당첨 (${others.length}명): ${others.map(row => `${row.name}${memberClassText(row.name)}`).join(', ') || '없음'}`, '', `확정: ${new Date(result.confirmedAt).toLocaleString('ko-KR')}`].join('\n');
         }
         async function copyLadderResult() {
             const result = globalData.raid.ladderResult;
@@ -1015,7 +1075,7 @@
                                 <input type="checkbox" ${isChecked ? 'checked' : ''} 
                                        onchange="handleParticipantCheck('${m.name}', this.checked)"
                                        class="rounded bg-slate-950 border-slate-700 text-orange-500 focus:ring-0">
-                                <span class="font-bold text-slate-200">${m.name}</span>
+                                <span class="font-bold text-slate-200">${m.name} ${memberClassBadge(m.name)}</span>
                             </div>
                             <span class="text-[11px] text-slate-400">${m.note}</span>
                         `;
@@ -1036,9 +1096,9 @@
                     const badge = document.createElement('span');
                     badge.className = "bg-orange-500/20 border border-orange-500/40 text-orange-300 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5";
                     if (isRaidEdit) {
-                        badge.innerHTML = `⚔️ ${pName} <button onclick="removeParticipant('${pName}')" class="text-orange-400 hover:text-red-400 font-bold ml-1 px-1 rounded bg-slate-900/50">×</button>`;
+                        badge.innerHTML = `⚔️ ${pName} ${memberClassBadge(pName)} <button onclick="removeParticipant('${pName}')" class="text-orange-400 hover:text-red-400 font-bold ml-1 px-1 rounded bg-slate-900/50">×</button>`;
                     } else {
-                        badge.innerHTML = `⚔️ ${pName}`;
+                        badge.innerHTML = `⚔️ ${pName} ${memberClassBadge(pName)}`;
                     }
                     pContainer.appendChild(badge);
                 });
@@ -1063,7 +1123,7 @@
                             </div>
                         </div>
                         <div class="flex flex-wrap gap-1 pt-1">
-                            ${hItem.participants.map(n => `<span class="bg-slate-900 text-slate-300 px-2 py-0.5 rounded text-[11px]">⚔️ ${n}</span>`).join('')}
+                            ${hItem.participants.map(n => `<span class="bg-slate-900 text-slate-300 px-2 py-0.5 rounded text-[11px]">⚔️ ${n} ${memberClassBadge(n)}</span>`).join('')}
                         </div>
                     `;
                     historyContainer.appendChild(box);
@@ -1236,6 +1296,7 @@
                 savedAt: new Date().toLocaleDateString(),
                 discordUrl: globalData.competition.discordUrl || "",
                 participants: [...globalData.competition.participants],
+                partyNames: JSON.parse(JSON.stringify(globalData.competition.partyNames || {})),
                 voiceModes: JSON.parse(JSON.stringify(globalData.competition.voiceModes || [])),
                 parties: JSON.parse(JSON.stringify(globalData.competition.parties || {}))
             };
@@ -1308,7 +1369,7 @@
                                 <input type="checkbox" ${isChecked ? 'checked' : ''} 
                                        onchange="handleCompParticipantCheck('${m.name}', this.checked)"
                                        class="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-0">
-                                <span class="font-bold text-slate-200">${m.name}</span>
+                                <span class="font-bold text-slate-200">${m.name} ${memberClassBadge(m.name)}</span>
                             </div>
                             <span class="text-[11px] text-slate-400">${m.note}</span>
                         `;
@@ -1329,7 +1390,7 @@
                     const badge = document.createElement('span');
                     badge.className = "bg-amber-500/20 border border-amber-500/40 text-amber-300 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5";
                     const nameLabel = document.createElement('span');
-                    nameLabel.textContent = `⚔️ ${pName}`;
+                    nameLabel.textContent = `⚔️ ${pName}${memberClassText(pName)}`;
                     badge.appendChild(nameLabel);
                     if (isCompEdit) {
                         const voiceSelect = document.createElement('select');
@@ -1376,7 +1437,7 @@
                         if (partyMembers.length === 0) {
                             membersHtml = `<span class="text-[11px] text-slate-600">편성된 인원이 없습니다.</span>`;
                         } else {
-                            membersHtml = partyMembers.map(name => `<span class="bg-amber-500/10 border border-amber-500/30 text-amber-300 px-2 py-0.5 rounded text-[11px] font-semibold" title="${compVoiceLabel(name)}">⚔️ ${name}${compVoiceMark(name)}</span>`).join('');
+                            membersHtml = partyMembers.map(name => `<span class="bg-amber-500/10 border border-amber-500/30 text-amber-300 px-2 py-0.5 rounded text-[11px] font-semibold" title="${compVoiceLabel(name)}">⚔️ ${name} ${memberClassBadge(name)}${compVoiceMark(name)}</span>`).join('');
                         }
                     } else {
                         if (participants.length === 0) {
@@ -1398,7 +1459,7 @@
                                         <input type="checkbox" ${isChecked ? 'checked' : ''} 
                                                onchange="handleCompMemberCheck(${i}, '${pName}', this.checked)"
                                                class="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-0">
-                                        <span class="text-slate-200 truncate" title="${compVoiceLabel(pName)}">${pName}${compVoiceMark(pName)}</span>
+                                        <span class="text-slate-200 truncate" title="${compVoiceLabel(pName)}">${pName} ${memberClassBadge(pName)}${compVoiceMark(pName)}</span>
                                     </label>
                                 `;
                             });
@@ -1408,7 +1469,7 @@
 
                     card.innerHTML = `
                         <div class="flex justify-between items-center border-b border-slate-900 pb-1.5">
-                            <span class="text-xs font-black text-amber-400">🏆 ${i}군</span>
+                            <div class="flex items-center gap-2 min-w-0"><span class="text-xs font-black text-amber-400 break-all">🏆 ${escapePartyName(compPartyName(i))}</span>${isCompEdit ? `<button type="button" onclick="renameCompParty(${i})" class="shrink-0 text-[10px] text-slate-300 border border-slate-700 hover:border-amber-500 rounded px-1.5 py-1" aria-label="${i}번 파티 이름 수정">✏️ 이름 수정</button>` : ''}</div>
                             <span class="text-[11px] text-slate-400 font-mono">${partyMembers.length}/5명</span>
                         </div>
                         <div class="flex flex-wrap gap-1 pt-0.5">
@@ -1438,9 +1499,9 @@
                             if (pList.length > 0) {
                                 partiesSummaryHtml += `
                                     <div class="flex items-center gap-2 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-800/60">
-                                        <span class="font-bold text-amber-400 w-10 shrink-0">${i}군</span>
+                                        <span class="font-bold text-amber-400 max-w-[120px] break-all shrink-0">${escapePartyName(compPartyName(i, hItem.partyNames || {}))}</span>
                                         <div class="flex flex-wrap gap-1">
-                                            ${pList.map(n => `<span class="bg-slate-950 text-slate-300 px-1.5 py-0.5 rounded text-[10px]">${n}${compVoiceMark(n, hItem.voiceModes || [])}</span>`).join('')}
+                                            ${pList.map(n => `<span class="bg-slate-950 text-slate-300 px-1.5 py-0.5 rounded text-[10px]">${n} ${memberClassBadge(n)}${compVoiceMark(n, hItem.voiceModes || [])}</span>`).join('')}
                                         </div>
                                     </div>
                                 `;
