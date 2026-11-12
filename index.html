@@ -142,9 +142,16 @@
                 </div>
             </div>
 
+            <h3 class="text-sm font-bold text-amber-300 px-1">⚔️ 어비스 보스</h3>
             <main id="bossList" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- 동적 생성 -->
             </main>
+            <div class="bg-slate-900 border border-emerald-500/30 rounded-2xl p-4 space-y-2">
+                <h3 class="font-bold text-emerald-300">🌍 필드 보스 젠타임</h3>
+                <p class="text-xs text-slate-400">주기형은 입력한 기준 시각부터 계산합니다. 처치·출현 중 어떤 시각을 기준으로 삼을지는 실제 게임 규칙에 맞춰 입력해주세요.</p>
+                <p class="text-xs text-slate-400">모든 필드 보스 시각은 한국 시간(KST) 기준 · 위의 알림 설정 공통 적용 · 수정 후 ‘적용’을 눌러 공유</p>
+            </div>
+            <div id="fieldBossList" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
         </section>
 
         <!-- ================= [탭 3] 길드레이드 (사다리 타기 포함) ================= -->
@@ -215,37 +222,17 @@
                         <div id="raidSaveSection" class="hidden pt-3 border-t border-slate-800">
                             <button onclick="saveCurrentRaidToHistory()" 
                                     class="w-full bg-orange-600 hover:bg-orange-500 text-white font-semibold py-2 rounded-xl text-xs transition shadow-md shadow-orange-500/20">
-                                💾 이번 주차 기록 확정 및 저장
+                                ✅ 참석 확정 및 아카이브 기록
                             </button>
                         </div>
                     </div>
                 </div>
 
 
-                <div class="bg-slate-950 border border-orange-500/30 rounded-xl p-4 sm:p-5 space-y-4">
-                    <div class="flex flex-wrap justify-between items-center gap-3">
-                        <div><h3 class="font-bold text-orange-400">🎁 레이드 아이템 추첨</h3>
-                        <p class="text-xs text-slate-400 mt-1">아이템 수량을 정하고 추첨 → 결과 확인 → 확정 → 단체톡 복사</p></div>
-                        <span id="ladderParticipantSummary" class="text-xs bg-orange-500/15 text-orange-300 px-3 py-2 rounded-lg"></span>
-                    </div>
-                    <div id="ladderAdminPanel" class="hidden space-y-3">
-                        <label for="ladderItemsInput" class="block text-xs text-slate-300">한 줄에 아이템 하나씩, 끝에 수량을 입력하세요. (예: 전설 무기, 1)</label>
-                        <textarea id="ladderItemsInput" rows="4" oninput="updateLadderPlan()" placeholder="전설 무기, 1&#10;강화석, 2" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-3 text-sm text-slate-100 focus:outline-none focus:border-orange-500">당첨, 1</textarea>
-                        <div id="ladderPlan" aria-live="polite" class="text-xs text-slate-300 bg-slate-900 rounded-lg p-3"></div>
-                        <p class="text-xs text-slate-500">한 사람당 결과 하나 · 남는 인원은 미당첨 · 참여자 전원을 대상으로 추첨합니다.</p>
-                        <button id="ladderRunBtn" onclick="runLadderGame()" class="w-full bg-orange-500 hover:bg-orange-400 text-slate-950 font-bold py-3 rounded-xl disabled:opacity-40">🎲 추첨하기</button>
-                    </div>
-                    <p id="ladderReadOnlyGuide" class="text-xs text-slate-400">관리자 수정 모드에서 아이템을 설정하고 추첨할 수 있습니다.</p>
-                    <div id="ladderResultBox" class="hidden bg-slate-900 border border-slate-700 rounded-xl p-4 space-y-3">
-                        <div id="ladderResultTitle" class="font-bold text-orange-300"></div>
-                        <div id="ladderResultContent" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
-                        <div class="flex flex-wrap gap-2">
-                            <button id="ladderConfirmBtn" onclick="confirmLadderResult()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold px-4 py-2 rounded-lg">✓ 결과 확정 및 공유</button>
-                            <button id="ladderCopyBtn" onclick="copyLadderResult()" class="hidden bg-orange-500 hover:bg-orange-400 text-slate-950 text-sm font-bold px-4 py-2 rounded-lg">📋 카카오톡용 결과 복사</button>
-                        </div>
-                        <textarea id="ladderCopyText" readonly rows="8" aria-label="카카오톡 공유용 확정 결과" class="hidden w-full bg-slate-950 text-slate-300 text-xs p-3 rounded-lg border border-slate-700"></textarea>
-                        <p id="ladderStatus" role="status" aria-live="polite" class="text-xs text-slate-400"></p>
-                    </div>
+                <div class="bg-slate-950 border border-orange-500/30 rounded-xl p-4 space-y-2">
+                    <h3 class="font-bold text-orange-300">🎁 참석 확정 후 아이템 분배</h3>
+                    <p class="text-xs text-slate-400">참석자를 선택하고 ‘참석 확정 및 아카이브 기록’을 누르세요. 아래 회차 기록에서 아이템 이름만 입력해 추첨할 수 있습니다. 각 아이템 1개 · 같은 회차에서 1인 1개</p>
+                    <div id="legacyRaidDistribution"></div>
                 </div>
 
                 <div class="space-y-3 pt-4 border-t border-slate-800">
@@ -338,7 +325,7 @@
                         <div id="compSaveSection" class="hidden pt-3 border-t border-slate-800">
                             <button onclick="saveCurrentCompToHistory()" 
                                     class="w-full bg-amber-600 hover:bg-amber-500 text-white font-semibold py-2 rounded-xl text-xs transition shadow-md shadow-amber-500/20">
-                                💾 이번 주차 기록 확정 및 저장
+                                ✅ 참석 확정 및 아카이브 기록
                             </button>
                         </div>
                     </div>
@@ -401,6 +388,7 @@
                 { id: 3, name: "전사킹", note: "딜러" }
             ],
             memberLastUpdate: "기록 없음",
+            fieldBosses: defaultFieldBosses(),
             bosses: [
                 { id: 1, name: '어비스 (바리탄)', cycleHours: 4, cycleMinutes: 0, lastKill: getDefaultObject() },
                 { id: 2, name: '어비스 (엘다르)', cycleHours: 8, cycleMinutes: 0, lastKill: getDefaultObject() },
@@ -444,6 +432,7 @@
                 if (val.members) globalData.members = val.members;
                 if (val.memberLastUpdate) globalData.memberLastUpdate = val.memberLastUpdate;
                 if (val.bosses) globalData.bosses = val.bosses;
+                globalData.fieldBosses = defaultFieldBosses().map((boss, index) => ({...boss, ...((val.fieldBosses || [])[index] || {})}));
                 if (val.alertOffset !== undefined) globalData.alertOffset = val.alertOffset;
                 if (val.popupToggle !== undefined) globalData.popupToggle = val.popupToggle;
                 if (val.soundToggle !== undefined) globalData.soundToggle = val.soundToggle;
@@ -463,6 +452,7 @@
 
                 renderMembers();
                 renderBosses();
+                renderFieldBosses();
                 renderRaid();
                 renderCompetition();
             } else {
@@ -899,136 +889,194 @@
         }
 
 
-        let ladderDraft = null;
-        let ladderSaving = false;
-        function ladderParticipants() { return [...(globalData.raid.participants || [])]; }
-        function ladderSignature(names) { return JSON.stringify([...names].sort()); }
-        function readLadderPlan() {
-            const lines = document.getElementById('ladderItemsInput').value.split(/\n/).map(s => s.trim()).filter(Boolean);
-            const items = [];
-            if (!lines.length) throw new Error('추첨할 아이템을 입력해주세요.');
-            for (const line of lines) {
-                const match = line.match(/^(.+),\s*(\d+)$/);
-                if (!match || !match[1].trim()) throw new Error('각 줄을 “아이템 이름, 수량” 형식으로 입력해주세요.');
-                const count = Number(match[2]);
-                if (!Number.isSafeInteger(count) || count < 1 || count > 500) throw new Error('수량은 1~500 사이의 정수로 입력해주세요.');
-                items.push({name: match[1].trim(), count});
-            }
-            const total = items.reduce((sum, item) => sum + item.count, 0);
-            if (total > ladderParticipants().length) throw new Error(`아이템 ${total}개가 참여자 ${ladderParticipants().length}명보다 많습니다. 수량을 줄여주세요.`);
-            return {items, total};
+        const raidDistributionUI = new Map();
+        let raidArchiveSaving = false;
+        function raidHistoryKey(item) {
+            return item.id || JSON.stringify([item.dateStr, item.savedAt, item.participants]);
         }
-        function updateLadderPlan() {
-            const count = ladderParticipants().length;
-            document.getElementById('ladderParticipantSummary').textContent = `추첨 대상 ${count}명`;
-            const run = document.getElementById('ladderRunBtn');
+        function raidDistributionState(item) {
+            const key = raidHistoryKey(item);
+            if (!raidDistributionUI.has(key)) raidDistributionUI.set(key, {open:false, input:'', draft:null, busy:false, status:''});
+            return raidDistributionUI.get(key);
+        }
+        function raidUniqueParticipants(item) { return [...new Set(item.participants || [])]; }
+        function raidAwards(item) { return item.distributionAwards || []; }
+        function raidRemaining(item) {
+            const won = new Set(raidAwards(item).map(row => row.name));
+            return raidUniqueParticipants(item).filter(name => !won.has(name));
+        }
+        function raidDistributionSignature(item) {
+            return JSON.stringify([raidUniqueParticipants(item).sort(), raidAwards(item)]);
+        }
+        function raidNewId() {
+            return 'raid-' + (globalThis.crypto && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+'-'+Math.random().toString(36).slice(2));
+        }
+        function raidDistributionText(item) {
+            return ['[KING] 길드레이드 아이템 분배 결과', `일정: ${item.dateStr}`, `참석: ${raidUniqueParticipants(item).length}명`, '', '🎁 확정된 당첨 결과',
+                ...raidAwards(item).map((row,i) => `${i+1}. ${row.item} → ${row.name}${memberClassText(row.name)}`), '',
+                `미수령 (${raidRemaining(item).length}명): ${raidRemaining(item).map(name=>name+memberClassText(name)).join(', ') || '없음'}`,
+                ...(item.distributionUpdatedAt ? ['', `최종 확정: ${new Date(item.distributionUpdatedAt).toLocaleString('ko-KR')}`] : [])].join('\n');
+        }
+        function raidDistributionButton(label, handler, muted = false) {
+            const button = document.createElement('button');
+            button.type = 'button'; button.textContent = label;
+            button.className = muted ? 'px-3 py-2 rounded-lg border border-slate-600 text-slate-200 text-xs hover:bg-slate-800' : 'px-3 py-2 rounded-lg bg-orange-500 text-slate-950 font-bold text-xs hover:bg-orange-400 disabled:opacity-40';
+            button.addEventListener('click', handler);
+            return button;
+        }
+        function makeRaidDistributionDraft(item, input) {
+            const items = input.split(/\r?\n/).map(text=>text.trim()).filter(Boolean);
+            if (!items.length) throw new Error('아이템 이름을 한 줄에 하나씩 입력해주세요.');
+            const names = raidRemaining(item);
+            if (items.length > names.length) throw new Error(`아이템은 ${items.length}개, 미수령자는 ${names.length}명입니다. 한 사람당 한 개만 받을 수 있습니다.`);
+            for (let i=names.length-1; i>0; i--) {
+                const j = Math.floor(Math.random()*(i+1));
+                [names[i],names[j]] = [names[j],names[i]];
+            }
+            return {signature:raidDistributionSignature(item), rows:items.map((item,i)=>({item,name:names[i]}))};
+        }
+        function runRaidArchiveDraw(item) {
+            if (!isRaidEdit) return;
+            const state = raidDistributionState(item);
+            if (state.busy) return;
             try {
-                if (!count) throw new Error('위에서 레이드 참여자를 먼저 선택해주세요.');
-                const plan = readLadderPlan();
-                document.getElementById('ladderPlan').textContent = `아이템 ${plan.total}개 · 당첨 ${plan.total}명 · 미당첨 ${count - plan.total}명`;
-                run.disabled = ladderSaving || !isRaidEdit;
-            } catch (e) {
-                document.getElementById('ladderPlan').textContent = e.message;
-                run.disabled = true;
-            }
-        }
-        function renderLadder() {
-            document.getElementById('ladderAdminPanel').classList.toggle('hidden', !isRaidEdit);
-            document.getElementById('ladderReadOnlyGuide').classList.toggle('hidden', isRaidEdit);
-            updateLadderPlan();
-            if (ladderDraft && ladderSignature(ladderDraft.participants) !== ladderSignature(ladderParticipants())) ladderDraft = null;
-            const result = ladderDraft || globalData.raid.ladderResult;
-            document.getElementById('ladderResultBox').classList.toggle('hidden', !result);
-            if (!result) return;
-            const draft = !!ladderDraft;
-            document.getElementById('ladderResultTitle').textContent = draft ? '🎲 추첨 미리보기 · 아직 공유되지 않았습니다' : '✅ 확정된 추첨 결과';
-            const content = document.getElementById('ladderResultContent');
-            content.replaceChildren();
-            for (const row of result.rows) {
-                const card = document.createElement('div');
-                card.className = row.won ? 'flex justify-between gap-3 bg-orange-500/10 border border-orange-500/40 rounded-lg p-3 text-sm' : 'flex justify-between gap-3 bg-slate-950 rounded-lg p-3 text-xs text-slate-400';
-                const name = document.createElement('span'); name.textContent = `${row.name}${memberClassText(row.name)}`;
-                const item = document.createElement('strong'); item.textContent = row.item;
-                card.append(name, item); content.append(card);
-            }
-            document.getElementById('ladderConfirmBtn').classList.toggle('hidden', !draft || !isRaidEdit);
-            document.getElementById('ladderConfirmBtn').disabled = ladderSaving;
-            document.getElementById('ladderCopyBtn').classList.toggle('hidden', draft);
-            document.getElementById('ladderCopyText').classList.toggle('hidden', draft);
-            document.getElementById('ladderCopyText').value = draft ? '' : ladderText(result);
-            document.getElementById('ladderStatus').textContent = draft ? '결과를 확인한 뒤 확정해주세요. 다시 추첨하면 미리보기가 바뀝니다.' : `확정 시각: ${new Date(result.confirmedAt).toLocaleString('ko-KR')} · 확정 당시 참여자 ${result.participants.length}명`;
-        }
-        function runLadderGame() {
-            if (!isRaidEdit || ladderSaving) return;
-            let plan;
-            try { plan = readLadderPlan(); } catch (e) { alert(e.message); return; }
-            const participants = ladderParticipants();
-            if (!participants.length) return;
-            if ((ladderDraft || globalData.raid.ladderResult) && !confirm('다시 추첨하시겠습니까? 기존 확정 결과는 새 결과를 확정할 때까지 유지됩니다.')) return;
-            const shuffled = [...participants];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-            }
-            const prizes = plan.items.flatMap(item => Array(item.count).fill(item.name));
-            const raid = globalData.raid;
-            ladderDraft = {participants, schedule: `${raid.year}년 ${raid.month}월 ${raid.day}일 ${String(raid.hour).padStart(2,'0')}:${String(raid.minute).padStart(2,'0')}`, rows: shuffled.map((name, i) => ({name, item: i < prizes.length ? prizes[i] : '미당첨', won: i < prizes.length}))};
-            renderLadder();
-        }
-        async function confirmLadderResult() {
-            if (!isRaidEdit || !ladderDraft || ladderSaving) return;
-            if (ladderSignature(ladderDraft.participants) !== ladderSignature(ladderParticipants())) { ladderDraft = null; renderLadder(); alert('참여자가 변경되었습니다. 다시 추첨해주세요.'); return; }
-            if (!confirm('이 결과를 확정하여 모든 접속자에게 공유하시겠습니까?')) return;
-            ladderSaving = true;
-            const result = {...ladderDraft, confirmedAt: new Date().toISOString()};
-            renderLadder();
-            try {
-                await db.ref('kingSystemData/raid/ladderResult').set(result);
-                globalData.raid.ladderResult = result;
-                ladderDraft = null;
-            } catch (e) { alert('결과를 저장하지 못했습니다. 연결 상태와 쓰기 권한을 확인한 뒤 다시 확정해주세요.'); }
-            finally { ladderSaving = false; renderLadder(); }
-        }
-        function ladderText(result) {
-            const winners = result.rows.filter(row => row.won);
-            const others = result.rows.filter(row => !row.won);
-            return ['[KING] 길드레이드 추첨 결과', `일정: ${result.schedule}`, `참여: ${result.participants.length}명`, '', '🎁 당첨 결과', ...winners.map((row, i) => `${i + 1}. ${row.item} → ${row.name}${memberClassText(row.name)}`), '', `미당첨 (${others.length}명): ${others.map(row => `${row.name}${memberClassText(row.name)}`).join(', ') || '없음'}`, '', `확정: ${new Date(result.confirmedAt).toLocaleString('ko-KR')}`].join('\n');
-        }
-        async function copyLadderResult() {
-            const result = globalData.raid.ladderResult;
-            if (!result || ladderDraft) return;
-            const text = ladderText(result);
-            try {
-                await navigator.clipboard.writeText(text);
-                document.getElementById('ladderStatus').textContent = '✓ 복사했습니다. 카카오톡 단체톡에 붙여넣으세요.';
-            } catch (e) {
-                const field = document.getElementById('ladderCopyText');
-                field.value = text; field.focus(); field.select();
-                document.getElementById('ladderStatus').textContent = '자동 복사가 제한되어 텍스트를 선택했습니다. Ctrl+C 또는 길게 눌러 복사해주세요.';
-            }
-        }
-
-        function saveCurrentRaidToHistory() {
-            if (!globalData.raid.participants || globalData.raid.participants.length === 0) {
-                alert("참여자가 한 명도 없습니다!");
-                return;
-            }
-            if (!confirm("현재 참여자 명단을 이번 주차 히스토리에 확정 저장하시겠습니까?")) return;
-
-            const scheduleStr = `${globalData.raid.year}년 ${globalData.raid.month}월 ${globalData.raid.day}일 ${globalData.raid.hour}시 ${globalData.raid.minute}분`;
-            const historyItem = {
-                dateStr: scheduleStr,
-                savedAt: new Date().toLocaleDateString(),
-                participants: [...globalData.raid.participants]
-            };
-
-            if (!globalData.raid.history) globalData.raid.history = [];
-            globalData.raid.history.unshift(historyItem);
-
-            globalData.raid.participants = [];
-            saveToServer();
-            alert("이번 주차 기록이 성공적으로 아카이브에 저장되었습니다!");
+                if (state.draft && !confirm('미리보기를 다시 추첨할까요? 이미 확정한 결과는 유지됩니다.')) return;
+                state.draft = makeRaidDistributionDraft(item,state.input);
+                state.status = '미리보기입니다. 확인 후 확정해야 저장됩니다.';
+            } catch (error) { state.status = error.message; }
             renderRaid();
+        }
+        async function confirmRaidArchiveDraw(item) {
+            if (!isRaidEdit) return;
+            const state = raidDistributionState(item);
+            if (state.busy || !state.draft) return;
+            if (!confirm('이 결과를 해당 회차에 확정할까요? 당첨자는 이번 회차의 추가 추첨에서 제외됩니다.')) return;
+            const draft = state.draft;
+            const id = item.id || raidNewId();
+            const key = raidHistoryKey(item);
+            const confirmedAt = new Date().toISOString();
+            state.busy = true; state.status = '결과를 저장하고 있습니다.'; renderRaid();
+            try {
+                const result = await db.ref('kingSystemData/raid').transaction(raid => {
+                    if (!raid) return;
+                    const history = raid.history || [];
+                    const matches = history.filter(entry => raidHistoryKey(entry) === key);
+                    if (matches.length !== 1) return;
+                    const target = matches[0];
+                    if (raidDistributionSignature(target) !== draft.signature) return;
+                    const available = new Set(raidRemaining(target));
+                    if (draft.rows.some(row=>!available.has(row.name)) || new Set(draft.rows.map(row=>row.name)).size !== draft.rows.length) return;
+                    target.id = id;
+                    target.distributionAwards = [...raidAwards(target), ...draft.rows.map(row=>({...row, confirmedAt}))];
+                    target.distributionUpdatedAt = confirmedAt;
+                    return raid;
+                }, undefined, false);
+                if (!result.committed) {
+                    state.draft = null;
+                    state.status = '다른 관리자가 기록을 변경했거나 대상 기록을 찾을 수 없습니다. 최신 기록을 확인하고 다시 추첨해주세요.';
+                } else {
+                    globalData.raid = result.snapshot.val();
+                    state.input = ''; state.draft = null; state.status = '✓ 결과를 저장했습니다. 이 회차의 추가 추첨에서 기존 당첨자는 자동 제외됩니다.';
+                    raidDistributionUI.set(id,state);
+                }
+            } catch(error) { state.status = '저장하지 못했습니다. 연결 상태와 저장 권한을 확인한 뒤 다시 확정해주세요.'; }
+            finally { state.busy = false; renderRaid(); }
+        }
+        function renderRaidArchiveDistribution(box, item) {
+            const state = raidDistributionState(item);
+            if (state.draft && state.draft.signature !== raidDistributionSignature(item) && !state.busy) {
+                state.draft = null; state.status = '확정된 기록이 변경되어 미리보기를 취소했습니다. 다시 추첨해주세요.';
+            }
+            const section = document.createElement('div');
+            section.className = 'border-t border-orange-500/20 pt-3 space-y-3';
+            const summary = document.createElement('p');
+            summary.className = 'font-bold text-orange-300';
+            summary.textContent = `🎁 분배 완료 ${raidAwards(item).length}개 · 미수령 ${raidRemaining(item).length}명`;
+            section.appendChild(summary);
+            const awards = document.createElement('div'); awards.className = 'grid grid-cols-1 sm:grid-cols-2 gap-2';
+            raidAwards(item).forEach(row => {
+                const line = document.createElement('div');
+                line.className = 'bg-orange-500/10 border border-orange-500/20 rounded-lg px-3 py-2 text-orange-200 break-all';
+                line.textContent = `${row.item} → ${row.name}${memberClassText(row.name)}`;
+                awards.appendChild(line);
+            });
+            section.appendChild(awards);
+            const actions = document.createElement('div'); actions.className = 'flex flex-wrap gap-2';
+            if (isRaidEdit) {
+                const toggle = raidDistributionButton(state.open ? '입력 닫기' : raidAwards(item).length ? '🎁 아이템 추가 분배' : '🎁 아이템 분배',()=>{state.open=!state.open;renderRaid();});
+                toggle.disabled = state.busy;
+                actions.appendChild(toggle);
+            }
+            section.appendChild(actions);
+            if (raidAwards(item).length) {
+                const text = document.createElement('textarea');
+                text.readOnly = true; text.rows = 6; text.value = raidDistributionText(item);
+                text.setAttribute('aria-label','카카오톡 공유용 확정 결과');
+                text.className = 'w-full rounded-lg bg-slate-900 border border-slate-700 p-3 text-xs text-slate-300';
+                actions.appendChild(raidDistributionButton('📋 카카오톡 결과 복사',async()=>{
+                    try { await navigator.clipboard.writeText(raidDistributionText(item)); status.textContent = '✓ 복사했습니다. 카카오톡에 붙여넣으세요.'; }
+                    catch(error) {text.focus();text.select();status.textContent='텍스트를 선택했습니다. Ctrl+C 또는 길게 눌러 복사해주세요.';}
+                },true));
+                section.appendChild(text);
+            }
+            if (state.open && isRaidEdit) {
+                const panel = document.createElement('div'); panel.className='bg-slate-900 border border-slate-700 rounded-xl p-3 space-y-3';
+                const guide = document.createElement('p');guide.className='text-slate-300 leading-relaxed';
+                guide.textContent = `이 회차에 기록된 참석자만 대상입니다. 기존 당첨자 제외 · 추첨 가능 ${raidRemaining(item).length}명 · 각 아이템 1개 · 1인 1개`;
+                panel.appendChild(guide);
+                const label = document.createElement('label'); label.className='block space-y-2';
+                const caption = document.createElement('span');caption.textContent='아이템 이름만 한 줄에 하나씩 입력';label.appendChild(caption);
+                const input = document.createElement('textarea');input.rows=4; input.value=state.input; input.disabled=state.busy;
+                input.placeholder='전설 무기\n강화석\n장비 상자';input.className='w-full rounded-lg border border-slate-600 bg-slate-950 p-3 text-sm';
+                const count = document.createElement('p');count.className='text-slate-400';
+                const refreshCount = () => {count.textContent=`입력 아이템 ${state.input.split(/\r?\n/).filter(line=>line.trim()).length}개 / 미수령 ${raidRemaining(item).length}명`;};
+                input.addEventListener('input',()=>{state.input=input.value; state.draft=null;preview.replaceChildren();refreshCount();});
+                label.appendChild(input);panel.appendChild(label);panel.appendChild(count);refreshCount();
+                const run = raidDistributionButton('🎲 추첨 미리보기',()=>runRaidArchiveDraw(item));run.disabled=state.busy || !raidRemaining(item).length;panel.appendChild(run);
+                const preview = document.createElement('div');preview.className='space-y-2';
+                if (state.draft) {
+                    const heading = document.createElement('p');heading.className='font-bold text-orange-300';heading.textContent='🎲 미리보기 · 아직 확정되지 않았습니다';preview.appendChild(heading);
+                    state.draft.rows.forEach(row=>{const line=document.createElement('p');line.textContent=`${row.item} → ${row.name}${memberClassText(row.name)}`;preview.appendChild(line);});
+                    const confirmButton=raidDistributionButton('✓ 결과 확정 및 저장',()=>confirmRaidArchiveDraw(item));confirmButton.disabled=state.busy;preview.appendChild(confirmButton);
+                }
+                panel.appendChild(preview);section.appendChild(panel);
+            }
+            const status = document.createElement('p');status.setAttribute('role','status');status.className='text-xs text-slate-400';status.textContent=state.status;section.appendChild(status);
+            box.appendChild(section);
+        }
+        function renderLegacyRaidDistribution() {
+            const container = document.getElementById('legacyRaidDistribution');container.replaceChildren();
+            const result = globalData.raid.ladderResult;
+            if (!result || !result.rows) return;
+            const details = document.createElement('details');details.className='text-xs text-slate-400';
+            const summary=document.createElement('summary');summary.textContent='이전 방식의 마지막 추첨 결과 보기 (회차 기록과 별도 보관)';details.appendChild(summary);
+            const text=document.createElement('textarea');text.readOnly=true;text.rows=5;text.className='w-full mt-2 p-3 bg-slate-950 rounded-lg';
+            text.value=[`[KING] 이전 추첨 결과`,result.schedule||'',...result.rows.map(row=>`${row.item} → ${row.name}`)].join('\n');details.appendChild(text);container.appendChild(details);
+        }
+        async function saveCurrentRaidToHistory() {
+            if (!isRaidEdit || raidArchiveSaving) return;
+            const participants = [...(globalData.raid.participants || [])];
+            if (!participants.length) { alert('참석자를 먼저 선택해주세요.');return; }
+            const get = id=>Number(document.getElementById(id).value);
+            const year=get('raidYear'),month=get('raidMonth'),day=get('raidDay'),hour=get('raidHour'),minute=get('raidMinute');
+            const date=new Date(year,month-1,day,hour,minute);
+            if (![year,month,day,hour,minute].every(Number.isInteger) || year<2000 || year>9999 || date.getFullYear()!==year || date.getMonth()!==month-1 || date.getDate()!==day || date.getHours()!==hour || date.getMinutes()!==minute) {alert('레이드 일정을 올바르게 입력해주세요.');return;}
+            if (!confirm(`참석 ${participants.length}명을 확정하여 아카이브에 기록할까요? 현재 참석 명단은 비워지고, 해당 기록에서 아이템을 분배할 수 있습니다.`)) return;
+            const item={id:raidNewId(),dateStr:`${year}년 ${month}월 ${day}일 ${hour}시 ${minute}분`,savedAt:new Date().toLocaleDateString('ko-KR'),participants:[...new Set(participants)]};
+            const signature=JSON.stringify([...participants].sort());
+            raidArchiveSaving=true;
+            try {
+                const result=await db.ref('kingSystemData/raid').transaction(raid=>{
+                    if (!raid || JSON.stringify([...(raid.participants||[])].sort())!==signature) return;
+                    raid.history=[item,...(raid.history||[])];raid.participants=[];
+                    Object.assign(raid,{year,month,day,hour,minute});
+                    return raid;
+                },undefined,false);
+                if (!result.committed) {alert('참석 명단이 변경되었습니다. 명단을 확인한 뒤 다시 확정해주세요.');return;}
+                globalData.raid=result.snapshot.val();raidDistributionState(item).open=true;renderRaid();
+                document.getElementById('raidHistoryContainer').scrollIntoView({behavior:'smooth',block:'start'});
+            } catch(error) {alert('참석 명단을 저장하지 못했습니다. 연결 상태와 저장 권한을 확인한 뒤 다시 시도해주세요.');}
+            finally {raidArchiveSaving=false;}
         }
 
         function deleteRaidHistoryItem(hIdx) {
@@ -1041,7 +1089,7 @@
 
         function renderRaid() {
             const raid = globalData.raid;
-            renderLadder();
+            renderLegacyRaidDistribution();
             document.getElementById('raidLastUpdate').innerText = raid.lastUpdate || "기록 없음";
             const scheduleText = `${raid.year || 2026}년 ${raid.month || 11}월 ${raid.day || 5}일 ${String(raid.hour || 21).padStart(2,'0')}:${String(raid.minute || 0).padStart(2,'0')}`;
             document.getElementById('raidScheduleDisplay').innerText = scheduleText;
@@ -1126,6 +1174,7 @@
                             ${hItem.participants.map(n => `<span class="bg-slate-900 text-slate-300 px-2 py-0.5 rounded text-[11px]">⚔️ ${n} ${memberClassBadge(n)}</span>`).join('')}
                         </div>
                     `;
+                    renderRaidArchiveDistribution(box, hItem);
                     historyContainer.appendChild(box);
                 });
             }
@@ -1598,6 +1647,125 @@
                 });
             }
         }
+
+
+        function defaultFieldBosses() {
+            return [
+                {name:'Lv.40 레마넌트', hours:8}, {name:'Lv.50 베나토리아', hours:8},
+                {name:'Lv.60 샤렌나', hours:10}, {name:'Lv.70 칼리브락스', hours:12},
+                {name:'Lv.75 아르칸다르', hours:12}, {name:'Lv.80 벨카르', hours:15},
+                {name:'Lv.85 사바토', weekday:5}, {name:'Lv.90 말록', weekday:6},
+                {name:'Lv.99 샤를레', weekday:0}
+            ].map(boss => ({mode: boss.weekday === undefined ? 'interval' : 'weekly', minutes:0, basis:'', hour:21, minute:0, updatedAt:'', ...boss}));
+        }
+        function nextFieldSpawn(boss, now = Date.now()) {
+            if (boss.mode === 'weekly') {
+                const kst = new Date(now + 9 * 3600000);
+                const today = Date.UTC(kst.getUTCFullYear(), kst.getUTCMonth(), kst.getUTCDate()) - 9 * 3600000;
+                let next = today + ((boss.weekday - kst.getUTCDay() + 7) % 7) * 86400000 + boss.hour * 3600000 + boss.minute * 60000;
+                if (next <= now) next += 7 * 86400000;
+                return next;
+            }
+            if (!boss.basis) return null;
+            const base = Date.parse(boss.basis + '+09:00');
+            const cycle = (Number(boss.hours) * 60 + Number(boss.minutes)) * 60000;
+            if (!Number.isFinite(base) || !Number.isFinite(cycle) || cycle <= 0) return null;
+            return base > now ? base : base + (Math.floor((now - base) / cycle) + 1) * cycle;
+        }
+        function fieldTime(value) {
+            return new Date(value).toLocaleString('ko-KR', {timeZone:'Asia/Seoul', hour12:false});
+        }
+        const fieldBossDrafts = {};
+        const fieldBossSaving = new Set();
+        function captureFieldDraft(index) {
+            const get = key => document.getElementById(`field_${key}_${index}`).value;
+            fieldBossDrafts[index] = {mode:get('mode'), hours:get('hours'), minutes:get('minutes'), basis:get('basis'), weekday:get('weekday'), hour:get('hour'), minute:get('minute')};
+            document.getElementById(`field_interval_${index}`).classList.toggle('hidden', get('mode') !== 'interval');
+            document.getElementById(`field_weekly_${index}`).classList.toggle('hidden', get('mode') !== 'weekly');
+        }
+        function renderFieldBosses() {
+            const container = document.getElementById('fieldBossList');
+            container.replaceChildren();
+            (globalData.fieldBosses || []).forEach((boss, index) => {
+                const draft = fieldBossDrafts[index] || boss;
+                const card = document.createElement('div');
+                card.id = `field_card_${index}`;
+                card.className = 'bg-slate-900 border border-slate-700 rounded-2xl p-4 space-y-3';
+                const title = document.createElement('h4');
+                title.className = 'font-bold text-sm text-emerald-300';
+                title.textContent = boss.name;
+                card.appendChild(title);
+                const body = document.createElement('div');
+                body.className = 'space-y-3 text-xs';
+                body.innerHTML = `
+                    <div class="bg-slate-950 rounded-xl p-3 text-center space-y-1"><div class="text-slate-400 text-[10px]">다음 젠까지 남은 시간</div><div id="field_count_${index}" class="text-xl font-black font-mono text-emerald-300"></div><div id="field_next_${index}" class="text-[11px] text-slate-300"></div><div id="field_second_${index}" class="text-[10px] text-slate-500"></div></div>
+                    <label class="flex items-center justify-between gap-2">출현 방식<select id="field_mode_${index}" class="bg-slate-950 rounded border border-slate-700 p-1"><option value="interval">주기형</option><option value="weekly">매주 요일형</option></select></label>
+                    <div id="field_interval_${index}" class="space-y-2">
+                        <div class="flex flex-wrap items-center gap-1">젠 주기 <input id="field_hours_${index}" aria-label="주기 시간" type="number" min="0" max="8760" class="w-14 bg-slate-950 border border-slate-700 rounded p-1">시간 <input id="field_minutes_${index}" aria-label="주기 분" type="number" min="0" max="59" class="w-12 bg-slate-950 border border-slate-700 rounded p-1">분</div>
+                        <label class="block text-slate-400">기준 시각 (한국 시간)<input id="field_basis_${index}" type="datetime-local" class="block w-full min-w-0 mt-1 bg-slate-950 border border-slate-700 rounded p-2 text-slate-200"></label>
+                    </div>
+                    <div id="field_weekly_${index}" class="flex flex-wrap items-center gap-1"><select id="field_weekday_${index}" aria-label="출현 요일" class="bg-slate-950 border border-slate-700 rounded p-1">${['일','월','화','수','목','금','토'].map((day,i)=>`<option value="${i}">${day}요일</option>`).join('')}</select><input id="field_hour_${index}" aria-label="출현 시" type="number" min="0" max="23" class="w-12 bg-slate-950 border border-slate-700 rounded p-1">시 <input id="field_minute_${index}" aria-label="출현 분" type="number" min="0" max="59" class="w-12 bg-slate-950 border border-slate-700 rounded p-1">분</div>
+                    <button id="field_apply_${index}" type="button" class="w-full rounded-lg py-2 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold disabled:opacity-40">적용 (실시간 공유)</button>
+                    <p id="field_status_${index}" role="status" class="text-[10px] text-slate-400"></p>`;
+                card.appendChild(body);
+                container.appendChild(card);
+                ['mode','hours','minutes','basis','weekday','hour','minute'].forEach(key => {
+                    const input = document.getElementById(`field_${key}_${index}`);
+                    input.value = draft[key] ?? (key === 'weekday' ? 0 : '');
+                    input.addEventListener('input',()=>captureFieldDraft(index));
+                    input.addEventListener('change',()=>captureFieldDraft(index));
+                });
+                document.getElementById(`field_interval_${index}`).classList.toggle('hidden', draft.mode !== 'interval');
+                document.getElementById(`field_weekly_${index}`).classList.toggle('hidden', draft.mode !== 'weekly');
+                const button = document.getElementById(`field_apply_${index}`);
+                button.disabled = fieldBossSaving.has(index);
+                button.addEventListener('click',()=>applyFieldBoss(index));
+                document.getElementById(`field_status_${index}`).textContent = boss.updatedAt ? `최종 적용: ${fieldTime(boss.updatedAt)}` : '아직 적용 기록이 없습니다.';
+            });
+            tickFieldBosses();
+        }
+        async function applyFieldBoss(index) {
+            if (fieldBossSaving.has(index)) return;
+            captureFieldDraft(index);
+            const draft = fieldBossDrafts[index];
+            const boss = {...globalData.fieldBosses[index], ...draft};
+            const integer = (value,min,max) => value !== '' && Number.isInteger(Number(value)) && Number(value)>=min && Number(value)<=max;
+            if (boss.mode === 'interval') {
+                if (!integer(boss.hours,0,8760) || !integer(boss.minutes,0,59) || Number(boss.hours)*60+Number(boss.minutes)<=0 || !boss.basis || !Number.isFinite(Date.parse(boss.basis+'+09:00'))) { alert('양수인 젠 주기와 유효한 기준 시각을 입력해주세요. 분은 0~59로 입력하세요.'); return; }
+            } else if (!integer(boss.weekday,0,6) || !integer(boss.hour,0,23) || !integer(boss.minute,0,59)) { alert('요일과 시각을 확인해주세요. 시는 0~23, 분은 0~59로 입력하세요.'); return; }
+            ['hours','minutes','weekday','hour','minute'].forEach(key=>boss[key]=Number(boss[key] || 0));
+            boss.updatedAt = new Date().toISOString();
+            fieldBossSaving.add(index);
+            document.getElementById(`field_apply_${index}`).disabled = true;
+            try {
+                await db.ref(`kingSystemData/fieldBosses/${index}`).set(boss);
+                globalData.fieldBosses[index] = boss;
+                if (fieldBossDrafts[index] === draft) delete fieldBossDrafts[index];
+                renderFieldBosses();
+                document.getElementById(`field_status_${index}`).textContent = '✓ 저장했습니다. 다른 접속자에게도 공유됩니다.';
+            } catch(error) { document.getElementById(`field_status_${index}`).textContent = '저장하지 못했습니다. 연결 상태와 저장 권한을 확인해주세요.'; }
+            finally { fieldBossSaving.delete(index); document.getElementById(`field_apply_${index}`).disabled = false; }
+        }
+        function tickFieldBosses() {
+            const now = Date.now();
+            (globalData.fieldBosses || []).forEach((boss,index) => {
+                const count = document.getElementById(`field_count_${index}`);
+                if (!count) return;
+                const next = nextFieldSpawn(boss,now);
+                if (next === null) { count.textContent = '기준 시각 입력 필요'; document.getElementById(`field_next_${index}`).textContent = '아래 설정 후 적용해주세요.'; document.getElementById(`field_second_${index}`).textContent = ''; return; }
+                const seconds = Math.max(0,Math.floor((next-now)/1000));
+                count.textContent = [Math.floor(seconds/3600),Math.floor(seconds/60)%60,seconds%60].map(n=>String(n).padStart(2,'0')).join(':');
+                document.getElementById(`field_next_${index}`).textContent = `다음: ${fieldTime(next)}`;
+                const cycle = boss.mode === 'weekly' ? 7*86400000 : (boss.hours*60+boss.minutes)*60000;
+                document.getElementById(`field_second_${index}`).textContent = `그다음: ${fieldTime(next+cycle)}`;
+                const offset = Math.min(60,Math.max(1,Number(globalData.alertOffset)||10));
+                document.getElementById(`field_card_${index}`).classList.toggle('border-emerald-400', next-now<=offset*60000);
+                if (typeof Notification !== 'undefined') checkAlerts('필드 '+boss.name,next,offset);
+                else if (next-now>0 && next-now<=offset*60000 && !notifiedKeys['field-'+index+'-'+next]) { notifiedKeys['field-'+index+'-'+next]=true; playBeep(); }
+            });
+        }
+        renderFieldBosses();
+        setInterval(tickFieldBosses,1000);
 
         // 1초마다 보스 젠타임 갱신
         setInterval(() => {
