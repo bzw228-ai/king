@@ -136,9 +136,15 @@
                         </label>
                     </div>
 
-                    <button onclick="requestNotificationPermission()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-xl transition">
-                        🔔 알림 켜기
-                    </button>
+                    <div class="flex flex-col gap-1 bg-slate-950 border border-indigo-500/30 rounded-xl px-3 py-2">
+                        <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-bold text-indigo-300">
+                            <span>디스코드 알림</span>
+                            <input id="discordAlertSwitch" type="checkbox" role="switch" aria-label="길드 전체 디스코드 알림" class="peer sr-only" disabled>
+                            <span class="relative w-10 h-5 rounded-full bg-slate-700 peer-checked:bg-indigo-500 peer-disabled:opacity-40 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:bg-white after:rounded-full after:transition-transform peer-checked:after:translate-x-5"></span>
+                            <span id="discordAlertLabel">연결 확인 중</span>
+                        </label>
+                        <span id="discordAlertStatus" role="status" class="text-[10px] text-slate-400 max-w-xs">길드 전체 공통 · 페이지를 닫아도 알림</span>
+                    </div>
                 </div>
             </div>
 
@@ -782,6 +788,7 @@
                                 <input type="number" id="min_${index}" value="${boss.lastKill.minute}" class="w-7 bg-slate-950 border border-slate-700 rounded p-1 text-center text-slate-200">분
                             </div>
                         </div>
+                        <button type="button" onclick="applyAbyssNow(${index})" class="w-full bg-amber-500 text-slate-950 font-bold py-2 rounded-lg hover:bg-amber-400">🕒 지금 시각으로 적용</button>
                         <button onclick="applyBossConfig(${index})" class="w-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/40 font-semibold py-1.5 rounded-lg transition text-center">
                             적용 (실시간 공유)
                         </button>
@@ -789,6 +796,13 @@
                 `;
                 container.appendChild(card);
             });
+        }
+
+        function applyAbyssNow(index) {
+            const now = new Date();
+            const values = {m:now.getMonth()+1, d:now.getDate(), h:now.getHours(), min:now.getMinutes()};
+            Object.entries(values).forEach(([key,value]) => document.getElementById(`${key}_${index}`).value=value);
+            applyBossConfig(index);
         }
 
         function applyBossConfig(index) {
@@ -1682,6 +1696,7 @@
             fieldBossDrafts[index] = {mode:get('mode'), hours:get('hours'), minutes:get('minutes'), basis:get('basis'), weekday:get('weekday'), hour:get('hour'), minute:get('minute')};
             document.getElementById(`field_interval_${index}`).classList.toggle('hidden', get('mode') !== 'interval');
             document.getElementById(`field_weekly_${index}`).classList.toggle('hidden', get('mode') !== 'weekly');
+            document.getElementById(`field_now_${index}`).textContent = get('mode') === 'weekly' ? '🕒 현재 요일·시각으로 적용' : '🕒 지금 시각으로 적용';
         }
         function renderFieldBosses() {
             const container = document.getElementById('fieldBossList');
@@ -1705,6 +1720,7 @@
                         <label class="block text-slate-400">기준 시각 (한국 시간)<input id="field_basis_${index}" type="datetime-local" class="block w-full min-w-0 mt-1 bg-slate-950 border border-slate-700 rounded p-2 text-slate-200"></label>
                     </div>
                     <div id="field_weekly_${index}" class="flex flex-wrap items-center gap-1"><select id="field_weekday_${index}" aria-label="출현 요일" class="bg-slate-950 border border-slate-700 rounded p-1">${['일','월','화','수','목','금','토'].map((day,i)=>`<option value="${i}">${day}요일</option>`).join('')}</select><input id="field_hour_${index}" aria-label="출현 시" type="number" min="0" max="23" class="w-12 bg-slate-950 border border-slate-700 rounded p-1">시 <input id="field_minute_${index}" aria-label="출현 분" type="number" min="0" max="59" class="w-12 bg-slate-950 border border-slate-700 rounded p-1">분</div>
+                    <button id="field_now_${index}" type="button" class="w-full rounded-lg py-2 bg-emerald-500 text-slate-950 font-bold hover:bg-emerald-400 disabled:opacity-40"></button>
                     <button id="field_apply_${index}" type="button" class="w-full rounded-lg py-2 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold disabled:opacity-40">적용 (실시간 공유)</button>
                     <p id="field_status_${index}" role="status" class="text-[10px] text-slate-400"></p>`;
                 card.appendChild(body);
@@ -1720,10 +1736,28 @@
                 const button = document.getElementById(`field_apply_${index}`);
                 button.disabled = fieldBossSaving.has(index);
                 button.addEventListener('click',()=>applyFieldBoss(index));
+                const nowButton = document.getElementById(`field_now_${index}`);
+                nowButton.textContent = draft.mode === 'weekly' ? '🕒 현재 요일·시각으로 적용' : '🕒 지금 시각으로 적용';
+                nowButton.disabled = fieldBossSaving.has(index);
+                nowButton.addEventListener('click',()=>applyFieldNow(index));
                 document.getElementById(`field_status_${index}`).textContent = boss.updatedAt ? `최종 적용: ${fieldTime(boss.updatedAt)}` : '아직 적용 기록이 없습니다.';
             });
             tickFieldBosses();
         }
+        function fieldNowValues(now = Date.now()) {
+            const kst = new Date(now + 9 * 3600000);
+            return {basis:kst.toISOString().slice(0,16), weekday:kst.getUTCDay(), hour:kst.getUTCHours(), minute:kst.getUTCMinutes()};
+        }
+        async function applyFieldNow(index) {
+            if (fieldBossSaving.has(index)) return;
+            const mode = document.getElementById(`field_mode_${index}`).value;
+            if (mode === 'weekly' && !confirm('매주 출현 일정을 현재 한국 요일·시각으로 변경할까요? 적용 후 다음 출현은 다음 주 같은 요일·시각입니다.')) return;
+            const values = fieldNowValues();
+            const keys = mode === 'weekly' ? ['weekday','hour','minute'] : ['basis'];
+            keys.forEach(key=>document.getElementById(`field_${key}_${index}`).value=values[key]);
+            await applyFieldBoss(index);
+        }
+
         async function applyFieldBoss(index) {
             if (fieldBossSaving.has(index)) return;
             captureFieldDraft(index);
@@ -1737,6 +1771,7 @@
             boss.updatedAt = new Date().toISOString();
             fieldBossSaving.add(index);
             document.getElementById(`field_apply_${index}`).disabled = true;
+            document.getElementById(`field_now_${index}`).disabled = true;
             try {
                 await db.ref(`kingSystemData/fieldBosses/${index}`).set(boss);
                 globalData.fieldBosses[index] = boss;
@@ -1744,7 +1779,7 @@
                 renderFieldBosses();
                 document.getElementById(`field_status_${index}`).textContent = '✓ 저장했습니다. 다른 접속자에게도 공유됩니다.';
             } catch(error) { document.getElementById(`field_status_${index}`).textContent = '저장하지 못했습니다. 연결 상태와 저장 권한을 확인해주세요.'; }
-            finally { fieldBossSaving.delete(index); document.getElementById(`field_apply_${index}`).disabled = false; }
+            finally { fieldBossSaving.delete(index); document.getElementById(`field_apply_${index}`).disabled = false; document.getElementById(`field_now_${index}`).disabled = false; }
         }
         function tickFieldBosses() {
             const now = Date.now();
@@ -1772,6 +1807,55 @@
             if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
             renderBosses();
         }, 1000);
+
+        const DISCORD_ALERT_SERVER = 'https://king-boss-alert.bzw228.workers.dev';
+        let discordSettingBusy = false;
+        let discordSettingEnabled = false;
+        function discordSettingError(code) {
+            if (code === 'ADMIN_KEY_REQUIRED') return '관리자 암호가 다릅니다. Cloudflare의 ADMIN_SWITCH_KEY 값을 확인해주세요.';
+            if (String(code).startsWith('FIREBASE_READ_')) return '서버가 보스 정보를 읽지 못했습니다. Firebase 읽기 권한을 확인해주세요.';
+            if (code === 'DB_BINDING_MISSING') return 'Cloudflare에 DB 데이터베이스 연결이 필요합니다.';
+            return '알림 서버 연결 또는 설정을 확인해주세요.';
+        }
+        async function refreshDiscordSetting() {
+            if (discordSettingBusy) return;
+            const toggle=document.getElementById('discordAlertSwitch');
+            try {
+                const response=await fetch(DISCORD_ALERT_SERVER+'/status',{cache:'no-store',signal:AbortSignal.timeout(10000)});
+                const data=await response.json();
+                if (discordSettingBusy) return;
+                if (!response.ok) throw new Error(data.error);
+                discordSettingEnabled=!!data.enabled;
+                toggle.checked=discordSettingEnabled;toggle.disabled=!data.ready;
+                document.getElementById('discordAlertLabel').textContent=discordSettingEnabled?'ON':'OFF';
+                document.getElementById('discordAlertStatus').textContent=data.ready?'길드 전체 공통 · 페이지를 닫아도 알림':'Cloudflare의 웹훅·관리자 암호 설정을 완료해주세요.';
+            } catch(error) {
+                if (discordSettingBusy) return;
+                toggle.disabled=true;
+                document.getElementById('discordAlertLabel').textContent='연결 확인 필요';
+                document.getElementById('discordAlertStatus').textContent=discordSettingError(error.message);
+            }
+        }
+        document.getElementById('discordAlertSwitch').addEventListener('change',async event=>{
+            if (discordSettingBusy) return;
+            const toggle=event.target,enabled=toggle.checked;
+            toggle.checked=discordSettingEnabled;
+            const key=prompt(`길드 전체 디스코드 알림을 ${enabled?'ON':'OFF'}으로 변경합니다. 알림 전용 관리자 암호를 입력해주세요. (Cloudflare ADMIN_SWITCH_KEY)`);
+            if (key===null) return;
+            discordSettingBusy=true;toggle.disabled=true;
+            document.getElementById('discordAlertStatus').textContent='변경 중입니다…';
+            try {
+                const response=await fetch(DISCORD_ALERT_SERVER+'/settings',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({enabled}),signal:AbortSignal.timeout(20000)});
+                const data=await response.json();
+                if (!response.ok) throw new Error(data.error);
+                discordSettingEnabled=data.enabled;toggle.checked=data.enabled;
+                document.getElementById('discordAlertLabel').textContent=data.enabled?'ON':'OFF';
+                document.getElementById('discordAlertStatus').textContent=data.enabled?'✓ 켜졌습니다. 설정된 알림 타이밍에 채널로 전송합니다.':'✓ 꺼졌습니다. 디스코드 전송을 중단합니다.';
+            } catch(error) {document.getElementById('discordAlertStatus').textContent=discordSettingError(error.message);}
+            finally {discordSettingBusy=false;toggle.disabled=false;}
+        });
+        refreshDiscordSetting();
+        setInterval(refreshDiscordSetting,30000);
     </script>
 </body>
 </html>
