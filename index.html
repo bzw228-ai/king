@@ -111,6 +111,15 @@
 
         <!-- ================= [탭 2] 보스 젠타임 테이블 ================= -->
         <section id="tab-bossTimer" class="space-y-4">
+            <div id="nextBossSummary" class="bg-gradient-to-br from-amber-500/10 via-slate-900 to-emerald-500/10 border border-amber-500/40 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h2 class="text-base font-black text-amber-300">⏰ 다음 출현 보스</h2>
+                    <span class="text-[10px] text-slate-400">어비스·필드 통합 · 한국 시간</span>
+                </div>
+                <div id="nextBossSummaryContent" class="space-y-3"></div>
+                <p class="text-[10px] text-slate-500">저장된 설정 기준 예상 순서 · 기준 시각 미등록 보스 제외 · 상세 설정은 아래 보스 카드에서 변경</p>
+            </div>
+
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
                     <h2 class="text-lg font-bold text-amber-400">⚔️ 어비스 보스 젠타임</h2>
@@ -1856,6 +1865,59 @@
         });
         refreshDiscordSetting();
         setInterval(refreshDiscordSetting,30000);
+
+        function collectUpcomingBosses(now = Date.now()) {
+            const upcoming = [];
+            (globalData.bosses || []).forEach((boss,index) => {
+                if (!boss || !boss.lastKill || boss.lastKill.lastApplied === '기록 없음') return;
+                const base = getTimestamp(boss.lastKill);
+                const cycle = (Number(boss.cycleHours)*60 + Number(boss.cycleMinutes))*60000;
+                if (!Number.isFinite(base) || !Number.isFinite(cycle) || cycle<=0) return;
+                const spawn = base>now ? base : base+(Math.floor((now-base)/cycle)+1)*cycle;
+                upcoming.push({id:'abyss-'+index, name:boss.name, group:'어비스', icon:'⚔️', spawn});
+            });
+            (globalData.fieldBosses || []).forEach((boss,index) => {
+                if (!boss) return;
+                const spawn = nextFieldSpawn(boss,now);
+                if (spawn===null || !Number.isFinite(spawn) || spawn<=now) return;
+                upcoming.push({id:'field-'+index, name:boss.name, group:'필드', icon:'🌍', spawn});
+            });
+            return upcoming.sort((a,b)=>a.spawn-b.spawn || a.id.localeCompare(b.id));
+        }
+        function upcomingBossCountdown(spawn,now) {
+            const seconds = Math.max(0,Math.ceil((spawn-now)/1000));
+            return [Math.floor(seconds/3600),Math.floor(seconds/60)%60,seconds%60].map(n=>String(n).padStart(2,'0')).join(':');
+        }
+        function renderNextBossSummary() {
+            const container=document.getElementById('nextBossSummaryContent');
+            if (!container) return;
+            const now=Date.now();
+            const bosses=collectUpcomingBosses(now).slice(0,4);
+            container.replaceChildren();
+            if (!bosses.length) {
+                const empty=document.createElement('p');
+                empty.className='py-3 text-sm text-slate-400';
+                empty.textContent='출현 시간을 계산할 보스가 없습니다. 아래에서 기준 시각을 입력하고 적용해주세요.';
+                container.appendChild(empty);return;
+            }
+            bosses.forEach((boss,index)=>{
+                const row=document.createElement('div');
+                row.className=index===0?'flex flex-col sm:flex-row justify-between gap-3 rounded-xl bg-slate-950/70 border border-amber-500/30 p-4':'flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-950/40 px-3 py-2';
+                const detail=document.createElement('div');detail.className='min-w-0 space-y-1';
+                const title=document.createElement('p');
+                title.className=index===0?'text-base sm:text-lg font-black text-amber-300 break-words':'text-xs font-semibold text-slate-200 break-words';
+                title.textContent=`${index===0?'가장 먼저 · ':index+1+'. '}${boss.icon} [${boss.group}] ${boss.name}`;
+                const time=document.createElement('p');time.className='text-[11px] text-slate-400';
+                time.textContent='예정: '+new Date(boss.spawn).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',hour12:false});
+                detail.append(title,time);
+                const countdown=document.createElement('div');
+                countdown.className=index===0?'text-2xl sm:text-3xl font-black font-mono text-amber-400 whitespace-nowrap':'text-sm font-bold font-mono text-emerald-300 whitespace-nowrap';
+                countdown.textContent=upcomingBossCountdown(boss.spawn,now)+' 남음';
+                row.append(detail,countdown);container.appendChild(row);
+            });
+        }
+        renderNextBossSummary();
+        setInterval(renderNextBossSummary,1000);
     </script>
 </body>
 </html>
